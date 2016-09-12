@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base.rules;
 
 import java.sql.PreparedStatement;
@@ -22,51 +48,51 @@ public class RuleManager {
 
 	public static void init() {
 		try {
-			getAllRules();
-			for (Rule r : allRulesMap.values()) {
+			RuleManager.getAllRules();
+			for (Rule r : RuleManager.allRulesMap.values()) {
 				r.setTriggers();
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			RuleManager.log.error("Exception occured: ", e);
 		}
 	}
 
 	public static void destroy() {
-		for (Rule r : allRulesMap.values()) {
+		for (Rule r : RuleManager.allRulesMap.values()) {
 			r.unsetTriggers();
 		}
-		allRulesMap.clear();
+		RuleManager.allRulesMap.clear();
 	}
 
 	public static List<Rule> getAllRules() throws SQLException {
-		if (allRulesMap == null) {
-			allRulesMap = new ConcurrentHashMap<Integer, Rule>();
+		if (RuleManager.allRulesMap == null) {
+			RuleManager.allRulesMap = new ConcurrentHashMap<Integer, Rule>();
 
-			ResultSet ruleResult = db.executePreparedStatement(db.prepareStatement("select * from Rules"));
+			ResultSet ruleResult = RuleManager.db.executePreparedStatement(RuleManager.db.prepareStatement("select * from Rules"));
 			while (ruleResult.next()) {
 				try {
 					Rule resultRule = new Rule(new JSONObject(ruleResult.getString("json")));
 					resultRule.setId(ruleResult.getInt("id"));
 					resultRule.setActive(ruleResult.getBoolean("active"));
-					allRulesMap.put(resultRule.getId(), resultRule);
+					RuleManager.allRulesMap.put(resultRule.getId(), resultRule);
 				} catch (JSONException | SQLException e) {
-					log.error("[RuleManager] Failed to instantiate rule " + ruleResult.getInt("id"), e);
+					RuleManager.log.error("[RuleManager] Failed to instantiate rule " + ruleResult.getInt("id"), e);
 				}
 			}
 			ruleResult.close();
 		}
-		return new ArrayList<Rule>(allRulesMap.values());
+		return new ArrayList<Rule>(RuleManager.allRulesMap.values());
 	}
 
 	public static Rule getRule(int ruleId) throws SQLException, JSONException {
-		Rule resultRule = allRulesMap.get(ruleId);
+		Rule resultRule = RuleManager.allRulesMap.get(ruleId);
 		if (resultRule == null) {
-			ResultSet ruleResult = db.executeSelect("select * from Rules where id = " + ruleId);
+			ResultSet ruleResult = RuleManager.db.executeSelect("select * from Rules where id = " + ruleId);
 			if (ruleResult.next()) {
 				resultRule = new Rule(new JSONObject(ruleResult.getString("json")));
 				resultRule.setActive(ruleResult.getBoolean("active"));
 				resultRule.setId(ruleId);
-				allRulesMap.put(resultRule.getId(), resultRule);
+				RuleManager.allRulesMap.put(resultRule.getId(), resultRule);
 			}
 		}
 		return resultRule;
@@ -76,30 +102,30 @@ public class RuleManager {
 	public static int save(Rule rule) throws SQLException {
 		if (rule.getId() != 0) {
 			// Update Scene details
-			PreparedStatement preparedStatement = db.prepareStatement("update Rules SET name=?, json=? where id=?");
+			PreparedStatement preparedStatement = RuleManager.db.prepareStatement("update Rules SET name=?, json=? where id=?");
 			preparedStatement.setString(1, rule.getName());
 			preparedStatement.setString(2, rule.getSourceJsonObject().toString());
 			preparedStatement.setInt(3, rule.getId());
 
-			db.executePreparedUpdate(preparedStatement);
+			RuleManager.db.executePreparedUpdate(preparedStatement);
 
 			try {
-				Rule originalRule = getRule(rule.getId());
+				Rule originalRule = RuleManager.getRule(rule.getId());
 				originalRule.unsetTriggers();
 			} catch (JSONException e) {
 			}
 			rule.unsetTriggers();
-			allRulesMap.remove(rule.getId());
+			RuleManager.allRulesMap.remove(rule.getId());
 
 		} else {
 
 			// Rules
 			JSONObject ruleJson = rule.getSourceJsonObject();
-			PreparedStatement preparedStatement = db.prepareStatement("insert into Rules ('name', 'json', 'active') VALUES (?,?,?)");
+			PreparedStatement preparedStatement = RuleManager.db.prepareStatement("insert into Rules ('name', 'json', 'active') VALUES (?,?,?)");
 			preparedStatement.setString(1, rule.getName());
 			preparedStatement.setString(2, ruleJson.toString().toString());
 			preparedStatement.setBoolean(3, true);
-			rule.setId(db.executePreparedUpdate(preparedStatement));
+			rule.setId(RuleManager.db.executePreparedUpdate(preparedStatement));
 
 			/*
 			 * scene.setId(db.insertConfigurationValue(
@@ -108,7 +134,7 @@ public class RuleManager {
 			 */
 		}
 
-		allRulesMap.put(rule.getId(), rule);
+		RuleManager.allRulesMap.put(rule.getId(), rule);
 		rule.setTriggers();
 		/*
 		 * if(rule.getId() != 0) { // Update rule details db.executeQuery(
@@ -131,16 +157,16 @@ public class RuleManager {
 		// TODO: Deschedule all listeners !
 
 		// Delete db & cache
-		db.executeQuery("DELETE FROM Rules WHERE id = '" + rule.getId() + "'");
+		RuleManager.db.executeQuery("DELETE FROM Rules WHERE id = '" + rule.getId() + "'");
 		rule.unsetTriggers();
-		allRulesMap.remove(rule.getId());
+		RuleManager.allRulesMap.remove(rule.getId());
 	}
 
 	public static void setActive(Rule rule, boolean active) throws SQLException {
-		PreparedStatement preparedStatement = db.prepareStatement("update Rules SET active=? where id=?");
+		PreparedStatement preparedStatement = RuleManager.db.prepareStatement("update Rules SET active=? where id=?");
 		preparedStatement.setBoolean(1, active);
 		preparedStatement.setInt(2, rule.getId());
-		db.executePreparedUpdate(preparedStatement);
+		RuleManager.db.executePreparedUpdate(preparedStatement);
 
 		if (!rule.isActive() && active) {
 			rule.setTriggers();
@@ -151,7 +177,7 @@ public class RuleManager {
 		rule.setActive(active);
 
 		// Update cache
-		allRulesMap.remove(rule.getId());
-		allRulesMap.put(rule.getId(), rule);
+		RuleManager.allRulesMap.remove(rule.getId());
+		RuleManager.allRulesMap.put(rule.getId(), rule);
 	}
 }

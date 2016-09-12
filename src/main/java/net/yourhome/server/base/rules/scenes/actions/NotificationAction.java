@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base.rules.scenes.actions;
 
 import java.io.File;
@@ -37,35 +63,36 @@ public class NotificationAction extends Action {
 	public NotificationAction(Scene parentScene, JSONObject actionObject) throws JSONException {
 		super(parentScene, actionObject);
 		JSONObject detailsObject = actionObject.getJSONObject("details");
-		type = detailsObject.getString("type");
-		subject = detailsObject.getString("subject");
-		message = detailsObject.getString("message");
-		email = detailsObject.getString("email");
-		phoneNumber = detailsObject.getString("phoneNumber");
+		this.type = detailsObject.getString("type");
+		this.subject = detailsObject.getString("subject");
+		this.message = detailsObject.getString("message");
+		this.email = detailsObject.getString("email");
+		this.phoneNumber = detailsObject.getString("phoneNumber");
 		try {
 			// Can be empty
-			includeSnapshotOfCamera = detailsObject.getInt("includeSnapshotOfCamera");
+			this.includeSnapshotOfCamera = detailsObject.getInt("includeSnapshotOfCamera");
 		} catch (JSONException e) {
 		}
 	}
 
+	@Override
 	public boolean perform() {
 
 		// Email
 		if (this.type.equals("email")) {
-			emailService = EmailService.getInstance();
-			if (emailService != null && !this.email.equals("")) {
+			this.emailService = EmailService.getInstance();
+			if (this.emailService != null && !this.email.equals("")) {
 				try {
-					emailService.sendMessage(subject, message, email);
+					this.emailService.sendMessage(this.subject, this.message, this.email);
 				} catch (MessagingException e) {
-					log.error("[NotificationAction] [Email] Failed to send e-mail to " + this.email, e);
+					Action.log.error("[NotificationAction] [Email] Failed to send e-mail to " + this.email, e);
 				}
 			}
 			// SMS
 		} else if (this.type.equals("sms")) {
-			smsService = NexmoSMSService.getInstance();
-			if (smsService != null && !this.phoneNumber.equals("")) {
-				smsService.sendMessage(message, phoneNumber);
+			this.smsService = NexmoSMSService.getInstance();
+			if (this.smsService != null && !this.phoneNumber.equals("")) {
+				this.smsService.sendMessage(this.message, this.phoneNumber);
 			}
 		} else if (this.type.equals("mobile")) {
 
@@ -74,17 +101,17 @@ public class NotificationAction extends Action {
 			// Notification on connected clients
 			notificationMessage.notificationType = MobileNotificationTypes.TEXT;
 			String snapshotUrl = "";
-			if (includeSnapshotOfCamera != 0) {
-				IPCamera camera = IPCameraController.getInstance().getIPCamera(includeSnapshotOfCamera);
-				File snapshotFile = camera.saveAndGetSnapshot(false, "notification_camera-" + includeSnapshotOfCamera + "_" + new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date()));
+			if (this.includeSnapshotOfCamera != 0) {
+				IPCamera camera = IPCameraController.getInstance().getIPCamera(this.includeSnapshotOfCamera);
+				File snapshotFile = camera.saveAndGetSnapshot(false, "notification_camera-" + this.includeSnapshotOfCamera + "_" + new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date()));
 				snapshotUrl = IPCameras.getSnapshotUrl(camera.getId(), snapshotFile);
 
 				notificationMessage.imagePath = snapshotUrl;
 				notificationMessage.videoPath = camera.getVideoUrl();
 				notificationMessage.notificationType = MobileNotificationTypes.IMAGE;
 			}
-			notificationMessage.title = subject;
-			notificationMessage.message = message;
+			notificationMessage.title = this.subject;
+			notificationMessage.message = this.message;
 			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
 		}
 		return true;
@@ -99,49 +126,49 @@ public class NotificationAction extends Action {
 	 * @return the notificationActionId
 	 */
 	public int getNotificationActionId() {
-		return notificationActionId;
+		return this.notificationActionId;
 	}
 
 	/**
 	 * @return the subject
 	 */
 	public String getSubject() {
-		return subject;
+		return this.subject;
 	}
 
 	/**
 	 * @return the message
 	 */
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
 
 	/**
 	 * @return the email
 	 */
 	public String getEmail() {
-		return email;
+		return this.email;
 	}
 
 	/**
 	 * @return the phoneNumber
 	 */
 	public String getPhoneNumber() {
-		return phoneNumber;
+		return this.phoneNumber;
 	}
 
 	/**
 	 * @return the type
 	 */
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
 	 * @return the includeSnapshotOfCamera
 	 */
 	public int getIncludeSnapshotOfCamera() {
-		return includeSnapshotOfCamera;
+		return this.includeSnapshotOfCamera;
 	}
 
 }

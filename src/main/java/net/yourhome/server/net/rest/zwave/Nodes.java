@@ -1,7 +1,32 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net.rest.zwave;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.DELETE;
@@ -40,25 +65,25 @@ public class Nodes {
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	public void initialize() {
-		controller = ZWaveController.getInstance();
-		dbController = DatabaseConnector.getInstance();
+		this.controller = ZWaveController.getInstance();
+		this.dbController = DatabaseConnector.getInstance();
 	}
 
 	// GET api/ZWave/Nodes
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String get(@Context final UriInfo uriInfo) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-/*
-		List<Node> textNodeList = new ArrayList<Node>();
+		/*
+		 * List<Node> textNodeList = new ArrayList<Node>();
+		 * 
+		 * for (Node node : controller.getNodeList()) {
+		 * textNodeList.add(controller.getNodeInformation(node, true)); }
+		 */
 
-		for (Node node : controller.getNodeList()) {
-			textNodeList.add(controller.getNodeInformation(node, true));
-		}*/
-
-		JSONArray convertedObject = new JSONArray(controller.getNodeList());
+		JSONArray convertedObject = new JSONArray(this.controller.getNodeList());
 
 		return convertedObject.toString();
 
@@ -69,14 +94,14 @@ public class Nodes {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/{nodeId}")
 	public String get(@Context final UriInfo uriInfo, @PathParam("nodeId") final short nodeId) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
 		String returnString = "";
-		Node node = controller.getNode(nodeId);
+		Node node = this.controller.getNode(nodeId);
 		if (node != null) {
-			//Node textNode = controller.getNodeInformation(node, true);
+			// Node textNode = controller.getNodeInformation(node, true);
 			JSONObject jsonObject = new JSONObject(node);
 			returnString = jsonObject.toString();
 		}
@@ -89,11 +114,11 @@ public class Nodes {
 	@Path("/{homeId}/{nodeId}")
 	public String delete(@Context final UriInfo uriInfo, @PathParam("homeId") final long homeId, @PathParam("nodeId") final short nodeId) {
 
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
-		controller.removeNode(homeId, nodeId);
+		this.controller.removeNode(homeId, nodeId);
 
 		return "{ \"status\" : \"OK\"}";
 	}
@@ -103,15 +128,15 @@ public class Nodes {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/{nodeId}/Associations")
 	public String getAssociations(@Context final UriInfo uriInfo, @PathParam("nodeId") final short nodeId) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
 		String returnString = "";
-		Node node = controller.getNode(nodeId);
+		Node node = this.controller.getNode(nodeId);
 		if (node != null) {
-			List<Association> associations = controller.getAssociations(node.getHomeId(), node.getId());
-			List<AssociationGroup> associationGroups = controller.getAssociationGroups(node.getHomeId(), node.getId());
+			List<Association> associations = this.controller.getAssociations(node.getHomeId(), node.getId());
+			List<AssociationGroup> associationGroups = this.controller.getAssociationGroups(node.getHomeId(), node.getId());
 
 			JSONObject jsonObject = new JSONObject();
 			try {
@@ -120,7 +145,7 @@ public class Nodes {
 				jsonObject.put("homeId", node.getHomeId());
 				returnString = jsonObject.toString();
 			} catch (JSONException e) {
-				log.error("Exception occured: ", e);
+				Nodes.log.error("Exception occured: ", e);
 			}
 
 		}
@@ -131,8 +156,8 @@ public class Nodes {
 	@DELETE
 	@Path("/{homeId}/{fromNodeId}/Associations/{targetNodeId}/{associationClass}")
 	public Response deleteAssociation(@Context final UriInfo uriInfo, @PathParam("homeId") final long homeId, @PathParam("fromNodeId") final short fromNodeId, @PathParam("targetNodeId") final short targetNodeId, @PathParam("associationClass") final int associationClass, String bodyContent) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		this.controller.removeAssociation(homeId, fromNodeId, associationClass, targetNodeId);
 
@@ -144,8 +169,8 @@ public class Nodes {
 	@PUT
 	@Path("/{nodeId}/{function}/")
 	public Response put(@Context final UriInfo uriInfo, @PathParam("nodeId") final int nodeId, @PathParam("function") final String function, String bodyContent) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
 		JSONObject jsonObject;
@@ -154,13 +179,13 @@ public class Nodes {
 
 			if (function.equals("Subscriptions")) {
 				// Set subscriptions
-				return setSubscriptions(jsonObject);
+				return this.setSubscriptions(jsonObject);
 			} else if (function.equals("Configurations")) {
 				// Set configuration
-				return setValueSettings(jsonObject);
+				return this.setValueSettings(jsonObject);
 			} else if (function.equals("Aliases")) {
 				// Set configuration
-				return setAliases(jsonObject);
+				return this.setAliases(jsonObject);
 			} else if (function.equals("Associations")) {
 				// Parse request
 				jsonObject = new JSONObject(bodyContent);
@@ -179,7 +204,7 @@ public class Nodes {
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			Nodes.log.error("Exception occured: ", e);
 		}
 		return null;
 	}
@@ -189,33 +214,35 @@ public class Nodes {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("Include")
 	public net.yourhome.server.zwave.ControllerTransaction includeNode() {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		net.yourhome.server.zwave.ControllerTransaction transaction = controller.addNode();
+		net.yourhome.server.zwave.ControllerTransaction transaction = this.controller.addNode();
 		return transaction;
 	}
+
 	@DELETE
 	@Path("Transaction/{transactionId}")
 	public Response stopTransaction(@PathParam("transactionId") final Integer transactionId) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		if(controller.cancelTransaction(transactionId)) {
+		if (this.controller.cancelTransaction(transactionId)) {
 			return Response.ok().build();
-		}else {
+		} else {
 			return Response.serverError().build();
 		}
 	}
+
 	// GET api/ZWave/Nodes/Transaction/123
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("Transaction/{transactionId}")
 	public ControllerTransaction getTransactionStatus(@PathParam("transactionId") final Integer transactionId) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		ControllerTransaction transaction = controller.getTransactionStatus(transactionId);
+		ControllerTransaction transaction = this.controller.getTransactionStatus(transactionId);
 		return transaction;
 	}
 
@@ -224,10 +251,10 @@ public class Nodes {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("Remove")
 	public ControllerTransaction removeNode() {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		ControllerTransaction transaction = controller.removeNode();
+		ControllerTransaction transaction = this.controller.removeNode();
 		return transaction;
 	}
 
@@ -235,10 +262,10 @@ public class Nodes {
 	@POST
 	@Path("Heal")
 	public Response healNetwork() {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		controller.healNetwork();
+		this.controller.healNetwork();
 		return Response.ok().build();
 	}
 
@@ -246,10 +273,10 @@ public class Nodes {
 	@POST
 	@Path("Heal/{homeId}/{nodeId}")
 	public Response healNetwork(@PathParam("homeId") final long homeId, @PathParam("nodeId") final short nodeId) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		controller.healNetworkNode(homeId, nodeId);
+		this.controller.healNetworkNode(homeId, nodeId);
 		return Response.ok().build();
 	}
 
@@ -257,18 +284,18 @@ public class Nodes {
 	@POST
 	@Path("Reset")
 	public Response resetNetwork() {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
-		controller.resetNetwork();
+		this.controller.resetNetwork();
 		return Response.ok().build();
 	}
 
 	private Response setSubscriptions(JSONObject bodyContent) {
 		// Parse request
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
 		// {"node":"10","subscriptions":[{"valueId":"72057594206224380","subscribed":true},{"valueId":"72057594210517020","subscribed":true},{"valueId":"72057594210517020","subscribed":false},{"valueId":"72057594210517000","subscribed":false}]}
@@ -287,7 +314,7 @@ public class Nodes {
 				Boolean polledValue = subscription.getBoolean("polled");
 
 				// Process value in zwave manager
-				controller.setValuePolled(nodeId, nodeInstance, homeId, valueId, polledValue);
+				this.controller.setValuePolled(nodeId, nodeInstance, homeId, valueId, polledValue);
 
 				// Save values in DB
 				// int subscribedflag = (subscribedValue) ? 1 : 0;
@@ -296,10 +323,10 @@ public class Nodes {
 				// + "," + subscribedflag + "," + nodeId + "," + nodeInstance +
 				// ")"; // TODO: Add polled in db
 				// this.dbController.executeQuery(updateString);
-				DatabaseConnector.ValueSettings valueSettings = dbController.getZWaveValueSettings(homeId, nodeId, valueId, nodeInstance);
+				DatabaseConnector.ValueSettings valueSettings = this.dbController.getZWaveValueSettings(homeId, nodeId, valueId, nodeInstance);
 				valueSettings.polled = polledValue;
 				valueSettings.subscribed = subscribedValue;
-				dbController.insertOrUpdateZWaveValueSettings(valueSettings);
+				this.dbController.insertOrUpdateZWaveValueSettings(valueSettings);
 
 			}
 		} catch (Exception e) {
@@ -310,8 +337,8 @@ public class Nodes {
 	}
 
 	private Response setValueSettings(JSONObject bodyContent) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
 		// Process request
@@ -330,9 +357,9 @@ public class Nodes {
 				String val = configuration.getString("value");
 				try {
 					int valueInt = Integer.valueOf(val);
-					controller.setConfiguration(homeId, nodeId, param, valueInt);
+					this.controller.setConfiguration(homeId, nodeId, param, valueInt);
 				} catch (Exception e) {
-					controller.setValue(homeId, nodeId, instance, valueId, val);
+					this.controller.setValue(homeId, nodeId, instance, valueId, val);
 				}
 
 			}
@@ -347,8 +374,8 @@ public class Nodes {
 	}
 
 	private Response setAliases(JSONObject bodyContent) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
 		// Process request
@@ -360,10 +387,10 @@ public class Nodes {
 				// Update value settings
 				String valueIdentifier = bodyContent.getString("valueIdentifier");
 				// Update value alias
-				dbController.setAlias(ControllerTypes.ZWAVE.convert(), ZWaveController.getNodeIdentifier(nodeId, homeId), valueIdentifier, alias);
+				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(), ZWaveController.getNodeIdentifier(nodeId, homeId), valueIdentifier, alias);
 			} catch (Exception e) {
 				// Update node alias
-				dbController.setAlias(ControllerTypes.ZWAVE.convert(), ZWaveController.getNodeIdentifier(nodeId, homeId), alias);
+				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(), ZWaveController.getNodeIdentifier(nodeId, homeId), alias);
 			}
 
 		} catch (Exception e) {

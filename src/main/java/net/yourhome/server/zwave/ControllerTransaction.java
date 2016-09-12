@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.zwave;
 
 import org.zwave4j.ControllerCommand;
@@ -10,16 +36,18 @@ public class ControllerTransaction {
 	private ControllerCommand command;
 	private ControllerState state;
 	private ControllerError error;
-	
-	private static int controllerTransactionCounter=1;
+
+	private static int controllerTransactionCounter = 1;
+
 	public ControllerTransaction(ControllerCommand command, long homeId) {
 		this.id = ControllerTransaction.controllerTransactionCounter++;
 		this.command = command;
 		this.homeId = homeId;
 	}
+
 	public String getCommandTxt() {
-		if(command != null) {
-			switch(command) {
+		if (this.command != null) {
+			switch (this.command) {
 			case ADD_DEVICE:
 				return "Add a new device";
 			case ASSIGN_RETURN_ROUTE:
@@ -56,18 +84,18 @@ public class ControllerTransaction {
 				return "Transfer primary role";
 			default:
 				break;
-			
+
 			}
 		}
 		return "Unknown";
 	}
-	
+
 	/**
 	 * @return the stateTxt
 	 */
 	public String getStateTxt() {
-		if(state != null) {
-			switch(state) {
+		if (this.state != null) {
+			switch (this.state) {
 			case CANCEL:
 				return "Cancelled";
 			case COMPLETED:
@@ -92,7 +120,7 @@ public class ControllerTransaction {
 				return "Waiting...";
 			default:
 				break;
-			
+
 			}
 		}
 		return "Unknown";
@@ -102,8 +130,8 @@ public class ControllerTransaction {
 	 * @return the errorTxt
 	 */
 	public String getErrorTxt() {
-		if(error != null) {
-			switch(error) {
+		if (this.error != null) {
+			switch (this.error) {
 			case BUSY:
 				return "Controller busy";
 			case BUTTON_NOT_FOUND:
@@ -132,56 +160,66 @@ public class ControllerTransaction {
 				return "Overflow";
 			default:
 				break;
-			
+
 			}
 		}
 		return "Unknown";
 	}
 
 	public long getHomeId() {
-		return homeId;
+		return this.homeId;
 	}
+
 	/**
 	 * @return the id
 	 */
 	public int getId() {
-		return id;
+		return this.id;
 	}
+
 	/**
 	 * @return the command
 	 */
 	public ControllerCommand getCommand() {
-		return command;
+		return this.command;
 	}
+
 	/**
-	 * @param command the command to set
+	 * @param command
+	 *            the command to set
 	 */
 	public void setCommand(ControllerCommand command) {
 		this.command = command;
 	}
+
 	/**
 	 * @return the state
 	 */
 	public ControllerState getState() {
-		return state;
+		return this.state;
 	}
+
 	/**
-	 * @param state the state to set
+	 * @param state
+	 *            the state to set
 	 */
 	public void setState(ControllerState state) {
 		this.state = state;
 	}
+
 	/**
 	 * @return the error
 	 */
 	public ControllerError getError() {
-		return error;
+		return this.error;
 	}
+
 	/**
-	 * @param error the error to set
+	 * @param error
+	 *            the error to set
 	 */
 	public void setError(ControllerError error) {
 		this.error = error;
 	}
-	
+
 }

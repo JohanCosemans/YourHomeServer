@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.zwave;
 
 import java.math.BigInteger;
@@ -15,7 +41,7 @@ import net.yourhome.server.base.DatabaseConnector;
 public class Value {
 
 	private ValueId originalValueId;
-	
+
 	ZWaveValue zwaveDetails = new ZWaveValue();
 
 	private String value;
@@ -34,75 +60,77 @@ public class Value {
 	private List<String> valueList; // For list values
 	private String valueListSelection; // For list values
 	private int maxValue;
-	
+
 	private ZWaveController controller;
+
 	public Value(ZWaveController controller, ValueId valueId) {
 		this.controller = controller;
 		this.originalValueId = valueId;
-		setNodeId(originalValueId.getNodeId());
-		setHomeId(originalValueId.getHomeId());
-		setValueId(controller.getValueId(originalValueId));
-		setHelp(controller.getValueHelp(originalValueId));
-		setInstance(originalValueId.getInstance());
-		setHomeId(originalValueId.getHomeId());
-		setCommandClass((byte) originalValueId.getCommandClassId());
-		setValueGenre(originalValueId.getGenre());
-		setValueGenreTxt(originalValueId.getGenre().toString());
-		setValueType(originalValueId.getType());
-		setValueTypeTxt(originalValueId.getType().toString());
-		setValueUnit(controller.getValueUnits(originalValueId));
-		setValueIndex((byte) originalValueId.getIndex());
-		setValueLabel(controller.getValueLabel(originalValueId));
-		setMaxValue(controller.getManager().getValueMax(originalValueId));
-		
+		this.setNodeId(this.originalValueId.getNodeId());
+		this.setHomeId(this.originalValueId.getHomeId());
+		this.setValueId(controller.getValueId(this.originalValueId));
+		this.setHelp(controller.getValueHelp(this.originalValueId));
+		this.setInstance(this.originalValueId.getInstance());
+		this.setHomeId(this.originalValueId.getHomeId());
+		this.setCommandClass((byte) this.originalValueId.getCommandClassId());
+		this.setValueGenre(this.originalValueId.getGenre());
+		this.setValueGenreTxt(this.originalValueId.getGenre().toString());
+		this.setValueType(this.originalValueId.getType());
+		this.setValueTypeTxt(this.originalValueId.getType().toString());
+		this.setValueUnit(controller.getValueUnits(this.originalValueId));
+		this.setValueIndex((byte) this.originalValueId.getIndex());
+		this.setValueLabel(controller.getValueLabel(this.originalValueId));
+		this.setMaxValue(controller.getManager().getValueMax(this.originalValueId));
+
 		// If the valuetype is LIST, also add the possible options:
-		if (originalValueId.getType() == ValueType.LIST) {
-			setValueList(controller.getValueListItems(valueId));
-			setValueListSelection(controller.getValueListSelection(valueId));
+		if (this.originalValueId.getType() == ValueType.LIST) {
+			this.setValueList(controller.getValueListItems(valueId));
+			this.setValueListSelection(controller.getValueListSelection(valueId));
 		} else {
-			setValueList(null);
+			this.setValueList(null);
 		}
-	}	
-	
+	}
+
 	public void readProperties() {
-		setValue(String.valueOf(ZWaveController.getValueOfValue(originalValueId)));
-		setPolled(controller.getValuePolled(originalValueId));
-		setReadOnly(controller.getValueReadOnly(originalValueId));
+		this.setValue(String.valueOf(ZWaveController.getValueOfValue(this.originalValueId)));
+		this.setPolled(this.controller.getValuePolled(this.originalValueId));
+		this.setReadOnly(this.controller.getValueReadOnly(this.originalValueId));
 
 		// Read details from DB and overwrite // complete settings
-		DatabaseConnector.ValueSettings valueSettings = DatabaseConnector.getInstance().getZWaveValueSettings(getHomeId(), getNodeId(), getValueId(), getInstance());
-		setSubscribed(valueSettings.subscribed);
+		DatabaseConnector.ValueSettings valueSettings = DatabaseConnector.getInstance().getZWaveValueSettings(this.getHomeId(), this.getNodeId(), this.getValueId(), this.getInstance());
+		this.setSubscribed(valueSettings.subscribed);
 
-		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(), ZWaveController.getNodeIdentifier(getNodeId(), getHomeId()), getControlId());
+		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(), ZWaveController.getNodeIdentifier(this.getNodeId(), this.getHomeId()), this.getControlId());
 		if (alias != null) {
-			setValueLabel(alias);
+			this.setValueLabel(alias);
 		}
-		setSubscribed(valueSettings.subscribed);
+		this.setSubscribed(valueSettings.subscribed);
 	}
 
 	/**
 	 * @return the originalValueId
 	 */
 	public ValueId getOriginalValueId() {
-		return originalValueId;
+		return this.originalValueId;
 	}
 
 	/**
-	 * @param originalValueId the originalValueId to set
+	 * @param originalValueId
+	 *            the originalValueId to set
 	 */
 	public void setOriginalValueId(ValueId originalValueId) {
 		this.originalValueId = originalValueId;
 	}
 
 	public String getControlId() {
-		return zwaveDetails.toControlId();
+		return this.zwaveDetails.toControlId();
 	}
 
 	/**
 	 * @return the maxValue
 	 */
 	public int getMaxValue() {
-		return maxValue;
+		return this.maxValue;
 	}
 
 	/**
@@ -117,7 +145,7 @@ public class Value {
 	 * @return the listSelection
 	 */
 	public String getValueListSelection() {
-		return valueListSelection;
+		return this.valueListSelection;
 	}
 
 	/**
@@ -132,7 +160,7 @@ public class Value {
 	 * @return the valueList
 	 */
 	public List<String> getValueList() {
-		return valueList;
+		return this.valueList;
 	}
 
 	/**
@@ -146,8 +174,7 @@ public class Value {
 	private Boolean subscribed;
 	/*
 	 * Basic = valueId::ValueGenre_Basic, User = valueId::ValueGenre_User,
-	 * Config = valueId::ValueGenre_Config, System =
-	 * valueId::ValueGenre_System
+	 * Config = valueId::ValueGenre_Config, System = valueId::ValueGenre_System
 	 */
 
 	private byte valueIndex;
@@ -156,7 +183,7 @@ public class Value {
 	 * @return the value
 	 */
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	/**
@@ -171,7 +198,7 @@ public class Value {
 	 * @return the valueUnit
 	 */
 	public String getValueUnit() {
-		return valueUnit;
+		return this.valueUnit;
 	}
 
 	/**
@@ -186,18 +213,18 @@ public class Value {
 	 * @return the valueId
 	 */
 	public BigInteger getValueId() {
-		return zwaveDetails.getValueId();
+		return this.zwaveDetails.getValueId();
 	}
 
 	public void setValueId(BigInteger valueId) {
-		zwaveDetails.setValueId(valueId);
+		this.zwaveDetails.setValueId(valueId);
 	}
 
 	/**
 	 * @return the valueType
 	 */
 	public int getValueType() {
-		return valueType.ordinal();
+		return this.valueType.ordinal();
 	}
 
 	/**
@@ -246,7 +273,7 @@ public class Value {
 	 * @return the valueTypeTxt
 	 */
 	public String getValueTypeTxt() {
-		return valueTypeTxt;
+		return this.valueTypeTxt;
 	}
 
 	/**
@@ -261,7 +288,7 @@ public class Value {
 	 * @return the help
 	 */
 	public String getHelp() {
-		return help;
+		return this.help;
 	}
 
 	/**
@@ -276,7 +303,7 @@ public class Value {
 	 * @return the commandClass
 	 */
 	public byte getCommandClass() {
-		return zwaveDetails.getCommandClass().convert();
+		return this.zwaveDetails.getCommandClass().convert();
 	}
 
 	/**
@@ -284,22 +311,22 @@ public class Value {
 	 *            the commandClass to set
 	 */
 	public void setCommandClass(byte commandClass) {
-		zwaveDetails.setCommandClass(ZWaveCommandClassTypes.fromByte(commandClass));
+		this.zwaveDetails.setCommandClass(ZWaveCommandClassTypes.fromByte(commandClass));
 	}
 
 	public void setNodeId(short nodeId) {
-		zwaveDetails.setNodeId(nodeId);
+		this.zwaveDetails.setNodeId(nodeId);
 	}
 
 	public short getNodeId() {
-		return zwaveDetails.getNodeId();
+		return this.zwaveDetails.getNodeId();
 	}
 
 	/**
 	 * @return the valueGenre
 	 */
 	public int getValueGenre() {
-		return valueGenre.ordinal();
+		return this.valueGenre.ordinal();
 	}
 
 	/**
@@ -314,7 +341,7 @@ public class Value {
 	 * @return the valueGenreTxt
 	 */
 	public String getValueGenreTxt() {
-		return valueGenreTxt;
+		return this.valueGenreTxt;
 	}
 
 	/**
@@ -329,7 +356,7 @@ public class Value {
 	 * @return the valueLabel
 	 */
 	public String getValueLabel() {
-		return valueLabel;
+		return this.valueLabel;
 	}
 
 	/**
@@ -344,7 +371,7 @@ public class Value {
 	 * @return the readOnly
 	 */
 	public Boolean getReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -359,7 +386,7 @@ public class Value {
 	 * @return the polled
 	 */
 	public Boolean getPolled() {
-		return polled;
+		return this.polled;
 	}
 
 	/**
@@ -374,7 +401,7 @@ public class Value {
 	 * @return the nodeInstance
 	 */
 	public short getInstance() {
-		return zwaveDetails.getInstance();
+		return this.zwaveDetails.getInstance();
 	}
 
 	/**
@@ -389,7 +416,7 @@ public class Value {
 	 * @return the subscribed
 	 */
 	public Boolean getSubscribed() {
-		return subscribed;
+		return this.subscribed;
 	}
 
 	/**
@@ -404,7 +431,7 @@ public class Value {
 	 * @return the homeId
 	 */
 	public long getHomeId() {
-		return zwaveDetails.getHomeId();
+		return this.zwaveDetails.getHomeId();
 	}
 
 	/**
@@ -419,7 +446,7 @@ public class Value {
 	 * @return the valueIndex
 	 */
 	public byte getValueIndex() {
-		return valueIndex;
+		return this.valueIndex;
 	}
 
 	/**

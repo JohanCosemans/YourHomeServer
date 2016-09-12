@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net.rest.zwave;
 
 import java.math.BigInteger;
@@ -19,7 +45,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.zwave4j.ValueId;
 
 import net.yourhome.server.zwave.Value;
 import net.yourhome.server.zwave.ZWaveController;
@@ -34,14 +59,14 @@ public class Scenes {
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-		controller = ZWaveController.getInstance();
+		this.controller = ZWaveController.getInstance();
 	}
 
 	@Produces({ MediaType.APPLICATION_JSON })
 	@GET
 	public String getAllScenes() {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		List<ZWaveScene> allScenes = this.controller.getAllScenes();
 		JSONArray convertedObject = new JSONArray(allScenes);
@@ -52,8 +77,8 @@ public class Scenes {
 	@GET
 	@Path("{sceneId}")
 	public String getScenes(@PathParam("sceneId") final short sceneId) throws Exception {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		ZWaveScene selectedScene = this.controller.new ZWaveScene(sceneId, true);
 		JSONObject convertedObject = new JSONObject(selectedScene);
@@ -63,12 +88,12 @@ public class Scenes {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String createScene(String bodyContent) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		try {
 			JSONObject bodyContentObj = new JSONObject(bodyContent);
-			ZWaveScene newScene = controller.createScene();
+			ZWaveScene newScene = this.controller.createScene();
 
 			try {
 				String sceneLabel = bodyContentObj.getString("label");
@@ -91,7 +116,7 @@ public class Scenes {
 				return "{ \"status\" : \"ERROR\"}";
 			}
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Scenes.log.error("Exception occured: ", e);
 		}
 
 		return "{ \"status\" : \"ERROR\"}";
@@ -103,11 +128,11 @@ public class Scenes {
 	@Path("{sceneId}")
 	public String deleteScene(@Context final UriInfo uriInfo, @PathParam("sceneId") final short sceneId) {
 
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 
-		if (controller.removeScene(sceneId)) {
+		if (this.controller.removeScene(sceneId)) {
 			return "{ \"status\" : \"OK\"}";
 		} else {
 			return "{ \"status\" : \"ERROR\"}";
@@ -117,8 +142,8 @@ public class Scenes {
 	@PUT
 	@Path("/{sceneId}")
 	public Response changeScene(@Context final UriInfo uriInfo, @PathParam("sceneId") final short sceneId, String bodyContent) throws Exception {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		boolean result = false;
 		JSONObject changedScene;
@@ -127,7 +152,7 @@ public class Scenes {
 			String newLabel = changedScene.getString("label");
 			String sceneIconUrl = changedScene.getString("iconUrl");
 
-			ZWaveScene scene = controller.new ZWaveScene(sceneId, false);
+			ZWaveScene scene = this.controller.new ZWaveScene(sceneId, false);
 			if (scene != null) {
 				scene.setLabel(newLabel);
 				scene.setIconUrl(sceneIconUrl);
@@ -144,15 +169,15 @@ public class Scenes {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/{sceneId}/{homeId}/{nodeId}/{instance}/{valueId}")
 	public Response deleteSceneValue(@Context final UriInfo uriInfo, @PathParam("sceneId") final short sceneId, @PathParam("homeId") final long homeId, @PathParam("nodeId") final short nodeId, @PathParam("instance") final short instance, @PathParam("valueId") final BigInteger valueId) throws Exception {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		boolean result = false;
 
-		ZWaveScene scene = controller.new ZWaveScene(sceneId, true);
+		ZWaveScene scene = this.controller.new ZWaveScene(sceneId, true);
 		if (scene != null) {
-			Value valueObj = controller.getValue(homeId, nodeId, instance, valueId);
-			if(valueObj != null) {
+			Value valueObj = this.controller.getValue(homeId, nodeId, instance, valueId);
+			if (valueObj != null) {
 				result = scene.removeSceneValue(valueObj.getOriginalValueId());
 			}
 		}
@@ -166,13 +191,13 @@ public class Scenes {
 	@PUT
 	@Path("/{sceneId}/{homeId}/{nodeId}/{instance}/{valueId}/{value}")
 	public Response changeSceneValue(@Context final UriInfo uriInfo, @PathParam("sceneId") final short sceneId, @PathParam("homeId") final long homeId, @PathParam("nodeId") final short nodeId, @PathParam("instance") final short instance, @PathParam("valueId") final BigInteger valueId, @PathParam("value") final String value, String bodyContent) throws Exception {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		boolean result = false;
-		ZWaveScene scene = controller.new ZWaveScene(sceneId, true);
+		ZWaveScene scene = this.controller.new ZWaveScene(sceneId, true);
 		if (scene != null) {
-			Value valueObj = controller.getValue(homeId, nodeId, instance, valueId);
+			Value valueObj = this.controller.getValue(homeId, nodeId, instance, valueId);
 			result = scene.setSceneValue(sceneId, valueObj.getOriginalValueId(), value);
 		}
 		if (result) {
@@ -191,19 +216,19 @@ public class Scenes {
 	@POST
 	@Path("/{sceneId}/")
 	public Response addSceneValue(@Context final UriInfo uriInfo, @PathParam("sceneId") final short sceneId, String bodyContent) throws Exception {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		boolean result = false;
 		try {
 			JSONObject bodyContentObj = new JSONObject(bodyContent);
-			ZWaveScene scene = controller.new ZWaveScene(sceneId, true);
+			ZWaveScene scene = this.controller.new ZWaveScene(sceneId, true);
 			short nodeId = (short) bodyContentObj.getInt("nodeId");
 			long homeId = bodyContentObj.getLong("homeId");
 			short instance = (short) bodyContentObj.getInt("instance");
 			BigInteger valueId = BigInteger.valueOf(bodyContentObj.getLong("valueId"));
 			String value = bodyContentObj.getString("value");
-			Value valueObj = controller.getValue(homeId, nodeId, instance, valueId);
+			Value valueObj = this.controller.getValue(homeId, nodeId, instance, valueId);
 			if (valueObj != null) {
 				if (!scene.hasSceneValue(valueObj.getOriginalValueId())) {
 					result = scene.addSceneValue(sceneId, valueObj.getOriginalValueId(), value);
@@ -212,7 +237,7 @@ public class Scenes {
 				}
 			}
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Scenes.log.error("Exception occured: ", e);
 			return Response.serverError().build();
 		}
 		if (result) {

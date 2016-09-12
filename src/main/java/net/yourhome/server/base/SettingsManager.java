@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base;
 
 import java.io.File;
@@ -24,10 +50,10 @@ public class SettingsManager {
 	// Initialize preferences
 	private static Map<String, Map<Setting, String>> allSettings = new ConcurrentHashMap<>();
 	private static Properties mySettings = new Properties() {
-	    @Override
-	    public synchronized Enumeration<Object> keys() {
-	        return Collections.enumeration(new TreeSet<Object>(super.keySet()));
-	    }
+		@Override
+		public synchronized Enumeration<Object> keys() {
+			return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+		}
 	};
 	private static File configFile;
 	// private static Logger log;
@@ -36,30 +62,30 @@ public class SettingsManager {
 
 	public static void initialize() {
 		try {
-			if (basePath == null) {
-				basePath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getParent() + "/";
-				System.out.println("[Settings] Base bath set as " + basePath);
+			if (SettingsManager.basePath == null) {
+				SettingsManager.basePath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getParent() + "/";
+				System.out.println("[Settings] Base bath set as " + SettingsManager.basePath);
 			}
 		} catch (URISyntaxException e1) {
 		}
 
 		try {
 			String hostname = InetAddress.getLocalHost().getHostName();
-			configFile = new File(getBasePath(), "config/homeserver-" + hostname + ".cfg");
+			SettingsManager.configFile = new File(SettingsManager.getBasePath(), "config/homeserver-" + hostname + ".cfg");
 			FileInputStream fileInput = null;
-			if (!configFile.exists()) {
-				configFile = new File(getBasePath(), "config/homeserver.cfg");
-				if(configFile.exists()) {
-					System.out.println("[Settings] Specific config file " + new File(getBasePath(), "config/homeserver-" + hostname + ".cfg").getAbsolutePath() + " does not exist. Reading homeserver.cfg");					
-				}else {
-					configFile = new File(getBasePath(), "config/homeserver-default.cfg");
-					System.out.println("[Settings] Config files " + new File(getBasePath(), "config/homeserver-" + hostname + ".cfg").getAbsolutePath() + " or "+new File(getBasePath(), "config/homeserver.cfg") + " do not exist. Reading homeserver-default.cfg");	
+			if (!SettingsManager.configFile.exists()) {
+				SettingsManager.configFile = new File(SettingsManager.getBasePath(), "config/homeserver.cfg");
+				if (SettingsManager.configFile.exists()) {
+					System.out.println("[Settings] Specific config file " + new File(SettingsManager.getBasePath(), "config/homeserver-" + hostname + ".cfg").getAbsolutePath() + " does not exist. Reading homeserver.cfg");
+				} else {
+					SettingsManager.configFile = new File(SettingsManager.getBasePath(), "config/homeserver-default.cfg");
+					System.out.println("[Settings] Config files " + new File(SettingsManager.getBasePath(), "config/homeserver-" + hostname + ".cfg").getAbsolutePath() + " or " + new File(SettingsManager.getBasePath(), "config/homeserver.cfg") + " do not exist. Reading homeserver-default.cfg");
 				}
 			} else {
-				System.out.println("[Settings] Using config file " + configFile.getAbsolutePath());
+				System.out.println("[Settings] Using config file " + SettingsManager.configFile.getAbsolutePath());
 			}
-			fileInput = new FileInputStream(configFile);
-			mySettings.load(fileInput);
+			fileInput = new FileInputStream(SettingsManager.configFile);
+			SettingsManager.mySettings.load(fileInput);
 
 		} catch (FileNotFoundException e) {
 			// log.error("Exception occured: ",e);
@@ -69,7 +95,7 @@ public class SettingsManager {
 	}
 
 	public static String getStringValue(String controllerIdentifier, Setting key) {
-		Map<Setting, String> controllerSettings = allSettings.get(controllerIdentifier);
+		Map<Setting, String> controllerSettings = SettingsManager.allSettings.get(controllerIdentifier);
 		if (controllerSettings != null) {
 			return controllerSettings.get(key);
 		} else {
@@ -78,32 +104,32 @@ public class SettingsManager {
 	}
 
 	public static String getStringValue(String controllerIdentifier, Setting key, String defaultValue) {
-		String returnValue = getStringValue(controllerIdentifier, key);
+		String returnValue = SettingsManager.getStringValue(controllerIdentifier, key);
 		return returnValue == null ? defaultValue : returnValue;
 	}
 
 	public static void setStringValue(String controllerIdentifier, String key, String value) {
-		Map<Setting, String> controllerSettings = allSettings.get(controllerIdentifier);
+		Map<Setting, String> controllerSettings = SettingsManager.allSettings.get(controllerIdentifier);
 		for (Entry<Setting, String> controllerSetting : controllerSettings.entrySet()) {
 			if (controllerSetting.getKey().getName().equals(key)) {
 				controllerSetting.setValue(value);
 			}
 		}
-		mySettings.setProperty(key, value);
+		SettingsManager.mySettings.setProperty(key, value);
 	}
 
 	public static boolean storeSettings() {
 		try {
-			FileOutputStream fos = new FileOutputStream(configFile);
-			mySettings.store(fos, "");
+			FileOutputStream fos = new FileOutputStream(SettingsManager.configFile);
+			SettingsManager.mySettings.store(fos, "");
 		} catch (IOException e1) {
 			return false;
 		}
 		return true;
 	}
-	
+
 	public static void storeSettingsAndRestart() {
-		storeSettings();
+		SettingsManager.storeSettings();
 		new Thread() {
 			@Override
 			public void run() {
@@ -117,11 +143,11 @@ public class SettingsManager {
 	}
 
 	public static void setBasePath(String customBasePath) {
-		basePath = customBasePath;
+		SettingsManager.basePath = customBasePath;
 	}
 
 	public static String getBasePath() {
-		return basePath;
+		return SettingsManager.basePath;
 	}
 
 	public static String getTempPath() {
@@ -137,12 +163,12 @@ public class SettingsManager {
 		if (controllerSettings != null) {
 			// Check value
 			for (Setting setting : controllerSettings) {
-				String settingValue = mySettings.getProperty(setting.convert());
+				String settingValue = SettingsManager.mySettings.getProperty(setting.convert());
 				settingValue = settingValue == null ? "" : settingValue;
-				Map<Setting, String> settingsForController = allSettings.get(controller.getIdentifier());
+				Map<Setting, String> settingsForController = SettingsManager.allSettings.get(controller.getIdentifier());
 				if (settingsForController == null) {
 					settingsForController = new LinkedHashMap<>();
-					allSettings.put(controller.getIdentifier(), settingsForController);
+					SettingsManager.allSettings.put(controller.getIdentifier(), settingsForController);
 				}
 				settingsForController.put(setting, settingValue);
 			}
@@ -150,6 +176,6 @@ public class SettingsManager {
 	}
 
 	public static Map<String, Map<Setting, String>> getAllSettings() {
-		return allSettings;
+		return SettingsManager.allSettings;
 	}
 }
