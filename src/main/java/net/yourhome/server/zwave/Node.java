@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.zwave;
 
 import java.math.BigInteger;
@@ -10,8 +36,7 @@ import org.zwave4j.ValueType;
 
 import net.yourhome.server.base.DatabaseConnector;
 
-
-public class Node  {
+public class Node {
 	private short id;
 	private long homeId;
 	private String name;
@@ -28,39 +53,42 @@ public class Node  {
 	private List<AssociationGroup> associationGroups;
 	private boolean isAlive;
 	private short[] neighbours;
-	
+
 	private ZWaveController controller;
+
 	public Node(ZWaveController controller) {
 		this.controller = controller;
 	}
+
 	public void readProperties() {
-		setManufacturer(controller.getManager().getNodeManufacturerName(homeId, getId()));
-		setManufacturerId(controller.getManager().getNodeManufacturerId(homeId, getId()));
-		setProduct(controller.getManager().getNodeProductName(homeId, getId()));
-		setProductId(controller.getManager().getNodeProductId(homeId, getId()));
-		setProductType(controller.getManager().getNodeProductType(homeId, getId()));
-		setLocation(controller.getManager().getNodeLocation(homeId, getId()));
-		setName(controller.getManager().getNodeName(homeId, getId()));
-		setAssociations(controller.getAssociations(getHomeId(), getId()));
-		setAssociationGroups(controller.getAssociationGroups(getHomeId(), getId()));
-		setAlive(!controller.getManager().isNodeFailed(getHomeId(), getId()));
+		this.setManufacturer(this.controller.getManager().getNodeManufacturerName(this.homeId, this.getId()));
+		this.setManufacturerId(this.controller.getManager().getNodeManufacturerId(this.homeId, this.getId()));
+		this.setProduct(this.controller.getManager().getNodeProductName(this.homeId, this.getId()));
+		this.setProductId(this.controller.getManager().getNodeProductId(this.homeId, this.getId()));
+		this.setProductType(this.controller.getManager().getNodeProductType(this.homeId, this.getId()));
+		this.setLocation(this.controller.getManager().getNodeLocation(this.homeId, this.getId()));
+		this.setName(this.controller.getManager().getNodeName(this.homeId, this.getId()));
+		this.setAssociations(this.controller.getAssociations(this.getHomeId(), this.getId()));
+		this.setAssociationGroups(this.controller.getAssociationGroups(this.getHomeId(), this.getId()));
+		this.setAlive(!this.controller.getManager().isNodeFailed(this.getHomeId(), this.getId()));
 
 		// Add/complete settings from DB
-		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(), getControlId());
+		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(), this.getControlId());
 		if (alias != null) {
-			setLabel(alias);
+			this.setLabel(alias);
 		}
 	}
-	
+
 	/**
 	 * @return the productId
 	 */
 	public String getProductId() {
-		return productId;
+		return this.productId;
 	}
 
 	/**
-	 * @param productId the productId to set
+	 * @param productId
+	 *            the productId to set
 	 */
 	public void setProductId(String productId) {
 		this.productId = productId;
@@ -70,11 +98,12 @@ public class Node  {
 	 * @return the productType
 	 */
 	public String getProductType() {
-		return productType;
+		return this.productType;
 	}
 
 	/**
-	 * @param productType the productType to set
+	 * @param productType
+	 *            the productType to set
 	 */
 	public void setProductType(String productType) {
 		this.productType = productType;
@@ -88,7 +117,7 @@ public class Node  {
 	 * @return the associationGroups
 	 */
 	public List<AssociationGroup> getAssociationGroups() {
-		return associationGroups;
+		return this.associationGroups;
 	}
 
 	/**
@@ -103,7 +132,7 @@ public class Node  {
 	 * @return the events
 	 */
 	public List<Event> getEvents() {
-		return events;
+		return this.events;
 	}
 
 	/**
@@ -118,7 +147,7 @@ public class Node  {
 	 * @return the id
 	 */
 	public short getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -133,7 +162,7 @@ public class Node  {
 	 * @return the homeId
 	 */
 	public long getHomeId() {
-		return homeId;
+		return this.homeId;
 	}
 
 	/**
@@ -148,7 +177,7 @@ public class Node  {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -163,7 +192,7 @@ public class Node  {
 	 * @return the location
 	 */
 	public String getLocation() {
-		return location;
+		return this.location;
 	}
 
 	/**
@@ -178,7 +207,7 @@ public class Node  {
 	 * @return the label
 	 */
 	public String getLabel() {
-		return label;
+		return this.label;
 	}
 
 	/**
@@ -193,7 +222,7 @@ public class Node  {
 	 * @return the manufacturer
 	 */
 	public String getManufacturer() {
-		return manufacturer;
+		return this.manufacturer;
 	}
 
 	/**
@@ -203,17 +232,17 @@ public class Node  {
 	public void setManufacturer(String manufacturer) {
 		this.manufacturer = manufacturer;
 	}
-	
 
 	/**
 	 * @return the manufacturerId
 	 */
 	public String getManufacturerId() {
-		return manufacturerId;
+		return this.manufacturerId;
 	}
 
 	/**
-	 * @param manufacturerId the manufacturerId to set
+	 * @param manufacturerId
+	 *            the manufacturerId to set
 	 */
 	public void setManufacturerId(String manufacturerId) {
 		this.manufacturerId = manufacturerId;
@@ -223,7 +252,7 @@ public class Node  {
 	 * @return the product
 	 */
 	public String getProduct() {
-		return product;
+		return this.product;
 	}
 
 	/**
@@ -238,7 +267,7 @@ public class Node  {
 	 * @return the values
 	 */
 	public List<Value> getValues() {
-		return values;
+		return this.values;
 	}
 
 	/**
@@ -253,7 +282,7 @@ public class Node  {
 	 * @return the associations
 	 */
 	public List<Association> getAssociations() {
-		return associations;
+		return this.associations;
 	}
 
 	/**
@@ -268,7 +297,7 @@ public class Node  {
 	 * @return the isAlive
 	 */
 	public boolean isAlive() {
-		return isAlive;
+		return this.isAlive;
 	}
 
 	/**
@@ -283,7 +312,7 @@ public class Node  {
 	 * @return the neighbours
 	 */
 	public short[] getNeighbours() {
-		return neighbours;
+		return this.neighbours;
 	}
 
 	/**
@@ -293,25 +322,29 @@ public class Node  {
 	public void setNeighbours(short[] neighbours) {
 		this.neighbours = neighbours;
 	}
+
 	public void addValue(Value value) {
-		values.add(value);
+		this.values.add(value);
 	}
 
 	public void addEvent(Event event) {
-		events.add(event);
+		this.events.add(event);
 	}
 
 	public void removeValue(Value value) {
-		values.remove(value);
+		this.values.remove(value);
 	}
+
 	public void removeEvent(Event event) {
-		events.remove(event);
+		this.events.remove(event);
 	}
+
 	public Value getValue(ValueId valueId) {
-		return getValue(valueId.getType(),valueId.getGenre(),valueId.getInstance(),valueId.getIndex());
+		return this.getValue(valueId.getType(), valueId.getGenre(), valueId.getInstance(), valueId.getIndex());
 	}
+
 	public Value getValue(BigInteger valueId, short instance) {
-		for(Value value : values) {
+		for (Value value : this.values) {
 			ValueId valueIdObj = value.getOriginalValueId();
 			BigInteger currentValueId = ZWaveController.getInstance().getValueId(valueIdObj);
 			if (currentValueId.equals(valueId) && instance == valueIdObj.getInstance()) {
@@ -320,21 +353,19 @@ public class Node  {
 		}
 		return null;
 	}
+
 	public Value getValue(ValueType type, ValueGenre genre, short instance, short index) {
-		for(Value value : values) {
+		for (Value value : this.values) {
 			ValueId valueIdObj = value.getOriginalValueId();
-			if (valueIdObj.getType().equals(type) 
-					&& valueIdObj.getType().equals(type) 
-					&& valueIdObj.getGenre().equals(genre) 
-					&& valueIdObj.getInstance() == instance 
-					&& valueIdObj.getIndex() == index) {
+			if (valueIdObj.getType().equals(type) && valueIdObj.getType().equals(type) && valueIdObj.getGenre().equals(genre) && valueIdObj.getInstance() == instance && valueIdObj.getIndex() == index) {
 				return value;
 			}
 		}
 		return null;
 	}
+
 	public Event getEvent(BigInteger valueId) {
-		for(Event event : events) {
+		for (Event event : this.events) {
 			ValueId valueIdObj = event.getOriginalValueId();
 			BigInteger currentValueId = ZWaveController.getInstance().getValueId(valueIdObj);
 			if (currentValueId.equals(valueId)) {
@@ -343,86 +374,48 @@ public class Node  {
 		}
 		return null;
 	}
-/*
-	public ValueId getEvent(BigInteger valueId) {
-		int i = 0;
-		while (i < this.events.size()) {
-			BigInteger currentValueId = ZWaveController.getInstance().getValueId(this.events.get(i));
-			if (currentValueId.equals(valueId)) {
-				return this.events.get(i);
-			} else {
-				i++;
-			}
-		}
-		return null;
-	}*/
-	
-	/*public short id;
-	public long homeId = 0;
-	public String name;
-	public String location;
-	public String label;
-	public String manufacturer;
-	public String manufacturerId;
-	public String product;
-	public String productId;
-	public String productType;
-	public String controlId;
-	private List<ValueId> values = new ArrayList<ValueId>();
-	private List<ValueId> events = new ArrayList<ValueId>();
+	/*
+	 * public ValueId getEvent(BigInteger valueId) { int i = 0; while (i <
+	 * this.events.size()) { BigInteger currentValueId =
+	 * ZWaveController.getInstance().getValueId(this.events.get(i)); if
+	 * (currentValueId.equals(valueId)) { return this.events.get(i); } else {
+	 * i++; } } return null; }
+	 */
 
-	public Node() {
-	}
-
-	public void addValue(ValueId valueId) {
-		values.add(valueId);
-	}
-
-	public void addEvent(ValueId valueId) {
-		events.add(valueId);
-	}
-
-	public void removeValue(ValueId valueId) {
-		values.remove(valueId);
-	}
-
-	public void removeEvent(ValueId valueId) {
-		events.remove(valueId);
-	}
-
-	public List<ValueId> getValues() {
-		return values;
-	}
-
-	public List<ValueId> getEvents() {
-		return events;
-	}
-
-	public ValueId getValue(BigInteger valueId, short instance) {
-		int i = 0;
-		while (i < this.values.size()) {
-			ValueId valueIdObj = this.values.get(i);
-			BigInteger currentValueId = ZWaveController.getInstance().getValueId(valueIdObj);
-			if (currentValueId.equals(valueId) && instance == valueIdObj.getInstance()) {
-				return this.values.get(i);
-			} else {
-				i++;
-			}
-		}
-		return null;
-	}
-
-	public ValueId getEvent(BigInteger valueId) {
-		int i = 0;
-		while (i < this.events.size()) {
-			BigInteger currentValueId = ZWaveController.getInstance().getValueId(this.events.get(i));
-			if (currentValueId.equals(valueId)) {
-				return this.events.get(i);
-			} else {
-				i++;
-			}
-		}
-		return null;
-	}*/
+	/*
+	 * public short id; public long homeId = 0; public String name; public
+	 * String location; public String label; public String manufacturer; public
+	 * String manufacturerId; public String product; public String productId;
+	 * public String productType; public String controlId; private List<ValueId>
+	 * values = new ArrayList<ValueId>(); private List<ValueId> events = new
+	 * ArrayList<ValueId>();
+	 * 
+	 * public Node() { }
+	 * 
+	 * public void addValue(ValueId valueId) { values.add(valueId); }
+	 * 
+	 * public void addEvent(ValueId valueId) { events.add(valueId); }
+	 * 
+	 * public void removeValue(ValueId valueId) { values.remove(valueId); }
+	 * 
+	 * public void removeEvent(ValueId valueId) { events.remove(valueId); }
+	 * 
+	 * public List<ValueId> getValues() { return values; }
+	 * 
+	 * public List<ValueId> getEvents() { return events; }
+	 * 
+	 * public ValueId getValue(BigInteger valueId, short instance) { int i = 0;
+	 * while (i < this.values.size()) { ValueId valueIdObj = this.values.get(i);
+	 * BigInteger currentValueId =
+	 * ZWaveController.getInstance().getValueId(valueIdObj); if
+	 * (currentValueId.equals(valueId) && instance == valueIdObj.getInstance())
+	 * { return this.values.get(i); } else { i++; } } return null; }
+	 * 
+	 * public ValueId getEvent(BigInteger valueId) { int i = 0; while (i <
+	 * this.events.size()) { BigInteger currentValueId =
+	 * ZWaveController.getInstance().getValueId(this.events.get(i)); if
+	 * (currentValueId.equals(valueId)) { return this.events.get(i); } else {
+	 * i++; } } return null; }
+	 */
 
 }

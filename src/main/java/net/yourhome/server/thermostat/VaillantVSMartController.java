@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.thermostat;
 
 import java.net.URLEncoder;
@@ -49,8 +75,7 @@ import net.yourhome.server.net.Server;
 public class VaillantVSMartController extends AbstractController {
 	public enum Settings {
 
-		THERMOSTAT_USERNAME(new Setting("THERMOSTAT_USERNAME", "VSMart Thermostat Username", "my@email.address")), 
-		THERMOSTAT_PASSWORD(new Setting("THERMOSTAT_PASSWORD", "VSMart Thermostat Password"));
+		THERMOSTAT_USERNAME(new Setting("THERMOSTAT_USERNAME", "VSMart Thermostat Username", "my@email.address")), THERMOSTAT_PASSWORD(new Setting("THERMOSTAT_PASSWORD", "VSMart Thermostat Password"));
 
 		private Setting setting;
 
@@ -59,7 +84,7 @@ public class VaillantVSMartController extends AbstractController {
 		}
 
 		public Setting get() {
-			return setting;
+			return this.setting;
 		}
 	}
 
@@ -68,9 +93,9 @@ public class VaillantVSMartController extends AbstractController {
 
 	// Thermostat API
 	private final String BASE_URL = "https://app.netatmo.net";
-	private final String TOKEN_URL = BASE_URL + "/oauth2/token";
-	private final String GET_THERMOSTAT_DATA = BASE_URL + "/api/getthermostatsdata";
-	private final String SET_MINOR_MODE = BASE_URL + "/api/setminormode";
+	private final String TOKEN_URL = this.BASE_URL + "/oauth2/token";
+	private final String GET_THERMOSTAT_DATA = this.BASE_URL + "/api/getthermostatsdata";
+	private final String SET_MINOR_MODE = this.BASE_URL + "/api/setminormode";
 
 	// Vaillant app specifics
 	private final String CLIENT_ID = "na_client_android_vaillant";
@@ -84,7 +109,7 @@ public class VaillantVSMartController extends AbstractController {
 	private final String MANUAL_OVERRIDE_ACTIVE = "manualOverride";
 	private final String AWAY_ACTIVE = "awayActive";
 	private final String AWAY_ACTIVE_UNTIL_TXT = "awayActiveUntilTxt";
-	
+
 	private String username;
 	private String password;
 	private String authToken;
@@ -92,27 +117,32 @@ public class VaillantVSMartController extends AbstractController {
 	private String deviceId;
 	private String moduleId;
 
-	private Map<String,ControllerNode> controllerMap = new LinkedHashMap<String,ControllerNode>();
+	private Map<String, ControllerNode> controllerMap = new LinkedHashMap<String, ControllerNode>();
 	private Map<String, ValueChangedMessage> values = new HashMap<String, ValueChangedMessage>();
 
 	private static volatile VaillantVSMartController instance;
 	private static Object lock = new Object();
+
 	private VaillantVSMartController() {
-		log = Logger.getLogger("net.yourhome.server.thermostat.Thermostat-Vaillant");
+		this.log = Logger.getLogger("net.yourhome.server.thermostat.Thermostat-Vaillant");
 	}
+
 	public static VaillantVSMartController getInstance() {
-		VaillantVSMartController r = instance;
+		VaillantVSMartController r = VaillantVSMartController.instance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = instance; // thread may have instantiated
-								// the object
+			synchronized (VaillantVSMartController.lock) { // while we were
+															// waiting for the
+															// lock, another
+				r = VaillantVSMartController.instance; // thread may have
+														// instantiated
+				// the object
 				if (r == null) {
 					r = new VaillantVSMartController();
-					instance = r;
+					VaillantVSMartController.instance = r;
 				}
 			}
 		}
-		return instance;
+		return VaillantVSMartController.instance;
 	}
 
 	private boolean getLoginToken() throws Exception {
@@ -122,22 +152,22 @@ public class VaillantVSMartController extends AbstractController {
 
 		String messageBody = "";
 		Map<String, String> messageBodyMap = new HashMap<String, String>();
-		messageBodyMap.put("client_id", URLEncoder.encode(CLIENT_ID, "UTF-8"));
+		messageBodyMap.put("client_id", URLEncoder.encode(this.CLIENT_ID, "UTF-8"));
 		messageBodyMap.put("client_secret", URLEncoder.encode(BuildConfig.VAILLANT_CLIENT_SECRET, "UTF-8"));
-		messageBodyMap.put("app_version", URLEncoder.encode(APP_VERSION, "UTF-8"));
-		messageBodyMap.put("username", URLEncoder.encode(username, "UTF-8"));
-		messageBodyMap.put("password", URLEncoder.encode(password, "UTF-8"));
+		messageBodyMap.put("app_version", URLEncoder.encode(this.APP_VERSION, "UTF-8"));
+		messageBodyMap.put("username", URLEncoder.encode(this.username, "UTF-8"));
+		messageBodyMap.put("password", URLEncoder.encode(this.password, "UTF-8"));
 		messageBodyMap.put("grant_type", URLEncoder.encode("password", "UTF-8"));
-		messageBodyMap.put("user_prefix", URLEncoder.encode(USER_PREFIX, "UTF-8"));
+		messageBodyMap.put("user_prefix", URLEncoder.encode(this.USER_PREFIX, "UTF-8"));
 
 		for (Map.Entry<String, String> param : messageBodyMap.entrySet()) {
 			messageBody += param.getKey() + "=" + param.getValue() + "&";
 		}
 
 		command.setMessageBody(messageBody);
-		command.setUrl(TOKEN_URL);
+		command.setUrl(this.TOKEN_URL);
 		command.setMessageType("application/x-www-form-urlencoded; charset=UTF-8");
-		HttpCommandMessage returnMessage = httpController.sendHttpCommand(command);
+		HttpCommandMessage returnMessage = this.httpController.sendHttpCommand(command);
 
 		// Parse result
 		JSONObject json = new JSONObject(returnMessage.response);
@@ -146,7 +176,7 @@ public class VaillantVSMartController extends AbstractController {
 		this.authToken = json.getString("access_token");
 		this.refreshToken = json.getString("refresh_token");
 
-		if (authToken != null) {
+		if (this.authToken != null) {
 			return true;
 		}
 		return false;
@@ -159,11 +189,11 @@ public class VaillantVSMartController extends AbstractController {
 
 		String messageBody = "";
 		Map<String, String> messageBodyMap = new HashMap<String, String>();
-		messageBodyMap.put("client_id", URLEncoder.encode(CLIENT_ID, "UTF-8"));
+		messageBodyMap.put("client_id", URLEncoder.encode(this.CLIENT_ID, "UTF-8"));
 		messageBodyMap.put("client_secret", URLEncoder.encode(BuildConfig.VAILLANT_CLIENT_SECRET, "UTF-8"));
-		messageBodyMap.put("app_version", URLEncoder.encode(APP_VERSION, "UTF-8"));
+		messageBodyMap.put("app_version", URLEncoder.encode(this.APP_VERSION, "UTF-8"));
 		messageBodyMap.put("grant_type", URLEncoder.encode("refresh_token", "UTF-8"));
-		messageBodyMap.put("user_prefix", URLEncoder.encode(USER_PREFIX, "UTF-8"));
+		messageBodyMap.put("user_prefix", URLEncoder.encode(this.USER_PREFIX, "UTF-8"));
 		messageBodyMap.put("refresh_token", URLEncoder.encode(this.refreshToken, "UTF-8"));
 
 		for (Map.Entry<String, String> param : messageBodyMap.entrySet()) {
@@ -171,9 +201,9 @@ public class VaillantVSMartController extends AbstractController {
 		}
 
 		command.setMessageBody(messageBody);
-		command.setUrl(TOKEN_URL);
+		command.setUrl(this.TOKEN_URL);
 		command.addHeader("Content Type", "application/x-www-form-urlencoded; charset=UTF-8");
-		HttpCommandMessage returnMessage = httpController.sendHttpCommand(command);
+		HttpCommandMessage returnMessage = this.httpController.sendHttpCommand(command);
 
 		// Parse result
 		JSONObject json = new JSONObject(returnMessage.response);
@@ -187,10 +217,10 @@ public class VaillantVSMartController extends AbstractController {
 		HttpCommand command = new HttpCommand();
 		Map<String, String> messageBodyMap = new HashMap<String, String>();
 
-		messageBodyMap.put("app_version", URLEncoder.encode(APP_VERSION, "UTF-8"));
+		messageBodyMap.put("app_version", URLEncoder.encode(this.APP_VERSION, "UTF-8"));
 		messageBodyMap.put("sync_device_id", URLEncoder.encode("all", "UTF-8"));
 		messageBodyMap.put("device_type", URLEncoder.encode("NAVaillant", "UTF-8"));
-		messageBodyMap.put("access_token", URLEncoder.encode(authToken, "UTF-8"));
+		messageBodyMap.put("access_token", URLEncoder.encode(this.authToken, "UTF-8"));
 
 		String messageBody = "";
 		for (Map.Entry<String, String> param : messageBodyMap.entrySet()) {
@@ -199,78 +229,78 @@ public class VaillantVSMartController extends AbstractController {
 
 		command.setHttpMethod("POST");
 		command.setMessageType("application/x-www-form-urlencoded; charset=UTF-8");
-		command.setUrl(GET_THERMOSTAT_DATA);
+		command.setUrl(this.GET_THERMOSTAT_DATA);
 		command.setMessageBody(messageBody);
 
 		// Parse result
 
 		// Measures
-		Object apiResponse = requestApi(command);
+		Object apiResponse = this.requestApi(command);
 		try {
 			Double outdoorTemperature = Double.valueOf("" + JsonPath.read(apiResponse, "$.body.devices[0].outdoor_temperature.te"));
 			String formattedValue = String.format("%.2f", outdoorTemperature).replace(",", ".");
-			updateTemperatureValue(OUTDOOR_TEMPERATURE, outdoorTemperature, formattedValue);
+			this.updateTemperatureValue(this.OUTDOOR_TEMPERATURE, outdoorTemperature, formattedValue);
 
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 
 		try {
 			Double indoorTemperature = Double.valueOf("" + JsonPath.read(apiResponse, "$.body.devices[0].modules[0].measured.temperature"));
 			String formattedValue = String.format("%.2f", indoorTemperature).replace(",", ".");
-			updateTemperatureValue(INDOOR_TEMPERATURE, indoorTemperature, formattedValue);
+			this.updateTemperatureValue(this.INDOOR_TEMPERATURE, indoorTemperature, formattedValue);
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 
 		try {
 			Double setpointTemperature = Double.valueOf("" + JsonPath.read(apiResponse, "$.body.devices[0].modules[0].measured.setpoint_temp"));
 			String formattedValue = String.format("%.1f", setpointTemperature).replace(",", ".");
-			updateTemperatureValue(SETPOINT_TEMPERATURE, setpointTemperature, formattedValue);
+			this.updateTemperatureValue(this.SETPOINT_TEMPERATURE, setpointTemperature, formattedValue);
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 
 		try {
-			deviceId = JsonPath.read(apiResponse, "$.body.devices[0]._id");
-			moduleId = JsonPath.read(apiResponse, "$.body.devices[0].modules[0]._id");
+			this.deviceId = JsonPath.read(apiResponse, "$.body.devices[0]._id");
+			this.moduleId = JsonPath.read(apiResponse, "$.body.devices[0].modules[0]._id");
 		} catch (Exception e) {
 		}
 
 		// States
 		try {
 			Boolean awayActive = Boolean.valueOf("" + JsonPath.read(apiResponse, "$.body.devices[0].modules[0].setpoint_away.setpoint_activate"));
-			updateBooleanValue(AWAY_ACTIVE, awayActive);
+			this.updateBooleanValue(this.AWAY_ACTIVE, awayActive);
 			if (awayActive) {
 				Long awayActiveUntil = Long.valueOf("" + JsonPath.read(apiResponse, "$.body.devices[0].modules[0].setpoint_away.setpoint_endtime"));
 				if (awayActiveUntil == 0) {
-					updateAwayTxt(awayActive, null);
+					this.updateAwayTxt(awayActive, null);
 				} else {
-					updateAwayTxt(awayActive, new Date(awayActiveUntil * 1000L));
+					this.updateAwayTxt(awayActive, new Date(awayActiveUntil * 1000L));
 				}
 			} else {
-				updateAwayTxt(awayActive, null);
+				this.updateAwayTxt(awayActive, null);
 			}
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 		try {
 			Boolean manualOverride = Boolean.valueOf("" + JsonPath.read(apiResponse, "$.body.devices[0].modules[0].setpoint_manual.setpoint_activate"));
-			updateBooleanValue(MANUAL_OVERRIDE_ACTIVE, manualOverride);
+			this.updateBooleanValue(this.MANUAL_OVERRIDE_ACTIVE, manualOverride);
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 
 	}
 
 	private void updateAwayTxt(Boolean away, Date until) {
 		if (!away) {
-			updateTextValue(AWAY_ACTIVE_UNTIL_TXT, "At home");
+			this.updateTextValue(this.AWAY_ACTIVE_UNTIL_TXT, "At home");
 		} else {
 			if (until == null) {
-				updateTextValue(AWAY_ACTIVE_UNTIL_TXT, "Away until changed");
+				this.updateTextValue(this.AWAY_ACTIVE_UNTIL_TXT, "Away until changed");
 			} else {
-				updateTextValue(AWAY_ACTIVE_UNTIL_TXT, "Away until " + new SimpleDateFormat("dd/MM HH:mm").format(until));
+				this.updateTextValue(this.AWAY_ACTIVE_UNTIL_TXT, "Away until " + new SimpleDateFormat("dd/MM HH:mm").format(until));
 			}
 		}
 	}
@@ -286,20 +316,20 @@ public class VaillantVSMartController extends AbstractController {
 		endTime.setTime(new Date());
 		endTime.add(Calendar.HOUR_OF_DAY, 3);
 
-		boolean returnBoolean = setAway(on, endTime.getTime());
+		boolean returnBoolean = this.setAway(on, endTime.getTime());
 
 		if (returnBoolean && on) {
 			ClientNotificationMessage notificationMessage = new ClientNotificationMessage();
-			notificationMessage.controlIdentifiers = this.values.get(AWAY_ACTIVE).controlIdentifiers;
+			notificationMessage.controlIdentifiers = this.values.get(this.AWAY_ACTIVE).controlIdentifiers;
 			notificationMessage.notificationType = MobileNotificationTypes.DATE_TIME_PICKER;
 			notificationMessage.subtitle = "When will you be back home?";
 			notificationMessage.title = "Away mode activated";
 			notificationMessage.message = "Until " + new SimpleDateFormat("HH:mm, dd/MM").format(endTime.getTime()) + ". Click to change";
 			notificationMessage.startDate = endTime.getTime().getTime();
 			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
-		}else if(returnBoolean && !on) {
+		} else if (returnBoolean && !on) {
 			ClientNotificationMessage notificationMessage = new ClientNotificationMessage();
-			notificationMessage.controlIdentifiers = this.values.get(AWAY_ACTIVE).controlIdentifiers;
+			notificationMessage.controlIdentifiers = this.values.get(this.AWAY_ACTIVE).controlIdentifiers;
 			notificationMessage.notificationType = MobileNotificationTypes.DATE_TIME_PICKER;
 			notificationMessage.cancel = true;
 			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
@@ -311,12 +341,12 @@ public class VaillantVSMartController extends AbstractController {
 		HttpCommand command = new HttpCommand();
 		Map<String, String> messageBodyMap = new HashMap<String, String>();
 
-		messageBodyMap.put("app_version", URLEncoder.encode(APP_VERSION, "UTF-8"));
+		messageBodyMap.put("app_version", URLEncoder.encode(this.APP_VERSION, "UTF-8"));
 		messageBodyMap.put("activate", URLEncoder.encode(on ? "true" : "false", "UTF-8"));
-		messageBodyMap.put("access_token", URLEncoder.encode(authToken, "UTF-8"));
+		messageBodyMap.put("access_token", URLEncoder.encode(this.authToken, "UTF-8"));
 		messageBodyMap.put("setpoint_mode", URLEncoder.encode("away", "UTF-8"));
-		messageBodyMap.put("module_id", URLEncoder.encode(moduleId, "UTF-8"));
-		messageBodyMap.put("device_id", URLEncoder.encode(deviceId, "UTF-8"));
+		messageBodyMap.put("module_id", URLEncoder.encode(this.moduleId, "UTF-8"));
+		messageBodyMap.put("device_id", URLEncoder.encode(this.deviceId, "UTF-8"));
 		messageBodyMap.put("setpoint_endtime", endTime.getTime() / 1000L + "");
 
 		String messageBody = "";
@@ -326,20 +356,20 @@ public class VaillantVSMartController extends AbstractController {
 
 		command.setHttpMethod("POST");
 		command.setMessageType("application/x-www-form-urlencoded; charset=UTF-8");
-		command.setUrl(SET_MINOR_MODE);
+		command.setUrl(this.SET_MINOR_MODE);
 		command.setMessageBody(messageBody);
 
 		// Parse result
-		Object apiResponse = requestApi(command);
+		Object apiResponse = this.requestApi(command);
 		try {
 			String status = JsonPath.read(apiResponse, "$.status");
 			if (status.equals("ok")) {
-				updateBooleanValue(AWAY_ACTIVE, on);
-				updateAwayTxt(on, endTime);
+				this.updateBooleanValue(this.AWAY_ACTIVE, on);
+				this.updateAwayTxt(on, endTime);
 				// Cancel pending notifications as an end time has been set
-				if(!on) {
+				if (!on) {
 					ClientNotificationMessage notificationMessage = new ClientNotificationMessage();
-					notificationMessage.controlIdentifiers = this.values.get(AWAY_ACTIVE).controlIdentifiers;
+					notificationMessage.controlIdentifiers = this.values.get(this.AWAY_ACTIVE).controlIdentifiers;
 					notificationMessage.notificationType = MobileNotificationTypes.DATE_TIME_PICKER;
 					notificationMessage.cancel = true;
 					GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
@@ -357,7 +387,7 @@ public class VaillantVSMartController extends AbstractController {
 		if (valueChanged == null) {
 			valueChanged = new ValueChangedMessage();
 			valueChanged.broadcast = true;
-			valueChanged.controlIdentifiers = new ControlIdentifiers(getIdentifier(), "Measurements", valueIdentifier);
+			valueChanged.controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), "Measurements", valueIdentifier);
 			valueChanged.unit = "°C";
 			valueChanged.value = formattedValue;
 			valueChanged.valueType = ValueTypes.SENSOR_TEMPERATURE;
@@ -379,7 +409,7 @@ public class VaillantVSMartController extends AbstractController {
 
 			this.triggerValueChanged(valueChanged.controlIdentifiers);
 
-			log.debug("Value change: " + valueIdentifier + ": " + formattedValue);
+			this.log.debug("Value change: " + valueIdentifier + ": " + formattedValue);
 		}
 	}
 
@@ -390,7 +420,7 @@ public class VaillantVSMartController extends AbstractController {
 		if (valueChanged == null) {
 			valueChanged = new ValueChangedMessage();
 			valueChanged.broadcast = true;
-			valueChanged.controlIdentifiers = new ControlIdentifiers(getIdentifier(), "States", valueIdentifier);
+			valueChanged.controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), "States", valueIdentifier);
 			valueChanged.unit = "";
 			valueChanged.value = textValue;
 			valueChanged.valueType = ValueTypes.TEXT;
@@ -406,7 +436,7 @@ public class VaillantVSMartController extends AbstractController {
 
 		if (changed) {
 			Server.getInstance().broadcast(valueChanged);
-			log.debug("Value change: " + valueIdentifier + ": " + textValue);
+			this.log.debug("Value change: " + valueIdentifier + ": " + textValue);
 		}
 	}
 
@@ -418,7 +448,7 @@ public class VaillantVSMartController extends AbstractController {
 		if (valueChanged == null) {
 			valueChanged = new ValueChangedMessage();
 			valueChanged.broadcast = true;
-			valueChanged.controlIdentifiers = new ControlIdentifiers(getIdentifier(), "States", valueIdentifier);
+			valueChanged.controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), "States", valueIdentifier);
 			valueChanged.unit = "";
 			valueChanged.value = booleanValue ? "true" : "false";
 			valueChanged.valueType = ValueTypes.SWITCH_BINARY;
@@ -439,7 +469,7 @@ public class VaillantVSMartController extends AbstractController {
 
 			this.triggerValueChanged(valueChanged.controlIdentifiers);
 
-			log.debug("Value change: " + valueIdentifier + ": " + stringValue);
+			this.log.debug("Value change: " + valueIdentifier + ": " + stringValue);
 		}
 	}
 
@@ -447,12 +477,12 @@ public class VaillantVSMartController extends AbstractController {
 		HttpCommand command = new HttpCommand();
 		Map<String, String> messageBodyMap = new HashMap<String, String>();
 
-		messageBodyMap.put("app_version", URLEncoder.encode(APP_VERSION, "UTF-8"));
+		messageBodyMap.put("app_version", URLEncoder.encode(this.APP_VERSION, "UTF-8"));
 		messageBodyMap.put("activate", URLEncoder.encode(on ? "true" : "false", "UTF-8"));
-		messageBodyMap.put("access_token", URLEncoder.encode(authToken, "UTF-8"));
+		messageBodyMap.put("access_token", URLEncoder.encode(this.authToken, "UTF-8"));
 		messageBodyMap.put("setpoint_mode", URLEncoder.encode("manual", "UTF-8"));
-		messageBodyMap.put("module_id", URLEncoder.encode(moduleId, "UTF-8"));
-		messageBodyMap.put("device_id", URLEncoder.encode(deviceId, "UTF-8"));
+		messageBodyMap.put("module_id", URLEncoder.encode(this.moduleId, "UTF-8"));
+		messageBodyMap.put("device_id", URLEncoder.encode(this.deviceId, "UTF-8"));
 		messageBodyMap.put("setpoint_temp", URLEncoder.encode(String.format(Locale.US, "%.2f", setpointTemperature), "UTF-8"));
 		messageBodyMap.put("setpoint_endtime", endTime.getTime() / 1000L + "");
 
@@ -463,38 +493,38 @@ public class VaillantVSMartController extends AbstractController {
 
 		command.setHttpMethod("POST");
 		command.setMessageType("application/x-www-form-urlencoded; charset=UTF-8");
-		command.setUrl(SET_MINOR_MODE);
+		command.setUrl(this.SET_MINOR_MODE);
 		command.setMessageBody(messageBody);
 
 		// Parse result
-		Object apiResponse = requestApi(command);
+		Object apiResponse = this.requestApi(command);
 		try {
 			String status = JsonPath.read(apiResponse, "$.status");
 			if (status.equals("ok")) {
-				updateTemperatureValue(SETPOINT_TEMPERATURE, setpointTemperature, String.format("%.1f", setpointTemperature).replace(",", "."));
+				this.updateTemperatureValue(this.SETPOINT_TEMPERATURE, setpointTemperature, String.format("%.1f", setpointTemperature).replace(",", "."));
 				return true;
 			} else {
 				return false;
 			}
 
 		} catch (PathNotFoundException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 			return false;
 		}
 	}
 
 	private Object requestApi(HttpCommand command) throws Exception {
-		HttpCommandMessage returnMessage = httpController.sendHttpCommand(command);
-		log.debug("API Request: " + command.getUrl() + ", body: " + command.getMessageBody());
+		HttpCommandMessage returnMessage = this.httpController.sendHttpCommand(command);
+		this.log.debug("API Request: " + command.getUrl() + ", body: " + command.getMessageBody());
 		Object document = Configuration.defaultConfiguration().jsonProvider().parse(returnMessage.response);
-		log.debug("API Response: " + returnMessage.response);
+		this.log.debug("API Response: " + returnMessage.response);
 		try {
 			Integer error = JsonPath.read(document, "$.error.code");
 			// {error={code=3, message=Access token expired}}
 			if (error == 2 || error == 3) {
 				// Token needs to be refreshed
 				// refreshToken();
-				getLoginToken();
+				this.getLoginToken();
 				return Configuration.defaultConfiguration().jsonProvider().parse(returnMessage.response);
 			}
 		} catch (PathNotFoundException e) {
@@ -518,7 +548,7 @@ public class VaillantVSMartController extends AbstractController {
 				ClientMessageMessage returnMessage = new ClientMessageMessage();
 				message.broadcast = true;
 				message.controlIdentifiers = new ControlIdentifiers(ControllerTypes.GENERAL.convert());
-				if (setAway(onOff, ((SetAwayMessage) message).until)) {
+				if (this.setAway(onOff, ((SetAwayMessage) message).until)) {
 					returnMessage.messageContent = "Away mode activated until " + new SimpleDateFormat("dd/MM HH:mm").format(((SetAwayMessage) message).until);
 					return returnMessage;
 				} else {
@@ -526,10 +556,10 @@ public class VaillantVSMartController extends AbstractController {
 					return returnMessage;
 				}
 			} catch (Exception e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		} else if (message instanceof SetValueMessage) {
-			if (message.controlIdentifiers.getValueIdentifier().equals(SETPOINT_TEMPERATURE)) {
+			if (message.controlIdentifiers.getValueIdentifier().equals(this.SETPOINT_TEMPERATURE)) {
 				try {
 					Double value = Double.parseDouble(((SetValueMessage) message).value);
 					Calendar c = Calendar.getInstance();
@@ -547,25 +577,25 @@ public class VaillantVSMartController extends AbstractController {
 						return returnMessage;
 					}
 				} catch (NumberFormatException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (Exception e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
-			} else if (message.controlIdentifiers.getValueIdentifier().equals(AWAY_ACTIVE)) {
+			} else if (message.controlIdentifiers.getValueIdentifier().equals(this.AWAY_ACTIVE)) {
 				Boolean value = Boolean.parseBoolean(((SetValueMessage) message).value);
 				try {
-					setAway(value);
+					this.setAway(value);
 				} catch (Exception e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
-			} else if (message.controlIdentifiers.getValueIdentifier().equals(MANUAL_OVERRIDE_ACTIVE)) {
+			} else if (message.controlIdentifiers.getValueIdentifier().equals(this.MANUAL_OVERRIDE_ACTIVE)) {
 				Boolean value = Boolean.parseBoolean(((SetValueMessage) message).value);
 				try {
 					if (value == false) {
 						this.setManualSetpoint(5.0, new Date(), false);
 					}
 				} catch (Exception e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 			}
 		}
@@ -581,44 +611,44 @@ public class VaillantVSMartController extends AbstractController {
 	@Override
 	public void init() {
 		super.init();
-		
-		username = SettingsManager.getStringValue(getIdentifier(), Settings.THERMOSTAT_USERNAME.get());
-		password = SettingsManager.getStringValue(getIdentifier(), Settings.THERMOSTAT_PASSWORD.get());
-		
-		if (username == null || username.equals("") || password == null || password.equals("")) {
-			log.info("Could not find VSMart settings. Disabling VSMart.");
-			enabled = false;
-		}else {
-			enabled = true;
+
+		this.username = SettingsManager.getStringValue(this.getIdentifier(), Settings.THERMOSTAT_USERNAME.get());
+		this.password = SettingsManager.getStringValue(this.getIdentifier(), Settings.THERMOSTAT_PASSWORD.get());
+
+		if (this.username == null || this.username.equals("") || this.password == null || this.password.equals("")) {
+			this.log.info("Could not find VSMart settings. Disabling VSMart.");
+			this.enabled = false;
+		} else {
+			this.enabled = true;
 			if (this.httpController == null) {
 				this.httpController = HttpCommandController.getInstance();
 			}
 
 			// Login
 			try {
-				getLoginToken();
-				updateThermostatDetails();
+				this.getLoginToken();
+				this.updateThermostatDetails();
 			} catch (Exception e) {
 				e.getStackTrace();
-				log.error("Could not start : " + e.getMessage());
+				this.log.error("Could not start : " + e.getMessage());
 			}
-			
+
 			// Poll for updates each 5 minutes
 			Scheduler.getInstance().scheduleCron(new TimerTask() {
 				@Override
 				public void run() {
 					try {
-						updateThermostatDetails();
+						VaillantVSMartController.this.updateThermostatDetails();
 					} catch (Exception e) {
 
 					}
 				}
 			}, "0,5,10,15,20,25,30,35,40,45,50,55 * * * *");
-			
+
 			// Initialize node structure
-			getNodes();
-			
-			log.info("Initialized");
+			this.getNodes();
+
+			this.log.info("Initialized");
 		}
 	}
 
@@ -629,41 +659,40 @@ public class VaillantVSMartController extends AbstractController {
 
 	@Override
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	@Override
 	public String getName() {
 		return "Vaillant VSmart Thermostat";
 	}
-	
 
 	@Override
 	public Collection<ControllerNode> getNodes() {
 
-		if(controllerMap.size()==0) {
+		if (this.controllerMap.size() == 0) {
 			ControllerNode measurementsNode = new ControllerNode(this, "Measurements", "Measurements", "");
-			measurementsNode.addValue(new ControllerValue(SETPOINT_TEMPERATURE, "Setpoint Temperature", ValueTypes.HEATING));
-			measurementsNode.addValue(new ControllerValue(INDOOR_TEMPERATURE, "Indoor Temperature", ValueTypes.SENSOR_TEMPERATURE));
-			measurementsNode.addValue(new ControllerValue(OUTDOOR_TEMPERATURE, "Outdoor Temperature", ValueTypes.SENSOR_TEMPERATURE));
-			controllerMap.put(measurementsNode.getIdentifier(),measurementsNode);
-	
+			measurementsNode.addValue(new ControllerValue(this.SETPOINT_TEMPERATURE, "Setpoint Temperature", ValueTypes.HEATING));
+			measurementsNode.addValue(new ControllerValue(this.INDOOR_TEMPERATURE, "Indoor Temperature", ValueTypes.SENSOR_TEMPERATURE));
+			measurementsNode.addValue(new ControllerValue(this.OUTDOOR_TEMPERATURE, "Outdoor Temperature", ValueTypes.SENSOR_TEMPERATURE));
+			this.controllerMap.put(measurementsNode.getIdentifier(), measurementsNode);
+
 			ControllerNode statesNode = new ControllerNode(this, "States", "States", "");
-			statesNode.addValue(new ControllerValue(MANUAL_OVERRIDE_ACTIVE, "Manual Override Active", ValueTypes.SWITCH_BINARY));
-			statesNode.addValue(new ControllerValue(AWAY_ACTIVE, "Away schema active", ValueTypes.SWITCH_BINARY));
-			statesNode.addValue(new ControllerValue(AWAY_ACTIVE_UNTIL_TXT, "Away until text", ValueTypes.TEXT));
-			controllerMap.put(statesNode.getIdentifier(),statesNode);
+			statesNode.addValue(new ControllerValue(this.MANUAL_OVERRIDE_ACTIVE, "Manual Override Active", ValueTypes.SWITCH_BINARY));
+			statesNode.addValue(new ControllerValue(this.AWAY_ACTIVE, "Away schema active", ValueTypes.SWITCH_BINARY));
+			statesNode.addValue(new ControllerValue(this.AWAY_ACTIVE_UNTIL_TXT, "Away until text", ValueTypes.TEXT));
+			this.controllerMap.put(statesNode.getIdentifier(), statesNode);
 		}
 
-		return controllerMap.values();
+		return this.controllerMap.values();
 	}
 
 	@Override
 	public String getValueName(ControlIdentifiers valueIdentifier) {
-		ControllerNode node = controllerMap.get(valueIdentifier.getControllerIdentifier());
-		if(node != null) {
+		ControllerNode node = this.controllerMap.get(valueIdentifier.getControllerIdentifier());
+		if (node != null) {
 			ControllerValue value = node.getValue(valueIdentifier.getValueIdentifier());
-			if(value != null) {
+			if (value != null) {
 				return value.getName();
 			}
 		}

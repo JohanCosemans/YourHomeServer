@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net.rest;
 
 import java.io.BufferedWriter;
@@ -40,7 +66,7 @@ import net.yourhome.server.net.rest.view.ImageHelper;
 public class Project {
 
 	public static final String PROJECT_FOLDER = ImageHelper.HOMEDESIGNER_PATH + "/projects";
-	public static final String PUBLISHED_PROJECTS_FOLDER = PROJECT_FOLDER + "/published";
+	public static final String PUBLISHED_PROJECTS_FOLDER = Project.PROJECT_FOLDER + "/published";
 	private static Logger log = Logger.getLogger(Project.class);
 
 	private String imageFolder = SettingsManager.getBasePath() + Server.FILESERVER_PATH + ImageHelper.HOMEDESIGNER_PATH;
@@ -52,8 +78,8 @@ public class Project {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response publishProject(@Context final UriInfo uriInfo, @PathParam("projectName") final String projectName, String bodyContent) {
 		// Convert project
-		String convertedProject = convertJsonToProject(bodyContent, projectName);
-		updateServerInfo(new File(convertedProject));
+		String convertedProject = this.convertJsonToProject(bodyContent, projectName);
+		this.updateServerInfo(new File(convertedProject));
 		if (convertedProject == null) {
 			return Response.serverError().build();
 		}
@@ -69,7 +95,7 @@ public class Project {
 		Configuration c = info.getConfigurations().remove(projectName);
 		if (c != null) {
 			// Also delete file
-			String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + "/" + c.getFile();
+			String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PUBLISHED_PROJECTS_FOLDER + "/" + c.getFile();
 			File configurationFile = new File(configurationPath);
 			if (!configurationFile.delete()) {
 				return Response.serverError().build();
@@ -85,7 +111,7 @@ public class Project {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String Post(@Context final UriInfo uriInfo, String bodyContent) {
-		return saveProject(bodyContent, "");
+		return this.saveProject(bodyContent, "");
 	}
 
 	// POST api/Project/ProjectName
@@ -93,18 +119,18 @@ public class Project {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/{projectFileName}")
 	public String Post(@Context final UriInfo uriInfo, String bodyContent, @PathParam("projectFileName") final String projectName) {
-		return saveProject(bodyContent, projectName);
+		return this.saveProject(bodyContent, projectName);
 	}
 
 	// GET api/Project
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String Get() {
-		File imageFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + PROJECT_FOLDER);
+		File imageFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PROJECT_FOLDER);
 		File[] filePaths = imageFolder.listFiles();
 
 		JSONArray projectFiles = new JSONArray();
-		if(filePaths != null) {
+		if (filePaths != null) {
 			for (File filePath : filePaths) {
 				String extension = Util.getExtension(filePath);
 				if (filePath.isFile() && (extension != null && extension.equals("json"))) {
@@ -122,7 +148,7 @@ public class Project {
 	@Path("/{projectFileName}")
 	@Produces({ MediaType.MULTIPART_FORM_DATA })
 	public Response getProject(@Context final UriInfo uriInfo, @PathParam("projectFileName") final String projectFileName, String bodyContent) {
-		File projectFile = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + '/' + projectFileName);
+		File projectFile = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PUBLISHED_PROJECTS_FOLDER + '/' + projectFileName);
 
 		if (projectFile.exists()) {
 			return Response.ok(projectFile).build();
@@ -136,7 +162,7 @@ public class Project {
 	@Path("/{projectFileName}")
 	public Response eleteProject(@Context final UriInfo uriInfo, @PathParam("projectFileName") final String projectFileName, String bodyContent) throws IOException, JSONException {
 
-		String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + PROJECT_FOLDER + "/" + projectFileName;
+		String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PROJECT_FOLDER + "/" + projectFileName;
 		File configurationFile = new File(configurationPath);
 		if (!configurationFile.delete()) {
 			return Response.serverError().build();
@@ -156,15 +182,15 @@ public class Project {
 			// Save project as file
 			try {
 				File projectFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PROJECT_FOLDER);
-				if(!projectFolder.exists()) {
+				if (!projectFolder.exists()) {
 					projectFolder.mkdirs();
 				}
-				File file = new File(projectFolder,  projectName);
+				File file = new File(projectFolder, projectName);
 				BufferedWriter output = new BufferedWriter(new FileWriter(file));
 				output.write(bodyContent);
 				output.close();
 			} catch (IOException e) {
-				log.error("Exception occured: ", e);
+				Project.log.error("Exception occured: ", e);
 			}
 		} catch (JSONException e1) {
 			e1.printStackTrace();
@@ -175,36 +201,40 @@ public class Project {
 		try {
 			projectInfo.put("fileName", projectName);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Project.log.error("Exception occured: ", e);
 		}
 		return projectInfo.toString();
 	}
 
 	public String convertJsonToProject(String jsonProject, String projectName) {
-		//String zipPath = SettingsManager.getBasePath() + NetWebSocketServer.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + "/" + projectName + ".zip";
-		File publishPath = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER);
-		if(!publishPath.exists()) {
+		// String zipPath = SettingsManager.getBasePath() +
+		// NetWebSocketServer.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + "/"
+		// + projectName + ".zip";
+		File publishPath = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PUBLISHED_PROJECTS_FOLDER);
+		if (!publishPath.exists()) {
 			publishPath.mkdirs();
 		}
-		//String zipPath = SettingsManager.getBasePath() + NetWebSocketServer.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + "/" + projectName + ".zip";
+		// String zipPath = SettingsManager.getBasePath() +
+		// NetWebSocketServer.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + "/"
+		// + projectName + ".zip";
 		try {
 			File zipFile = new File(publishPath, projectName + ".zip");
-			//zipFile.mkdirs();
+			// zipFile.mkdirs();
 			ZipFile projectZip = new ZipFile(zipFile.getAbsolutePath());
 
 			List<String> imageFieldsList = new ArrayList<String>();
 			/* Parse JSON and add all images to the zip */
-			readImageProperties(jsonProject, imageFieldsList);
+			this.readImageProperties(jsonProject, imageFieldsList);
 
 			/* Parse pattern "imageSrc" and add all to the zip */
 			JSONObject projectJSONObj = new JSONObject(jsonProject);
-			readImagesFromPatternInObject(projectJSONObj, imageFieldsList);
+			this.readImagesFromPatternInObject(projectJSONObj, imageFieldsList);
 
 			for (String imagePath : imageFieldsList) {
 				try {
-					projectZip.addFile(imagePath, imageFolder);
+					projectZip.addFile(imagePath, this.imageFolder);
 				} catch (IOException e) {
-					log.error("[Configuration] Could not add image: " + imagePath + " (" + e.getMessage() + ")");
+					Project.log.error("[Configuration] Could not add image: " + imagePath + " (" + e.getMessage() + ")");
 				}
 			}
 
@@ -216,11 +246,11 @@ public class Project {
 			return zipFile.getAbsolutePath();
 
 		} catch (FileNotFoundException e) {
-			log.error("Exception occured: ", e);
+			Project.log.error("Exception occured: ", e);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Project.log.error("Exception occured: ", e);
 		} catch (IOException e) {
-			log.error("Exception occured: ", e);
+			Project.log.error("Exception occured: ", e);
 		}
 		return null;
 	}
@@ -245,9 +275,9 @@ public class Project {
 			try {
 				Object childObject = currentObject.get(name);
 				if (childObject instanceof JSONArray) {
-					readImagesFromPatternInArray((JSONArray) childObject, intoList);
+					this.readImagesFromPatternInArray((JSONArray) childObject, intoList);
 				} else if (childObject instanceof JSONObject) {
-					readImagesFromPatternInObject((JSONObject) childObject, intoList);
+					this.readImagesFromPatternInObject((JSONObject) childObject, intoList);
 				} else {
 					// Not an object: check if this field contains an image path
 					if (childObject instanceof String && name.toLowerCase().endsWith("imagesrc")) {
@@ -258,7 +288,7 @@ public class Project {
 					}
 				}
 			} catch (JSONException e) {
-				log.error("Exception occured: ", e);
+				Project.log.error("Exception occured: ", e);
 			}
 		}
 	}
@@ -269,12 +299,12 @@ public class Project {
 			try {
 				childObject = array.get(i);
 				if (childObject instanceof JSONArray) {
-					readImagesFromPatternInArray((JSONArray) childObject, intoList);
+					this.readImagesFromPatternInArray((JSONArray) childObject, intoList);
 				} else if (childObject instanceof JSONObject) {
-					readImagesFromPatternInObject((JSONObject) childObject, intoList);
+					this.readImagesFromPatternInObject((JSONObject) childObject, intoList);
 				}
 			} catch (JSONException e) {
-				log.error("Exception occured: ", e);
+				Project.log.error("Exception occured: ", e);
 			}
 		}
 	}
@@ -302,9 +332,9 @@ public class Project {
 			Info.writeServerInfo(serverInfo);
 
 		} catch (IOException e) {
-			log.error("Exception occured: ", e);
+			Project.log.error("Exception occured: ", e);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Project.log.error("Exception occured: ", e);
 		}
 
 		// XML Initialization

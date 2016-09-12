@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base;
 
 import java.io.BufferedReader;
@@ -45,16 +71,17 @@ public class Util {
 		}
 		return ext;
 	}
+
 	public static String MD5(String string) {
 		byte[] bytesOfMessage;
 		try {
 			bytesOfMessage = string.getBytes("UTF-8");
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			return new BigInteger(1,md.digest(bytesOfMessage)).toString(16);
+			return new BigInteger(1, md.digest(bytesOfMessage)).toString(16);
 		} catch (UnsupportedEncodingException e) {
-			log.error("Exception occured: ", e);
+			Util.log.error("Exception occured: ", e);
 		} catch (NoSuchAlgorithmException e) {
-			log.error("Exception occured: ", e);
+			Util.log.error("Exception occured: ", e);
 		}
 		return null;
 	}
@@ -68,8 +95,9 @@ public class Util {
 	}
 
 	public static double round(double value, int places) throws NumberFormatException {
-		if (places < 0)
+		if (places < 0) {
 			throw new IllegalArgumentException();
+		}
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
@@ -84,7 +112,9 @@ public class Util {
 
 	public static void writeToFile(InputStream in, File file) {
 		try {
-			if(!file.getParentFile().exists()) { file.getParentFile().mkdirs(); }
+			if (!file.getParentFile().exists()) {
+				file.getParentFile().mkdirs();
+			}
 			OutputStream out = new FileOutputStream(file);
 			byte[] buf = new byte[1024];
 			int len;
@@ -94,7 +124,7 @@ public class Util {
 			out.close();
 			in.close();
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			Util.log.error("Exception occured: ", e);
 		}
 	}
 
@@ -102,7 +132,7 @@ public class Util {
 		InputStream is = new URL(url).openStream();
 		try {
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-			String jsonText = readAll(rd);
+			String jsonText = Util.readAll(rd);
 			JSONObject json = new JSONObject(jsonText);
 			return json;
 		} finally {
@@ -142,9 +172,9 @@ public class Util {
 				raf.read(result, 0, bytesInt);
 
 			} catch (FileNotFoundException e) {
-				log.error("Exception occured: ", e);
+				Util.log.error("Exception occured: ", e);
 			} catch (IOException e) {
-				log.error("Exception occured: ", e);
+				Util.log.error("Exception occured: ", e);
 			} finally {
 				try {
 					if (raf != null) {

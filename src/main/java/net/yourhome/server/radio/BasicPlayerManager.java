@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.radio;
 
 import java.util.EventListener;
@@ -13,18 +39,18 @@ public class BasicPlayerManager implements EventListener {
 
 	private BasicPlayerManager() {
 		super();
-		basicPlayer = new BasicPlayer(this);
+		this.basicPlayer = new BasicPlayer(this);
 	}
 
 	public static BasicPlayerManager getPlayerManager() {
-		if (basicPlayerManager == null) {
-			basicPlayerManager = new BasicPlayerManager();
+		if (BasicPlayerManager.basicPlayerManager == null) {
+			BasicPlayerManager.basicPlayerManager = new BasicPlayerManager();
 		}
-		return basicPlayerManager;
+		return BasicPlayerManager.basicPlayerManager;
 	}
 
 	public List getPlaylist() {
-		return playList;
+		return this.playList;
 	}
 
 	public synchronized void playNext() {
@@ -39,10 +65,12 @@ public class BasicPlayerManager implements EventListener {
 		 * currentlyPlaying = (IMP3File)listIterator.next(); try {
 		 * basicPlayer.setDataSource(new File(currentlyPlaying.getFile()));
 		 * basicPlayer.startPlayback(); } catch (UnsupportedAudioFileException
-		 * e) { // TODO Auto-generated catch block log.error("Exception occured: ", e); } catch
+		 * e) { // TODO Auto-generated catch block
+		 * log.error("Exception occured: ", e); } catch
 		 * (LineUnavailableException e) { // TODO Auto-generated catch block
-		 * log.error("Exception occured: ", e); } catch (IOException e) { // TODO Auto-generated
-		 * catch block log.error("Exception occured: ", e); }
+		 * log.error("Exception occured: ", e); } catch (IOException e) { //
+		 * TODO Auto-generated catch block log.error("Exception occured: ", e);
+		 * }
 		 */
 	}
 
@@ -64,35 +92,36 @@ public class BasicPlayerManager implements EventListener {
 		 * song try { basicPlayer.setDataSource(new
 		 * File(currentlyPlaying.getFile())); } catch
 		 * (UnsupportedAudioFileException e) { // TODO Auto-generated catch
-		 * block log.error("Exception occured: ", e); } catch (LineUnavailableException e) { //
-		 * TODO Auto-generated catch block log.error("Exception occured: ", e); } catch
-		 * (IOException e) { // TODO Auto-generated catch block
-		 * log.error("Exception occured: ", e); } }
+		 * block log.error("Exception occured: ", e); } catch
+		 * (LineUnavailableException e) { // TODO Auto-generated catch block
+		 * log.error("Exception occured: ", e); } catch (IOException e) { //
+		 * TODO Auto-generated catch block log.error("Exception occured: ", e);
+		 * } }
 		 */
 	}
 
 	public synchronized void togglePlaying() {
 		// if isPlaying is true, song is curently playing
-		switch (basicPlayer.getStatus()) {
+		switch (this.basicPlayer.getStatus()) {
 		// if stopped or ready start playing
 		case BasicPlayer.STOPPED:
 		case BasicPlayer.READY:
-			basicPlayer.stopPlayback();
-			basicPlayer.startPlayback();
+			this.basicPlayer.stopPlayback();
+			this.basicPlayer.startPlayback();
 			break;
 		// if paused resume playing
 		case BasicPlayer.PAUSED:
-			basicPlayer.resumePlayback();
+			this.basicPlayer.resumePlayback();
 			break;
 		// if playing then pause
 		case BasicPlayer.PLAYING:
-			basicPlayer.pausePlayback();
+			this.basicPlayer.pausePlayback();
 			break;
 		}
 	}
 
 	public boolean isCurrentlyPlaying() {
-		return basicPlayer.getStatus() == BasicPlayer.PLAYING;
+		return this.basicPlayer.getStatus() == BasicPlayer.PLAYING;
 	}
 
 	/*
@@ -100,7 +129,7 @@ public class BasicPlayerManager implements EventListener {
 	 */
 
 	public void fileCompletedPlaying() {
-		playNext();
+		this.playNext();
 	}
 
 }

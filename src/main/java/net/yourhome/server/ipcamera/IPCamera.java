@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.ipcamera;
 
 import java.io.BufferedInputStream;
@@ -22,13 +48,13 @@ public class IPCamera {
 	private int id;
 	private String name;
 	private String snapshotUrl; // eg. http://192.168.1.108/cgi-bin/snapshot.cgi
-	private String videoUrl;    // eg. http://192.168.1.108/axis-cgi/mjpg/video.cgi
+	private String videoUrl; // eg. http://192.168.1.108/axis-cgi/mjpg/video.cgi
 
 	public IPCamera(ResultSet result) throws SQLException {
-		setId(result.getInt("id"));
-		setName(result.getString("name"));
-		setVideoUrl(result.getString("videoUrl"));
-		setSnapshotUrl(result.getString("snapshotUrl"));
+		this.setId(result.getInt("id"));
+		this.setName(result.getString("name"));
+		this.setVideoUrl(result.getString("videoUrl"));
+		this.setSnapshotUrl(result.getString("snapshotUrl"));
 	}
 
 	public File getSnapshotByName(String filename) {
@@ -39,10 +65,10 @@ public class IPCamera {
 
 	public File saveAndGetSnapshot(boolean async, String filename) {
 
-		log.debug("Saving snapshot of camera " + id + " into filename " + filename + ". Async: " + async);
+		this.log.debug("Saving snapshot of camera " + this.id + " into filename " + filename + ". Async: " + async);
 
 		try {
-			final URL url = new URL(snapshotUrl);
+			final URL url = new URL(this.snapshotUrl);
 
 			// Make sure the image folder exists
 			File IPCamSnapShotFolder = new File(SettingsManager.getTempPath() + ImageHelper.IPCAMSNAPSHOTS);
@@ -63,36 +89,36 @@ public class IPCamera {
 						try {
 							InputStream in = new BufferedInputStream(url.openStream());
 							Util.writeToFile(in, snapshot);
-							log.debug("Snapshot saved");
+							IPCamera.this.log.debug("Snapshot saved");
 						} catch (IOException e) {
-							log.error("Exception occured: ", e);
+							IPCamera.this.log.error("Exception occured: ", e);
 						}
 					}
 				}.start();
 			} else {
 				InputStream in = new BufferedInputStream(url.openStream());
 				Util.writeToFile(in, snapshot);
-				log.debug("Snapshot saved");
+				this.log.debug("Snapshot saved");
 			}
 
 			return snapshot;
 		} catch (MalformedURLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (IOException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 		return null;
 	}
 
 	public File saveAndGetSnapshot(boolean async) {
-		return saveAndGetSnapshot(async, this.id + "");
+		return this.saveAndGetSnapshot(async, this.id + "");
 	}
 
 	/**
 	 * @return the id
 	 */
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -107,7 +133,7 @@ public class IPCamera {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -122,7 +148,7 @@ public class IPCamera {
 	 * @return the snapshotUrl
 	 */
 	public String getSnapshotUrl() {
-		return snapshotUrl;
+		return this.snapshotUrl;
 	}
 
 	/**
@@ -137,7 +163,7 @@ public class IPCamera {
 	 * @return the videoUrl
 	 */
 	public String getVideoUrl() {
-		return videoUrl;
+		return this.videoUrl;
 	}
 
 	/**

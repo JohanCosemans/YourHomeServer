@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net.rest;
 
 import java.sql.SQLException;
@@ -31,7 +57,7 @@ public class HttpCommands {
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-		controller = HttpCommandController.getInstance();
+		this.controller = HttpCommandController.getInstance();
 	}
 
 	// POST api/HttpCommands/Test
@@ -47,8 +73,8 @@ public class HttpCommands {
 			try {
 				return HttpCommandController.getInstance().sendHttpCommand(command).toString();
 			} catch (Exception e) {
-				log.error("Exception occured: ", e);
-				return "Error: "+e.getCause().getMessage();
+				HttpCommands.log.error("Exception occured: ", e);
+				return "Error: " + e.getCause().getMessage();
 			}
 		} catch (JSONException e) {
 			return "";
@@ -109,10 +135,10 @@ public class HttpCommands {
 	@Path("/Node/{nodeId}")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String getNode(@Context final UriInfo uriInfo, @PathParam("nodeId") final int nodeId, String bodyContent) {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
-		return controller.getNode(nodeId).toString();
+		return this.controller.getNode(nodeId).toString();
 	}
 
 	// GET api/HttpCommands/Command/{commandId}
@@ -120,8 +146,8 @@ public class HttpCommands {
 	@Path("Command/{commandId}")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String getCommand(@Context final UriInfo uriInfo, @PathParam("commandId") final int commandId, String bodyContent) throws SQLException {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		return this.controller.getCommand(commandId).serialize().toString();
 	}
@@ -130,8 +156,8 @@ public class HttpCommands {
 	@Path("Command/{commandId}")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String changeCommand(@Context final UriInfo uriInfo, @PathParam("commandId") final int commandId, String bodyContent) throws SQLException {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		JSONObject httpCommand;
 		HttpCommandMessage changedHttpCommand;
@@ -140,7 +166,7 @@ public class HttpCommands {
 			changedHttpCommand = new HttpCommandMessage(httpCommand);
 			return this.controller.changeHttpCommand(changedHttpCommand);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			HttpCommands.log.error("Exception occured: ", e);
 			return "{ \"result\" : \"ERROR\" }";
 		}
 	}
@@ -150,8 +176,8 @@ public class HttpCommands {
 	@Path("Command/{commandId}")
 	@Produces({ MediaType.TEXT_HTML })
 	public String deleteCommand(@Context final UriInfo uriInfo, @PathParam("commandId") final int commandId, String bodyContent) throws SQLException {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		this.controller.deleteCommand(commandId);
 		return "";
@@ -162,8 +188,8 @@ public class HttpCommands {
 	@Path("Node/{nodeId}")
 	@Produces({ MediaType.TEXT_HTML })
 	public String deleteNode(@Context final UriInfo uriInfo, @PathParam("nodeId") final int nodeId, String bodyContent) throws SQLException {
-		if (controller == null) {
-			initialize();
+		if (this.controller == null) {
+			this.initialize();
 		}
 		this.controller.deleteNode(nodeId);
 		return "";

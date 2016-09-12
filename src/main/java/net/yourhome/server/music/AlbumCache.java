@@ -73,7 +73,7 @@ public class AlbumCache {
 
 	protected AlbumCache(final CachedMPD mpd) {
 		super();
-		setMPD(mpd);
+		this.setMPD(mpd);
 	}
 	// details
 
@@ -82,12 +82,12 @@ public class AlbumCache {
 	}
 
 	public static AlbumCache getInstance(final CachedMPD mpd) {
-		if (sInstance == null) {
-			sInstance = new AlbumCache(mpd);
+		if (AlbumCache.sInstance == null) {
+			AlbumCache.sInstance = new AlbumCache(mpd);
 		} else {
-			sInstance.setMPD(mpd);
+			AlbumCache.sInstance.setMPD(mpd);
 		}
-		return sInstance;
+		return AlbumCache.sInstance;
 	}
 
 	protected static Set<String> getKeysByValue(final Map<String, Set<String>> map, final String val) {
@@ -103,11 +103,11 @@ public class AlbumCache {
 	}
 
 	public String cacheInfo() {
-		return "AlbumCache: " + mAlbumSet.size() + " album/artist combinations, " + mUniqueAlbumSet.size() + " unique album/artist combinations, " + "Date: " + mLastUpdate;
+		return "AlbumCache: " + this.mAlbumSet.size() + " album/artist combinations, " + this.mUniqueAlbumSet.size() + " unique album/artist combinations, " + "Date: " + this.mLastUpdate;
 	}
 
 	protected synchronized void deleteFile() {
-		final File file = new File(mFilesDir, getFilename());
+		final File file = new File(this.mFilesDir, this.getFilename());
 		if (file.exists()) {
 			file.delete();
 		}
@@ -115,7 +115,7 @@ public class AlbumCache {
 
 	public Set<String> getAlbumArtists(final String album, final String artist) {
 		final Set<String> aartists = new HashSet<String>();
-		for (final List<String> ai : mAlbumSet) {
+		for (final List<String> ai : this.mAlbumSet) {
 			if (ai.get(0).equals(album) && ai.get(1).equals(artist)) {
 				aartists.add(ai.get(2));
 			}
@@ -124,16 +124,16 @@ public class AlbumCache {
 	}
 
 	public AlbumDetails getAlbumDetails(final String artist, final String album, final boolean isAlbumArtist) {
-		return mAlbumDetails.get(albumCode(artist, album, isAlbumArtist));
+		return this.mAlbumDetails.get(AlbumCache.albumCode(artist, album, isAlbumArtist));
 	}
 
 	public Set<List<String>> getAlbumSet() {
-		return mAlbumSet;
+		return this.mAlbumSet;
 	}
 
 	public Set<String> getAlbums(final String artist, final boolean albumArtist) {
 		final Set<String> albums = new HashSet<String>();
-		for (final List<String> ai : mAlbumSet) {
+		for (final List<String> ai : this.mAlbumSet) {
 			if (albumArtist && ai.get(2).equals(artist) || !albumArtist && ai.get(1).equals(artist)) {
 				albums.add(ai.get(0));
 			}
@@ -143,7 +143,7 @@ public class AlbumCache {
 
 	public List<String> getArtistsByAlbum(final String album, final boolean albumArtist) {
 		final Set<String> artists = new HashSet<String>();
-		for (final List<String> ai : mAlbumSet) {
+		for (final List<String> ai : this.mAlbumSet) {
 			if (ai.get(0).equals(album)) {
 				if (albumArtist) {
 					artists.add(ai.get(2));
@@ -163,42 +163,42 @@ public class AlbumCache {
 	}
 
 	public String getDirByArtistAlbum(final String artist, final String album, final boolean isAlbumArtist) {
-		final String albumCode = albumCode(artist, album, isAlbumArtist);
-		final String result = mAlbumDetails.get(albumCode).mPath;
+		final String albumCode = AlbumCache.albumCode(artist, album, isAlbumArtist);
+		final String result = this.mAlbumDetails.get(albumCode).mPath;
 		return result;
 	}
 
 	protected String getFilename() {
-		return mServer + '_' + mPort;
+		return this.mServer + '_' + this.mPort;
 	}
 
 	public Set<List<String>> getUniqueAlbumSet() {
-		return mUniqueAlbumSet;
+		return this.mUniqueAlbumSet;
 	}
 
 	protected synchronized boolean isUpToDate() {
-		final Date mpdlast = mMPD.getStatistics().getDbUpdate();
-		return (null != mLastUpdate && null != mpdlast && mLastUpdate.after(mpdlast));
+		final Date mpdlast = this.mMPD.getStatistics().getDbUpdate();
+		return (null != this.mLastUpdate && null != mpdlast && this.mLastUpdate.after(mpdlast));
 	}
 
 	protected synchronized boolean load() {
-		final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+		final File file = new File(this.mFilesDir, this.getFilename() + (AlbumCache.GZIP ? ".gz" : ""));
 		if (!file.exists()) {
 			return false;
 		}
 		final ObjectInputStream restore;
 		boolean loadedOk = false;
 		try {
-			if (GZIP) {
+			if (AlbumCache.GZIP) {
 				restore = new ObjectInputStream(new GZIPInputStream(new FileInputStream(file)));
 			} else {
 				restore = new ObjectInputStream(new FileInputStream(file));
 			}
-			mLastUpdate = (Date) restore.readObject();
-			mAlbumDetails = (Map<String, AlbumDetails>) restore.readObject();
-			mAlbumSet = (Set<List<String>>) restore.readObject();
+			this.mLastUpdate = (Date) restore.readObject();
+			this.mAlbumDetails = (Map<String, AlbumDetails>) restore.readObject();
+			this.mAlbumSet = (Set<List<String>>) restore.readObject();
 			restore.close();
-			makeUniqueAlbumSet();
+			this.makeUniqueAlbumSet();
 			loadedOk = true;
 		} catch (final FileNotFoundException ignored) {
 		} catch (final Exception e) {
@@ -210,13 +210,13 @@ public class AlbumCache {
 	}
 
 	protected void makeUniqueAlbumSet() {
-		mUniqueAlbumSet = new HashSet<List<String>>(mAlbumSet.size());
-		for (final List<String> ai : mAlbumSet) {
+		this.mUniqueAlbumSet = new HashSet<List<String>>(this.mAlbumSet.size());
+		for (final List<String> ai : this.mAlbumSet) {
 			final String album = ai.get(2);
 			if (album != null && album.isEmpty()) { // no albumartist
-				mUniqueAlbumSet.add(Arrays.asList(ai.get(0), ai.get(1), ""));
+				this.mUniqueAlbumSet.add(Arrays.asList(ai.get(0), ai.get(1), ""));
 			} else { // with albumartist set artist to ""
-				mUniqueAlbumSet.add(Arrays.asList(ai.get(0), "", ai.get(2)));
+				this.mUniqueAlbumSet.add(Arrays.asList(ai.get(0), "", ai.get(2)));
 			}
 		}
 	}
@@ -225,41 +225,41 @@ public class AlbumCache {
 	 * reloads info from MPD if it is not up to date
 	 */
 	public synchronized boolean refresh() {
-		return refresh(false);
+		return this.refresh(false);
 	}
 
 	/*
 	 * reloads info from MPD if it is not up to date or if forced
 	 */
 	public synchronized boolean refresh(final boolean force) {
-		if (!mEnabled) {
+		if (!this.mEnabled) {
 			return false;
 		}
-		if (!updateConnection()) {
+		if (!this.updateConnection()) {
 			return false;
 		}
 
-		if (!force && isUpToDate()) {
+		if (!force && this.isUpToDate()) {
 			return true;
 		}
-		mLastUpdate = Calendar.getInstance().getTime();
+		this.mLastUpdate = Calendar.getInstance().getTime();
 
-		final Date oldUpdate = mLastUpdate;
-		mAlbumDetails = new HashMap<String, AlbumDetails>();
-		mAlbumSet = new HashSet<List<String>>();
+		final Date oldUpdate = this.mLastUpdate;
+		this.mAlbumDetails = new HashMap<String, AlbumDetails>();
+		this.mAlbumSet = new HashSet<List<String>>();
 
 		final List<Music> allmusic;
 		try {
-			allmusic = mMPD.listAllInfo();
+			allmusic = this.mMPD.listAllInfo();
 		} catch (final IOException e) {
-			mEnabled = false;
-			mLastUpdate = null;
-			updateConnection();
+			this.mEnabled = false;
+			this.mLastUpdate = null;
+			this.updateConnection();
 			return false;
 		} catch (MPDException e) {
-			mEnabled = false;
-			mLastUpdate = null;
-			updateConnection();
+			this.mEnabled = false;
+			this.mLastUpdate = null;
+			this.updateConnection();
 			return false;
 		}
 
@@ -272,16 +272,16 @@ public class AlbumCache {
 					album = "";
 				}
 				final List<String> albumInfo = Arrays.asList(album, artist == null ? "" : artist, albumArtist == null ? "" : albumArtist);
-				mAlbumSet.add(albumInfo);
+				this.mAlbumSet.add(albumInfo);
 
 				final boolean isAlbumArtist = albumArtist != null && !albumArtist.isEmpty();
-				final String thisAlbum = albumCode(isAlbumArtist ? albumArtist : artist, album, isAlbumArtist);
+				final String thisAlbum = AlbumCache.albumCode(isAlbumArtist ? albumArtist : artist, album, isAlbumArtist);
 				final AlbumDetails details;
-				if (mAlbumDetails.containsKey(thisAlbum)) {
-					details = mAlbumDetails.get(thisAlbum);
+				if (this.mAlbumDetails.containsKey(thisAlbum)) {
+					details = this.mAlbumDetails.get(thisAlbum);
 				} else {
 					details = new AlbumDetails();
-					mAlbumDetails.put(thisAlbum, details);
+					this.mAlbumDetails.put(thisAlbum, details);
 				}
 				if (details.mPath == null) {
 					details.mPath = music.getPath();
@@ -295,20 +295,20 @@ public class AlbumCache {
 					details.mDate = music.getDate();
 				}
 			}
-			makeUniqueAlbumSet();
-			if (!save()) {
-				mLastUpdate = oldUpdate;
+			this.makeUniqueAlbumSet();
+			if (!this.save()) {
+				this.mLastUpdate = oldUpdate;
 				return false;
 			}
 		} catch (final Exception e) {
-			mLastUpdate = oldUpdate;
+			this.mLastUpdate = oldUpdate;
 			return false;
 		}
 		return true;
 	}
 
 	protected synchronized boolean save() {
-		final File file = new File(mFilesDir, getFilename() + (GZIP ? ".gz" : ""));
+		final File file = new File(this.mFilesDir, this.getFilename() + (AlbumCache.GZIP ? ".gz" : ""));
 		final File backupfile = new File(file.getAbsolutePath() + ".bak");
 		if (file.exists()) {
 			if (backupfile.exists()) {
@@ -319,14 +319,14 @@ public class AlbumCache {
 		final ObjectOutputStream save;
 		boolean error = false;
 		try {
-			if (GZIP) {
+			if (AlbumCache.GZIP) {
 				save = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(file)));
 			} else {
 				save = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			}
-			save.writeObject(mLastUpdate);
-			save.writeObject(mAlbumDetails);
-			save.writeObject(mAlbumSet);
+			save.writeObject(this.mLastUpdate);
+			save.writeObject(this.mAlbumDetails);
+			save.writeObject(this.mAlbumSet);
 			save.close();
 		} catch (final Exception e) {
 			error = true;
@@ -339,31 +339,31 @@ public class AlbumCache {
 	}
 
 	protected void setMPD(final CachedMPD mpd) {
-		mEnabled = true;
+		this.mEnabled = true;
 		try {
-			mMPD = mpd;
+			this.mMPD = mpd;
 		} catch (final Exception e) {
 		}
-		updateConnection();
+		this.updateConnection();
 	}
 
 	protected synchronized boolean updateConnection() {
 		// get server/port from mpd
-		if (!mEnabled) {
+		if (!this.mEnabled) {
 			return false;
 		}
-		if (mMPD == null) {
+		if (this.mMPD == null) {
 			return false;
 		}
 
-		if (!mMPD.isConnected()) {
+		if (!this.mMPD.isConnected()) {
 			return false;
 		}
-		if (mServer == null) {
-			mServer = mMPD.getHostAddress().getHostName();
-			mPort = mMPD.getHostPort();
-			if (!load()) {
-				refresh(true);
+		if (this.mServer == null) {
+			this.mServer = this.mMPD.getHostAddress().getHostName();
+			this.mPort = this.mMPD.getHostPort();
+			if (!this.load()) {
+				this.refresh(true);
 			}
 		}
 		return true;
@@ -383,19 +383,19 @@ public class AlbumCache {
 		long mTotalTime = 0;
 
 		private void readObject(final DataInput in) throws IOException, ClassNotFoundException {
-			mPath = in.readUTF();
+			this.mPath = in.readUTF();
 			// times = (List<Long>)in.readObject();
-			mNumTracks = in.readLong();
-			mTotalTime = in.readLong();
-			mDate = in.readLong();
+			this.mNumTracks = in.readLong();
+			this.mTotalTime = in.readLong();
+			this.mDate = in.readLong();
 		}
 
 		private void writeObject(final DataOutput out) throws IOException {
-			out.writeUTF(mPath);
+			out.writeUTF(this.mPath);
 			// out.writeObject(times);
-			out.writeLong(mNumTracks);
-			out.writeLong(mTotalTime);
-			out.writeLong(mDate);
+			out.writeLong(this.mNumTracks);
+			out.writeLong(this.mTotalTime);
+			out.writeLong(this.mDate);
 		}
 	}
 

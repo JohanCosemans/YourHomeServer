@@ -1,8 +1,6 @@
 buildscript {
   repositories {
-    maven {
-      url 'https://plugins.gradle.org/m2/'
-    }
+    maven { url 'https://plugins.gradle.org/m2/' }
   }
   dependencies {
     classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
@@ -50,13 +48,14 @@ repositories {
     maven {
     	url "https://raw.github.com/javanto/repository/releases"
     }
+    maven { url "https://jitpack.io" }
     flatDir {
        dirs 'libs'
     }
 }
 
 dependencies {
-   compile project(":YourHomeCommon")
+   compile 'com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT'
    compile name: "sqlite-jdbc-3.8.7.2"
    compile name: "tritonus_share-0.3.6"
    //compile name: "zwave4j-0.3-SNAPSHOT"

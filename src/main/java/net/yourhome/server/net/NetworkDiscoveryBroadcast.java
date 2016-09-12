@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net;
 
 import java.io.ByteArrayInputStream;
@@ -24,16 +50,16 @@ public class NetworkDiscoveryBroadcast {
 	private Thread t;
 
 	public void start() {
-		t = new Thread(new Runnable() {
+		this.t = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				while (true) {
-					listenForDiscoveryRequests();
+					NetworkDiscoveryBroadcast.this.listenForDiscoveryRequests();
 				}
 			}
 		});
-		t.start();
+		this.t.start();
 	}
 
 	private final void listenForDiscoveryRequests() {
@@ -58,8 +84,8 @@ public class NetworkDiscoveryBroadcast {
 					bais.read(bytes, 0, n);
 					String message = new String(bytes, StandardCharsets.UTF_8);
 					if (message.equals(Discovery.BROADCAST_SERVICE)) {
-						log.debug("Received discovery request from " + packet.getAddress() + ":" + packet.getPort() + ": " + message);
-						sendReply(socket, packet.getAddress(), packet.getPort());
+						NetworkDiscoveryBroadcast.log.debug("Received discovery request from " + packet.getAddress() + ":" + packet.getPort() + ": " + message);
+						this.sendReply(socket, packet.getAddress(), packet.getPort());
 					}
 				} catch (SocketTimeoutException exc) {
 				} catch (IOException exc) {
@@ -67,7 +93,7 @@ public class NetworkDiscoveryBroadcast {
 				}
 			}
 		} catch (SocketException e) {
-			log.error("Exception occured: ", e);
+			NetworkDiscoveryBroadcast.log.error("Exception occured: ", e);
 		} finally {
 			if (socket != null) {
 				socket.close();
@@ -79,12 +105,12 @@ public class NetworkDiscoveryBroadcast {
 		try {
 			String serverInfoString = Info.getServerInfo().serialize().toString();
 			DatagramPacket packet = new DatagramPacket(serverInfoString.getBytes(), serverInfoString.length(), new InetSocketAddress(client, port));
-			log.debug("Received discovery request from " + packet.getAddress() + ":" + packet.getPort() + ": " + serverInfoString);
+			NetworkDiscoveryBroadcast.log.debug("Received discovery request from " + packet.getAddress() + ":" + packet.getPort() + ": " + serverInfoString);
 			socket.send(packet);
 		} catch (IOException e) {
-			log.error("Exception occured: ", e);
+			NetworkDiscoveryBroadcast.log.error("Exception occured: ", e);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			NetworkDiscoveryBroadcast.log.error("Exception occured: ", e);
 		}
 	}
 }
