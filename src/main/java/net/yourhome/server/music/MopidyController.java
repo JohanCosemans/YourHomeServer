@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.music;
 
 import java.io.File;
@@ -38,7 +64,6 @@ import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.AbstractController;
 import net.yourhome.server.ControllerNode;
 import net.yourhome.server.ControllerValue;
-import net.yourhome.server.base.BuildConfig;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.base.Util;
@@ -56,7 +81,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 		}
 
 		public Setting get() {
-			return setting;
+			return this.setting;
 		}
 	}
 
@@ -73,7 +98,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 	private MPDStatusMonitor statusMonitor;
 
 	private MopidyController() {
-		log = Logger.getLogger("net.yourhome.server.music.Mopidy");
+		this.log = Logger.getLogger("net.yourhome.server.music.Mopidy");
 		this.netWebSocketServer = Server.getInstance();
 	}
 
@@ -82,32 +107,35 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 	private static Object lock = new Object();
 
 	public static MopidyController getInstance() {
-		MopidyController r = mopidyControllerInstance;
+		MopidyController r = MopidyController.mopidyControllerInstance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = mopidyControllerInstance; // thread may have instantiated
-												// the object
+			synchronized (MopidyController.lock) { // while we were waiting for
+													// the lock, another
+				r = MopidyController.mopidyControllerInstance; // thread may
+																// have
+																// instantiated
+				// the object
 				if (r == null) {
 					r = new MopidyController();
-					mopidyControllerInstance = r;
+					MopidyController.mopidyControllerInstance = r;
 				}
 			}
 		}
-		return mopidyControllerInstance;
+		return MopidyController.mopidyControllerInstance;
 	}
 
 	@Override
 	public void init() {
 		super.init();
 		try {
-			String mpdHost = SettingsManager.getStringValue(getIdentifier(), Settings.MPD_HOST.get());
-			int mpdPort = Integer.parseInt(SettingsManager.getStringValue(getIdentifier(), Settings.MPD_PORT.get()));
+			String mpdHost = SettingsManager.getStringValue(this.getIdentifier(), Settings.MPD_HOST.get());
+			int mpdPort = Integer.parseInt(SettingsManager.getStringValue(this.getIdentifier(), Settings.MPD_PORT.get()));
 
 			if (mpdHost == null || mpdHost.equals("") || mpdPort == 0) {
 				throw new NumberFormatException();
 			} else {
 
-				String mpdPassword = SettingsManager.getStringValue(getIdentifier(), Settings.MPD_PASSWORD.get());
+				String mpdPassword = SettingsManager.getStringValue(this.getIdentifier(), Settings.MPD_PASSWORD.get());
 				try {
 					if (this.mpd != null) {
 						this.mpd.disconnect();
@@ -121,11 +149,11 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 					}
 					MusicPlayer.registerPlayer(this);
 
-					if (statusMonitor != null) {
-						statusMonitor.giveup();
+					if (this.statusMonitor != null) {
+						this.statusMonitor.giveup();
 					}
-					statusMonitor = new MPDStatusMonitor(mpd, 1000 / 2L, new String[] { MPDStatusMonitor.IDLE_DATABASE, MPDStatusMonitor.IDLE_MIXER, MPDStatusMonitor.IDLE_OPTIONS, MPDStatusMonitor.IDLE_OUTPUT, MPDStatusMonitor.IDLE_PLAYER, MPDStatusMonitor.IDLE_PLAYLIST, MPDStatusMonitor.IDLE_STICKER, MPDStatusMonitor.IDLE_UPDATE, });
-					statusMonitor.addStatusChangeListener(new StatusChangeListener() {
+					this.statusMonitor = new MPDStatusMonitor(this.mpd, 1000 / 2L, new String[] { MPDStatusMonitor.IDLE_DATABASE, MPDStatusMonitor.IDLE_MIXER, MPDStatusMonitor.IDLE_OPTIONS, MPDStatusMonitor.IDLE_OUTPUT, MPDStatusMonitor.IDLE_PLAYER, MPDStatusMonitor.IDLE_PLAYLIST, MPDStatusMonitor.IDLE_STICKER, MPDStatusMonitor.IDLE_UPDATE, });
+					this.statusMonitor.addStatusChangeListener(new StatusChangeListener() {
 
 						@Override
 						public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
@@ -133,7 +161,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 							// mpdStatus.getVolume());
 							if (MusicPlayer.getVolume() != mpdStatus.getVolume()) {
 								MusicPlayer.setVolume(mpdStatus.getVolume());
-								netWebSocketServer.broadcast(MusicPlayer.getVolumeMessage());
+								MopidyController.this.netWebSocketServer.broadcast(MusicPlayer.getVolumeMessage());
 							}
 						}
 
@@ -141,7 +169,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 						public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
 							// System.out.println("trackChanged: " +
 							// mpdStatus.getSongPos());
-							netWebSocketServer.broadcast(getPlayerStatus());
+							MopidyController.this.netWebSocketServer.broadcast(MopidyController.this.getPlayerStatus());
 						}
 
 						@Override
@@ -152,8 +180,8 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 						@Override
 						public void stateChanged(MPDStatus mpdStatus, int oldState) {
-							updateState(mpdStatus);
-							netWebSocketServer.broadcast(getPlayerStatus());
+							MopidyController.this.updateState(mpdStatus);
+							MopidyController.this.netWebSocketServer.broadcast(MopidyController.this.getPlayerStatus());
 							// System.out.println("stateChanged: " +
 							// mpdStatus.getState());
 							if (mpdStatus.getState() == MPDStatus.STATE_PLAYING) {
@@ -169,14 +197,14 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 						@Override
 						public void randomChanged(boolean random) {
 							// System.out.println("randomChanged");
-							isRandom = random;
-							netWebSocketServer.broadcast(getPlayerStatus());
+							MopidyController.this.isRandom = random;
+							MopidyController.this.netWebSocketServer.broadcast(MopidyController.this.getPlayerStatus());
 						}
 
 						@Override
 						public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
 							// System.out.println("playlistChanged");
-							netWebSocketServer.broadcast(getPlaylist(0));
+							MopidyController.this.netWebSocketServer.broadcast(MopidyController.this.getPlaylist(0));
 						}
 
 						@Override
@@ -194,40 +222,40 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 						}
 					});
 
-					statusMonitor.addTrackPositionListener(new TrackPositionListener() {
+					this.statusMonitor.addTrackPositionListener(new TrackPositionListener() {
 
 						@Override
 						public void trackPositionChanged(MPDStatus status) {
 							// System.out.println("trackPositionChanged: " +
 							// status.getElapsedTime());
 							TrackProgressMessage trackProgressMessage = new TrackProgressMessage();
-							trackProgressMessage.controlIdentifiers = new ControlIdentifiers(getIdentifier());
-							trackProgressMessage.trackProgressPercentage = getTrackProgressPercentage();
-							netWebSocketServer.broadcast(trackProgressMessage);
+							trackProgressMessage.controlIdentifiers = new ControlIdentifiers(MopidyController.this.getIdentifier());
+							trackProgressMessage.trackProgressPercentage = MopidyController.this.getTrackProgressPercentage();
+							MopidyController.this.netWebSocketServer.broadcast(trackProgressMessage);
 						}
 					});
 
-					statusMonitor.start();
+					this.statusMonitor.start();
 				} catch (UnknownHostException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (MPDException e) {
 					// TODO Auto-generated catch block
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 			}
-			log.info("Initialized");
+			this.log.info("Initialized");
 		} catch (NumberFormatException e) {
-			log.info("Could not find mopidy settings. Disabling mopidy.");
-			isEnabled = false;
+			this.log.info("Could not find mopidy settings. Disabling mopidy.");
+			this.isEnabled = false;
 		}
 	}
 
 	private int getSongIdIndex() {
 
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			return this.mpd.getStatus().getSongPos();
 		}
 		return 0;
@@ -236,52 +264,52 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 	@Override
 	public void setVolume(int volume) {
 		try {
-			if (ensureConnected()) {
+			if (this.ensureConnected()) {
 				this.mpd.setVolume(volume);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 	}
 
 	@Override
 	public int getVolume() {
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			return this.mpd.getStatus().getVolume();
 		}
 		return 0;
 	}
 
 	public void playStream(String streamUrl) {
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			try {
 				this.mpd.addStream(streamUrl, false, true);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			} catch (MPDException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 	}
 
 	@Override
 	public JSONMessage stop() {
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			try {
 				this.mpd.stop();
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			} catch (MPDException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 		return null;
@@ -289,24 +317,24 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 	public MusicPlayerStatusMessage getPlayerStatus() {
 		MusicPlayerStatusMessage playerStatusMessage = new MusicPlayerStatusMessage();
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			Music currentSong = this.mpd.getPlaylist().getByIndex(this.mpd.getStatus().getSongPos());
-			if (!isStopped && currentSong != null) {
+			if (!this.isStopped && currentSong != null) {
 				playerStatusMessage.status.artist = currentSong.getAlbumArtistOrArtist();
 				playerStatusMessage.status.title = currentSong.getTitle();
 				playerStatusMessage.status.trackIndex = this.mpd.getStatus().getSongPos();
-				playerStatusMessage.status.imagePath = getAlbumImage(currentSong);
-				playerStatusMessage.status.trackProgressPercentage = getTrackProgressPercentage();
+				playerStatusMessage.status.imagePath = this.getAlbumImage(currentSong);
+				playerStatusMessage.status.trackProgressPercentage = this.getTrackProgressPercentage();
 			}
 
 			// updateState(this.mpd.getStatus());
-			playerStatusMessage.status.isPaused = isPaused;
-			playerStatusMessage.status.isPlaying = isPlaying;
-			playerStatusMessage.status.isStopped = isStopped;
-			playerStatusMessage.status.randomStatus = isRandom;
+			playerStatusMessage.status.isPaused = this.isPaused;
+			playerStatusMessage.status.isPlaying = this.isPlaying;
+			playerStatusMessage.status.isStopped = this.isStopped;
+			playerStatusMessage.status.randomStatus = this.isRandom;
 
 			playerStatusMessage.broadcast = true;
-			playerStatusMessage.status.trackIndex = getSongIdIndex();// this.mpdPlayer.getCurrentSong().getId();
+			playerStatusMessage.status.trackIndex = this.getSongIdIndex();// this.mpdPlayer.getCurrentSong().getId();
 			return playerStatusMessage;
 		}
 		return null;
@@ -318,7 +346,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 			String artist = URLEncoder.encode(song.getAlbumArtistOrArtist(), "UTF-8");
 			String album = URLEncoder.encode(song.getAlbum(), "UTF-8");
 
-			File albumImagefile = new File(SettingsManager.getBasePath() + IMAGE_PATH + "/" + artist + "_" + album + ".jpg");
+			File albumImagefile = new File(SettingsManager.getBasePath() + MopidyController.IMAGE_PATH + "/" + artist + "_" + album + ".jpg");
 
 			if (!albumImagefile.exists()) {
 
@@ -343,17 +371,17 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 
 			}
 
 			if (albumImagefile.exists()) {
 				try {
-					return IMAGE_WEBPATH + "/" + URLEncoder.encode(albumImagefile.getName(), "UTF-8");
+					return MopidyController.IMAGE_WEBPATH + "/" + URLEncoder.encode(albumImagefile.getName(), "UTF-8");
 				} catch (UnsupportedEncodingException e) {
 					return "";
 				}
@@ -361,7 +389,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 
 		return "";
@@ -381,19 +409,19 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 	private void updateState(MPDStatus fromState) {
 		switch (fromState.getState()) {
 		case MPDStatus.STATE_PAUSED:
-			isPaused = true;
-			isPlaying = false;
-			isStopped = false;
+			this.isPaused = true;
+			this.isPlaying = false;
+			this.isStopped = false;
 			break;
 		case MPDStatus.STATE_PLAYING:
-			isPaused = false;
-			isPlaying = true;
-			isStopped = false;
+			this.isPaused = false;
+			this.isPlaying = true;
+			this.isStopped = false;
 			break;
 		case MPDStatus.STATE_STOPPED:
-			isPaused = false;
-			isPlaying = false;
-			isStopped = true;
+			this.isPaused = false;
+			this.isPlaying = false;
+			this.isStopped = true;
 			break;
 		case MPDStatus.STATE_UNKNOWN:
 		}
@@ -416,7 +444,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 				m.broadcast = true;
 				return m;
 			}
-			return getPlayerStatus();
+			return this.getPlayerStatus();
 		} else if (message instanceof SetValueMessage) {
 			SetValueMessage setValueMessage = (SetValueMessage) message;
 			String value = setValueMessage.value.toLowerCase();
@@ -438,26 +466,26 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 			} else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals("Playlists")) {
 				int playlistId = Integer.parseInt(setValueMessage.value);
 				try {
-					if (ensureConnected()) {
+					if (this.ensureConnected()) {
 						List<Item> playlists = this.mpd.getPlaylists(false);
 						Item playlistItem = playlists.get(playlistId);
 						List<Music> playlistContent = this.mpd.getPlaylistSongs(playlistItem.getName());
 						this.mpd.getPlaylist().clear();
 						this.mpd.getPlaylist().addAll(playlistContent);
-						log.info("Set mopidy playlist to: " + playlistItem.getName());
+						this.log.info("Set mopidy playlist to: " + playlistItem.getName());
 					}
 				} catch (Exception e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 			}
-			return getPlayerStatus();
+			return this.getPlayerStatus();
 		} else if (message instanceof PlaylistsRequestMessage) {
 			// Build return message
 			PlaylistsMessage playlistsMessage = new PlaylistsMessage();
 			playlistsMessage.controlIdentifiers = message.controlIdentifiers;
 
 			try {
-				if (ensureConnected()) {
+				if (this.ensureConnected()) {
 					Collection<Item> playlists;
 					int i = 0;
 					playlists = this.mpd.getPlaylists(false);
@@ -469,7 +497,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 					}
 				}
 			} catch (Exception e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 			return playlistsMessage;
 		}
@@ -480,7 +508,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 	public double getTrackProgressPercentage() {
 
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			long totalTime = this.mpd.getStatus().getTotalTime();
 
 			if (totalTime > 0) {
@@ -495,16 +523,16 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 	public PlaylistMessage getPlaylist(int maximumSongs) {
 
 		PlaylistMessage playlistMessage = new PlaylistMessage();
-		playlistMessage.controlIdentifiers = new ControlIdentifiers(getIdentifier());
+		playlistMessage.controlIdentifiers = new ControlIdentifiers(this.getIdentifier());
 		try {
 			this.mpd.refreshDatabase();
 		} catch (IOException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			MPDPlaylist currentPlaylist = this.mpd.getPlaylist();
 			List<Music> tracks;
 			tracks = currentPlaylist.getMusicList();
@@ -522,7 +550,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 	public JSONMessage playCurrentPlaylistItem(int trackIndex) {
 
-		if (ensureConnected()) {
+		if (this.ensureConnected()) {
 			// MPDPlaylist currentPlaylist = this.mpd.getPlaylist();
 			// List<Music> songs = currentPlaylist.getMusicList();
 			try {
@@ -535,10 +563,10 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			} catch (MPDException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 		return null;
@@ -546,42 +574,42 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 	public void pause() {
 		try {
-			if (ensureConnected() && this.isPlaying) {
-				isPlaying = false;
-				isStopped = false;
-				isPaused = true;
+			if (this.ensureConnected() && this.isPlaying) {
+				this.isPlaying = false;
+				this.isStopped = false;
+				this.isPaused = true;
 				this.mpd.pause();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 	}
 
 	public void resume() {
 		try {
 
-			if (ensureConnected()) {
-				isPlaying = true;
-				isPaused = false;
-				isStopped = false;
+			if (this.ensureConnected()) {
+				this.isPlaying = true;
+				this.isPaused = false;
+				this.isStopped = false;
 				this.mpd.play();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 	}
 
 	private boolean ensureConnected() {
 		if (this.mpd == null | (this.mpd != null && !this.mpd.isConnected())) {
-			init();
+			this.init();
 		}
 
 		if (this.mpd != null && this.mpd.isConnected()) {
@@ -594,45 +622,45 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 	public void next() {
 		try {
 
-			if (ensureConnected()) {
+			if (this.ensureConnected()) {
 				this.mpd.next();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 	}
 
 	public void previous() {
 		try {
 
-			if (ensureConnected()) {
+			if (this.ensureConnected()) {
 				this.mpd.previous();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 	}
 
 	public void setRandom(boolean onOff) {
 		try {
-			isRandom = onOff;
-			if (ensureConnected()) {
+			this.isRandom = onOff;
+			if (this.ensureConnected()) {
 				this.mpd.setRandom(onOff);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} catch (MPDException e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		}
 	}
 
@@ -683,10 +711,10 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 	@Override
 	public List<JSONMessage> initClient() {
-		if(isInitialized()) {
+		if (this.isInitialized()) {
 			List<JSONMessage> returnList = new ArrayList<JSONMessage>();
-			returnList.add(getPlayerStatus());
-			returnList.add(getPlaylist(500));
+			returnList.add(this.getPlayerStatus());
+			returnList.add(this.getPlaylist(500));
 			return returnList;
 		}
 		return null;
@@ -694,7 +722,7 @@ public class MopidyController extends AbstractController implements IMusicPlayer
 
 	@Override
 	public boolean isEnabled() {
-		return isEnabled;
+		return this.isEnabled;
 	}
 
 	@Override

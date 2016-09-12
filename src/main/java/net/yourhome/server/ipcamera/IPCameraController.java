@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.ipcamera;
 
 import java.io.File;
@@ -30,23 +56,25 @@ public class IPCameraController extends AbstractController {
 	private static Object lock = new Object();
 
 	private IPCameraController() {
-		log = Logger.getLogger("net.yourhome.server.ipcamera.IPCamera");
+		this.log = Logger.getLogger("net.yourhome.server.ipcamera.IPCamera");
 	}
 
 	public static IPCameraController getInstance() {
-		IPCameraController r = ipCameraController;
+		IPCameraController r = IPCameraController.ipCameraController;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = ipCameraController; // thread may have instantiated the
-										// object
+			synchronized (IPCameraController.lock) { // while we were waiting
+														// for the lock, another
+				r = IPCameraController.ipCameraController; // thread may have
+															// instantiated the
+				// object
 				if (r == null) {
 					r = new IPCameraController();
-					ipCameraController = r;
+					IPCameraController.ipCameraController = r;
 				}
 			}
 		}
 
-		return ipCameraController;
+		return IPCameraController.ipCameraController;
 	}
 
 	@Override
@@ -56,7 +84,7 @@ public class IPCameraController extends AbstractController {
 			SnapshotRequestMessage requestSnapshotMessage = (SnapshotRequestMessage) message;
 
 			// Process message: take screenshot
-			IPCamera camera = ipCameraController.getIPCamera(Integer.parseInt(requestSnapshotMessage.controlIdentifiers.getValueIdentifier()));
+			IPCamera camera = IPCameraController.ipCameraController.getIPCamera(Integer.parseInt(requestSnapshotMessage.controlIdentifiers.getValueIdentifier()));
 			if (camera != null) {
 				File cameraSnapshot = camera.saveAndGetSnapshot(false);
 
@@ -114,7 +142,7 @@ public class IPCameraController extends AbstractController {
 				returnCamera = new IPCamera(camerasResult);
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (camerasResult != null) {
@@ -122,7 +150,7 @@ public class IPCameraController extends AbstractController {
 					camerasResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 
@@ -141,12 +169,12 @@ public class IPCameraController extends AbstractController {
 				try {
 					cameras.add(new IPCamera(ipCamerasResult));
 				} catch (SQLException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 			}
 
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (ipCamerasResult != null) {
@@ -154,7 +182,7 @@ public class IPCameraController extends AbstractController {
 					ipCamerasResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 		return cameras;
@@ -174,7 +202,7 @@ public class IPCameraController extends AbstractController {
 	public void init() {
 		super.init();
 
-		log.info("Initialized");
+		this.log.info("Initialized");
 	}
 
 	@Override

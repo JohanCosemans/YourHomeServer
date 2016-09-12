@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base;
 
 import java.io.File;
@@ -26,22 +52,21 @@ import net.yourhome.common.net.model.binding.ControlIdentifiers;
 
 public class DatabaseConnector {
 	private final String DBPATH = SettingsManager.getBasePath() + "/database/";
-	private final String PATH_ARCHIVE = DBPATH + "home_history_archive.db";
-	private final String PATH_WEEKLY = DBPATH + "home_history_weekly.db";
-	private final String PATH_DEFAULT = DBPATH + "home_history_weekly_default.db";
+	private final String PATH_ARCHIVE = this.DBPATH + "home_history_archive.db";
+	private final String PATH_WEEKLY = this.DBPATH + "home_history_weekly.db";
+	private final String PATH_DEFAULT = this.DBPATH + "home_history_weekly_default.db";
 	private final String INSERT_VALUE_CHANGE = "insert into main.Home_History ('controller_identifier', 'node_identifier', 'value_identifier','unit','value','value_d') VALUES (?,?,?,?,?,?)";
 
-	private Connection allHistoryConnection;	
-	private volatile int currentHistoryBatchSize=0;
+	private Connection allHistoryConnection;
+	private volatile int currentHistoryBatchSize = 0;
 	private final int HISTORY_BATCH_SIZE = 1000;
 	private volatile PreparedStatement weeklyHistoryStm = null;
 
 	private Connection weeklylHistoryConnection;
-	private volatile int currentWeeklyBatchSize=0;
+	private volatile int currentWeeklyBatchSize = 0;
 	private final int WEEKLY_BATCH_SIZE = 1000;
 	private volatile PreparedStatement historyBatchStm = null;
-	
-	
+
 	private static Logger log = Logger.getLogger("net.yourhome.server.base.Database");
 	private static volatile DatabaseConnector instance;
 	private static Object lock = new Object();
@@ -49,60 +74,66 @@ public class DatabaseConnector {
 	private boolean cleaning = false;
 
 	private DatabaseConnector() {
-		File dbPath = new File(DBPATH);
+		File dbPath = new File(this.DBPATH);
 		if (!dbPath.exists()) {
 			dbPath.mkdirs();
 		}
 
-		File dbFileArchive = new File(PATH_ARCHIVE);
-		File dbFileWeekly = new File(PATH_WEEKLY);
-		
+		File dbFileArchive = new File(this.PATH_ARCHIVE);
+		File dbFileWeekly = new File(this.PATH_WEEKLY);
+
 		if (!dbFileArchive.exists()) {
-			log.info("Database history file does not exist. Creating new file on location " + PATH_ARCHIVE);
+			DatabaseConnector.log.info("Database history file does not exist. Creating new file on location " + this.PATH_ARCHIVE);
 			try {
 				dbFileArchive.createNewFile();
-				allHistoryConnection = this.connect(PATH_ARCHIVE);
-				this.createInitialZWaveArchive(allHistoryConnection);
+				this.allHistoryConnection = this.connect(this.PATH_ARCHIVE);
+				this.createInitialZWaveArchive(this.allHistoryConnection);
 			} catch (IOException e) {
-				log.error("Database file could not be created (" + e.getMessage() + ')');
+				DatabaseConnector.log.error("Database file could not be created (" + e.getMessage() + ')');
 			}
-		}else {
-			allHistoryConnection = this.connect(PATH_ARCHIVE);
+		} else {
+			this.allHistoryConnection = this.connect(this.PATH_ARCHIVE);
 		}
 		if (!dbFileWeekly.exists()) {
-			log.info("Database weekly history file does not exist. Creating new file on location " + PATH_WEEKLY);
+			DatabaseConnector.log.info("Database weekly history file does not exist. Creating new file on location " + this.PATH_WEEKLY);
 			try {
-				File dbDefault = new File(PATH_DEFAULT);
-				if(dbDefault.exists()) {
-					/* Import default database data if the default database is present */
+				File dbDefault = new File(this.PATH_DEFAULT);
+				if (dbDefault.exists()) {
+					/*
+					 * Import default database data if the default database is
+					 * present
+					 */
 					Files.copy(dbDefault, dbFileWeekly);
-					weeklylHistoryConnection = this.connect(PATH_WEEKLY);
-				}else {
-					/* Create new database if the default database is not present */
+					this.weeklylHistoryConnection = this.connect(this.PATH_WEEKLY);
+				} else {
+					/*
+					 * Create new database if the default database is not
+					 * present
+					 */
 					dbFileWeekly.createNewFile();
-					weeklylHistoryConnection = this.connect(PATH_WEEKLY);
-					this.createInitialZWaveArchive(weeklylHistoryConnection);
-					this.createInitialSettingsDatabase(weeklylHistoryConnection);
+					this.weeklylHistoryConnection = this.connect(this.PATH_WEEKLY);
+					this.createInitialZWaveArchive(this.weeklylHistoryConnection);
+					this.createInitialSettingsDatabase(this.weeklylHistoryConnection);
 				}
 			} catch (IOException e) {
-				log.error("Database file could not be created (" + e.getMessage() + ')');
+				DatabaseConnector.log.error("Database file could not be created (" + e.getMessage() + ')');
 			}
-		}else {
-			weeklylHistoryConnection = this.connect(PATH_WEEKLY);
+		} else {
+			this.weeklylHistoryConnection = this.connect(this.PATH_WEEKLY);
 		}
 		try {
-			this.weeklyHistoryStm = weeklylHistoryConnection.prepareStatement(INSERT_VALUE_CHANGE);
-			this.historyBatchStm = allHistoryConnection.prepareStatement(INSERT_VALUE_CHANGE);
-		} catch (SQLException e) {}
-		
+			this.weeklyHistoryStm = this.weeklylHistoryConnection.prepareStatement(this.INSERT_VALUE_CHANGE);
+			this.historyBatchStm = this.allHistoryConnection.prepareStatement(this.INSERT_VALUE_CHANGE);
+		} catch (SQLException e) {
+		}
 
 		// Schedule data cleanup every morning at 3am
 		Scheduler.getInstance().scheduleCron(new TimerTask() {
 			@Override
 			public void run() {
-				cleanWeeklyDB();
-				flushWeeklyDb();
-				flushHistoryDb();
+				DatabaseConnector.this.cleanWeeklyDB();
+				DatabaseConnector.this.flushWeeklyDb();
+				DatabaseConnector.this.flushHistoryDb();
 			}
 		}, "00 03 * * *");
 
@@ -110,65 +141,70 @@ public class DatabaseConnector {
 		Scheduler.getInstance().scheduleCron(new TimerTask() {
 			@Override
 			public void run() {
-				flushHistoryDb();
-				cleanArchivingDB();
+				DatabaseConnector.this.flushHistoryDb();
+				DatabaseConnector.this.cleanArchivingDB();
 			}
 		}, "10 03 01,15 * *");
 
-		cleanWeeklyDB();
+		this.cleanWeeklyDB();
 	}
-	public void flushWeeklyDb() {			
-		if(weeklyHistoryStm != null && currentWeeklyBatchSize > 0) {
+
+	public void flushWeeklyDb() {
+		if (this.weeklyHistoryStm != null && this.currentWeeklyBatchSize > 0) {
 			try {
-				weeklylHistoryConnection.setAutoCommit(false);
-				log.debug("Inserting remaining "+currentWeeklyBatchSize+" batch values into weekly db");
-				weeklyHistoryStm.executeBatch();
-				log.debug("Inserting remaining "+currentWeeklyBatchSize+" batch values into weekly db - done");
-				currentWeeklyBatchSize = 0;
+				this.weeklylHistoryConnection.setAutoCommit(false);
+				DatabaseConnector.log.debug("Inserting remaining " + this.currentWeeklyBatchSize + " batch values into weekly db");
+				this.weeklyHistoryStm.executeBatch();
+				DatabaseConnector.log.debug("Inserting remaining " + this.currentWeeklyBatchSize + " batch values into weekly db - done");
+				this.currentWeeklyBatchSize = 0;
 			} catch (SQLException e) {
-				log.error("Error with batch insert", e);
-			}finally {
+				DatabaseConnector.log.error("Error with batch insert", e);
+			} finally {
 				try {
-					weeklylHistoryConnection.commit();
-					weeklylHistoryConnection.setAutoCommit(true);
+					this.weeklylHistoryConnection.commit();
+					this.weeklylHistoryConnection.setAutoCommit(true);
 				} catch (SQLException e) {
-					log.error("Error with batch commit", e);
+					DatabaseConnector.log.error("Error with batch commit", e);
 				}
 			}
 		}
 	}
+
 	private void flushHistoryDb() {
-		if(historyBatchStm != null && currentHistoryBatchSize > 0) {
+		if (this.historyBatchStm != null && this.currentHistoryBatchSize > 0) {
 			try {
-				allHistoryConnection.setAutoCommit(false);
-				log.debug("Inserting remaining "+currentHistoryBatchSize+" batch values");
-				historyBatchStm.executeBatch();
-				log.debug("Inserting remaining "+currentHistoryBatchSize+" batch values - done");
-				currentHistoryBatchSize = 0;
+				this.allHistoryConnection.setAutoCommit(false);
+				DatabaseConnector.log.debug("Inserting remaining " + this.currentHistoryBatchSize + " batch values");
+				this.historyBatchStm.executeBatch();
+				DatabaseConnector.log.debug("Inserting remaining " + this.currentHistoryBatchSize + " batch values - done");
+				this.currentHistoryBatchSize = 0;
 			} catch (SQLException e) {
-				log.error("Error with batch insert", e);
-			}finally {
+				DatabaseConnector.log.error("Error with batch insert", e);
+			} finally {
 				try {
-					allHistoryConnection.commit();
-					allHistoryConnection.setAutoCommit(true);
+					this.allHistoryConnection.commit();
+					this.allHistoryConnection.setAutoCommit(true);
 				} catch (SQLException e) {
-					log.error("Error with batch commit", e);
+					DatabaseConnector.log.error("Error with batch commit", e);
 				}
 			}
 		}
 	}
+
 	public static DatabaseConnector getInstance() {
-		DatabaseConnector r = instance;
+		DatabaseConnector r = DatabaseConnector.instance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = instance; // thread may have instantiated the object
+			synchronized (DatabaseConnector.lock) { // while we were waiting for
+													// the lock, another
+				r = DatabaseConnector.instance; // thread may have instantiated
+												// the object
 				if (r == null) {
 					r = new DatabaseConnector();
-					instance = r;
+					DatabaseConnector.instance = r;
 				}
 			}
 		}
-		return instance;
+		return DatabaseConnector.instance;
 	}
 
 	private Connection connect(String path) {
@@ -176,21 +212,22 @@ public class DatabaseConnector {
 			Class.forName("org.sqlite.JDBC");
 			return DriverManager.getConnection("jdbc:sqlite:" + path);
 		} catch (Exception e) {
-			log.fatal("Could not connect to database", e);
+			DatabaseConnector.log.fatal("Could not connect to database", e);
 		}
 		return null;
 	}
 
 	public ResultSet executeSelect(String sql, boolean flushFirst) throws SQLException {
-		if(flushFirst) {
-			flushWeeklyDb();
+		if (flushFirst) {
+			this.flushWeeklyDb();
 		}
-		return executeSelect(sql);
+		return this.executeSelect(sql);
 	}
+
 	public ResultSet executeSelect(String sql) throws SQLException {
-		if (!cleaning) {
+		if (!this.cleaning) {
 			ResultSet rs = null;
-			Statement stmt = weeklylHistoryConnection.createStatement();
+			Statement stmt = this.weeklylHistoryConnection.createStatement();
 			rs = stmt.executeQuery(sql);
 			return rs;
 		}
@@ -198,15 +235,16 @@ public class DatabaseConnector {
 	}
 
 	public ResultSet executeSelectArchiving(String sql, boolean flushFirst) throws SQLException {
-		if(flushFirst) {
-			flushHistoryDb();
+		if (flushFirst) {
+			this.flushHistoryDb();
 		}
-		return executeSelectArchiving(sql);
+		return this.executeSelectArchiving(sql);
 	}
+
 	public ResultSet executeSelectArchiving(String sql) throws SQLException {
-		if (!cleaning) {
+		if (!this.cleaning) {
 			ResultSet rs = null;
-			Statement stmt = allHistoryConnection.createStatement();
+			Statement stmt = this.allHistoryConnection.createStatement();
 			rs = stmt.executeQuery(sql);
 			return rs;
 		}
@@ -214,7 +252,7 @@ public class DatabaseConnector {
 	}
 
 	public PreparedStatement prepareStatement(String sql) throws SQLException {
-		return weeklylHistoryConnection.prepareStatement(sql);
+		return this.weeklylHistoryConnection.prepareStatement(sql);
 	}
 
 	public ResultSet executePreparedStatement(PreparedStatement stmt) throws SQLException {
@@ -234,7 +272,7 @@ public class DatabaseConnector {
 				try {
 					keys.close();
 				} catch (SQLException e) {
-					log.error("Exception occured: ", e);
+					DatabaseConnector.log.error("Exception occured: ", e);
 				}
 			}
 		}
@@ -242,10 +280,10 @@ public class DatabaseConnector {
 	}
 
 	public boolean executeQuery(String sql) throws SQLException {
-		if (!cleaning) {
+		if (!this.cleaning) {
 			boolean result = false;
 			// try {
-			Statement stmt = weeklylHistoryConnection.createStatement();
+			Statement stmt = this.weeklylHistoryConnection.createStatement();
 			result = stmt.execute(sql);
 			stmt.close();
 			result = true;
@@ -259,85 +297,78 @@ public class DatabaseConnector {
 	}
 
 	private void cleanArchivingDB() {
-		cleaning = true;
+		this.cleaning = true;
 
 		try {
 			String vacuumSQL = "VACUUM";
-			log.debug("Cleaning: " + vacuumSQL);
-			Statement vacuumStm = allHistoryConnection.createStatement();
+			DatabaseConnector.log.debug("Cleaning: " + vacuumSQL);
+			Statement vacuumStm = this.allHistoryConnection.createStatement();
 			vacuumStm.execute(vacuumSQL);
 			vacuumStm.close();
 
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			DatabaseConnector.log.error("Exception occured: ", e);
 		}
 
-		cleaning = false;
+		this.cleaning = false;
 	}
 
 	private void cleanWeeklyDB() {
-		log.debug("Daily database cleanup for week db started!");
+		DatabaseConnector.log.debug("Daily database cleanup for week db started!");
 		Calendar today = Calendar.getInstance();
 		long lastMonth = (today.getTimeInMillis() - (1000L * 60 * 60 * 24 * 32)) / 1000L;
-		cleaning = true;
+		this.cleaning = true;
 
 		try {
 			String cleanSQL = "DELETE from Home_History where cast(strftime('%s', time) as integer) < '" + lastMonth + "'";
-			log.debug("Cleaning: " + cleanSQL);
-			Statement cleanStm = weeklylHistoryConnection.createStatement();
+			DatabaseConnector.log.debug("Cleaning: " + cleanSQL);
+			Statement cleanStm = this.weeklylHistoryConnection.createStatement();
 			cleanStm.execute(cleanSQL);
 			cleanStm.close();
 
 			String vacuumSQL = "VACUUM";
-			log.debug("Cleaning: " + vacuumSQL);
-			Statement vacuumStm = weeklylHistoryConnection.createStatement();
+			DatabaseConnector.log.debug("Cleaning: " + vacuumSQL);
+			Statement vacuumStm = this.weeklylHistoryConnection.createStatement();
 			vacuumStm.execute(vacuumSQL);
 			vacuumStm.close();
 
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			DatabaseConnector.log.error("Exception occured: ", e);
 		}
 
-		cleaning = false;
+		this.cleaning = false;
 	}
 
 	private void createInitialSettingsDatabase(Connection connection) {
 
-		String createCommand = " CREATE TABLE IF NOT EXISTS Scenes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name VARCHAR, json TEXT);" 
-				+ " CREATE TABLE IF NOT EXISTS Http_Nodes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name VARCHAR, parentId INTEGER);" 
-				+ " CREATE TABLE IF NOT EXISTS Radio_Channels (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, channelUrl VARCHAR, channelName VARCHAR);" 
-				+ " CREATE TABLE IF NOT EXISTS Rules (id INTEGER PRIMARY KEY NOT NULL, name VARCHAR, json TEXT DEFAULT (NULL), active BOOLEAN);" 
-				+ " CREATE TABLE IF NOT EXISTS IP_Cameras (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR, snapshotUrl VARCHAR, videoUrl VARCHAR);"
-				+ " CREATE TABLE IF NOT EXISTS Notification_GCM (registration_id VARCHAR PRIMARY KEY NOT NULL UNIQUE, name VARCHAR (200), width INTEGER (6),height INTEGER (6) );" 
-				+ " CREATE TABLE IF NOT EXISTS Home_History (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, controller_identifier VARCHAR DEFAULT (NULL), node_identifier VARCHAR DEFAULT (NULL), value_identifier VARCHAR DEFAULT (NULL), time INTEGER DEFAULT (CURRENT_TIMESTAMP), unit VARCHAR, value VARCHAR, value_d VARCHAR);" 
-				+ " CREATE TABLE IF NOT EXISTS Aliases (controller_identifier NOT NULL, node_identifier, value_identifier, alias, PRIMARY KEY (controller_identifier, node_identifier, value_identifier));"
-				+ " CREATE TABLE IF NOT EXISTS Http_Commands (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, parentNodeId INTEGER, name VARCHAR, description VARCHAR, url VARCHAR, httpMethod VARCHAR, messageType VARCHAR,header_1_key VARCHAR,header_1_value VARCHAR,header_2_key VARCHAR,header_2_value VARCHAR,header_3_key VARCHAR,header_3_value VARCHAR,header_4_key VARCHAR,header_4_value VARCHAR, messageBody VARCHAR,json TEXT DEFAULT (NULL));" 
-				+ " CREATE TABLE IF NOT EXISTS ZWave_Value_Settings (homeId INTEGER NOT NULL, nodeId INTEGER NOT NULL, valueId INTEGER NOT NULL, nodeInstance INTEGER, subscribed BOOL, polled BOOL, PRIMARY KEY (homeId, nodeId, valueId, nodeInstance));";
+		String createCommand = " CREATE TABLE IF NOT EXISTS Scenes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name VARCHAR, json TEXT);" + " CREATE TABLE IF NOT EXISTS Http_Nodes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name VARCHAR, parentId INTEGER);" + " CREATE TABLE IF NOT EXISTS Radio_Channels (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, channelUrl VARCHAR, channelName VARCHAR);" + " CREATE TABLE IF NOT EXISTS Rules (id INTEGER PRIMARY KEY NOT NULL, name VARCHAR, json TEXT DEFAULT (NULL), active BOOLEAN);" + " CREATE TABLE IF NOT EXISTS IP_Cameras (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR, snapshotUrl VARCHAR, videoUrl VARCHAR);"
+				+ " CREATE TABLE IF NOT EXISTS Notification_GCM (registration_id VARCHAR PRIMARY KEY NOT NULL UNIQUE, name VARCHAR (200), width INTEGER (6),height INTEGER (6) );" + " CREATE TABLE IF NOT EXISTS Home_History (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, controller_identifier VARCHAR DEFAULT (NULL), node_identifier VARCHAR DEFAULT (NULL), value_identifier VARCHAR DEFAULT (NULL), time INTEGER DEFAULT (CURRENT_TIMESTAMP), unit VARCHAR, value VARCHAR, value_d VARCHAR);" + " CREATE TABLE IF NOT EXISTS Aliases (controller_identifier NOT NULL, node_identifier, value_identifier, alias, PRIMARY KEY (controller_identifier, node_identifier, value_identifier));"
+				+ " CREATE TABLE IF NOT EXISTS Http_Commands (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, parentNodeId INTEGER, name VARCHAR, description VARCHAR, url VARCHAR, httpMethod VARCHAR, messageType VARCHAR,header_1_key VARCHAR,header_1_value VARCHAR,header_2_key VARCHAR,header_2_value VARCHAR,header_3_key VARCHAR,header_3_value VARCHAR,header_4_key VARCHAR,header_4_value VARCHAR, messageBody VARCHAR,json TEXT DEFAULT (NULL));" + " CREATE TABLE IF NOT EXISTS ZWave_Value_Settings (homeId INTEGER NOT NULL, nodeId INTEGER NOT NULL, valueId INTEGER NOT NULL, nodeInstance INTEGER, subscribed BOOL, polled BOOL, PRIMARY KEY (homeId, nodeId, valueId, nodeInstance));";
 		try {
 			Statement stmt = connection.createStatement();
 			stmt.executeUpdate(createCommand);
 			stmt.close();
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			DatabaseConnector.log.error("Exception occured: ", e);
 		}
 	}
 
 	public String getAlias(String controlIdentifier) {
-		return (getAliasFromSql("SELECT alias FROM aliases WHERE controller_identifier='" + controlIdentifier + "'"));
+		return (this.getAliasFromSql("SELECT alias FROM aliases WHERE controller_identifier='" + controlIdentifier + "'"));
 	}
 
 	public String getAlias(String controlIdentifier, String nodeIdentifier) {
-		return (getAliasFromSql("SELECT alias FROM aliases WHERE controller_identifier='" + controlIdentifier + "' and node_identifier='" + nodeIdentifier + "' and value_identifier IS NULL"));
+		return (this.getAliasFromSql("SELECT alias FROM aliases WHERE controller_identifier='" + controlIdentifier + "' and node_identifier='" + nodeIdentifier + "' and value_identifier IS NULL"));
 	}
 
 	public String getAlias(String controlIdentifier, String nodeIdentifier, String valueIdentifier) {
-		return (getAliasFromSql("SELECT alias FROM aliases WHERE controller_identifier='" + controlIdentifier + "' and node_identifier='" + nodeIdentifier + "' and value_identifier='" + valueIdentifier + "'"));
+		return (this.getAliasFromSql("SELECT alias FROM aliases WHERE controller_identifier='" + controlIdentifier + "' and node_identifier='" + nodeIdentifier + "' and value_identifier='" + valueIdentifier + "'"));
 	}
 
 	private Map<String, String> aliasCache = new LRUMap(1000);
 
 	private String getAliasFromSql(String sql) {
-		String alias = aliasCache.get(sql);
+		String alias = this.aliasCache.get(sql);
 		if (alias != null) {
 			return alias;
 		} else {
@@ -348,7 +379,7 @@ public class DatabaseConnector {
 					return result.getString("alias");
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				DatabaseConnector.log.error("Exception occured: ", e);
 			} finally {
 				if (result != null) {
 					try {
@@ -364,7 +395,7 @@ public class DatabaseConnector {
 
 	public boolean setAlias(String controllerIdentifier, String alias) throws SQLException {
 		String existingAlias = this.getAlias(controllerIdentifier);
-		aliasCache.clear();
+		this.aliasCache.clear();
 		if (existingAlias == null) {
 			return this.executeQuery("INSERT INTO aliases (controller_identifier, alias) VALUES ('" + controllerIdentifier + "', '" + alias + "')");
 		} else {
@@ -374,7 +405,7 @@ public class DatabaseConnector {
 
 	public boolean setAlias(String controllerIdentifier, String nodeIdentifier, String alias) throws SQLException {
 		String existingAlias = this.getAlias(controllerIdentifier, nodeIdentifier);
-		aliasCache.clear();
+		this.aliasCache.clear();
 		if (existingAlias == null) {
 			return this.executeQuery("INSERT INTO aliases (controller_identifier,node_identifier, alias) VALUES ('" + controllerIdentifier + "', '" + nodeIdentifier + "','" + alias + "')");
 		} else {
@@ -385,7 +416,7 @@ public class DatabaseConnector {
 
 	public boolean setAlias(String controllerIdentifier, String nodeIdentifier, String valueIdentifier, String alias) throws SQLException {
 		String existingAlias = this.getAlias(controllerIdentifier, nodeIdentifier, valueIdentifier);
-		aliasCache.clear();
+		this.aliasCache.clear();
 		if (existingAlias == null) {
 			return this.executeQuery("INSERT INTO aliases (controller_identifier, node_identifier,value_identifier, alias) VALUES ('" + controllerIdentifier + "', '" + nodeIdentifier + "', '" + valueIdentifier + "','" + alias + "')");
 		} else {
@@ -401,45 +432,45 @@ public class DatabaseConnector {
 			stmt.executeUpdate(createCommand);
 			stmt.close();
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			DatabaseConnector.log.error("Exception occured: ", e);
 		}
 
 	}
 
 	public void insertValueChange(ControlIdentifiers controlIdentifiers, String unit, String valueString, Double valueDouble) {
 
-		try {			
-			historyBatchStm.setString(1, controlIdentifiers.getControllerIdentifier().convert());
-			historyBatchStm.setString(2, controlIdentifiers.getNodeIdentifier());
-			historyBatchStm.setString(3, controlIdentifiers.getValueIdentifier());
-			historyBatchStm.setString(4, unit);
-			historyBatchStm.setString(5, valueString);
-			historyBatchStm.setDouble(6, valueDouble);
-			historyBatchStm.addBatch();
-			currentHistoryBatchSize++;
-			if(currentHistoryBatchSize >= HISTORY_BATCH_SIZE) {
-				flushHistoryDb();
+		try {
+			this.historyBatchStm.setString(1, controlIdentifiers.getControllerIdentifier().convert());
+			this.historyBatchStm.setString(2, controlIdentifiers.getNodeIdentifier());
+			this.historyBatchStm.setString(3, controlIdentifiers.getValueIdentifier());
+			this.historyBatchStm.setString(4, unit);
+			this.historyBatchStm.setString(5, valueString);
+			this.historyBatchStm.setDouble(6, valueDouble);
+			this.historyBatchStm.addBatch();
+			this.currentHistoryBatchSize++;
+			if (this.currentHistoryBatchSize >= this.HISTORY_BATCH_SIZE) {
+				this.flushHistoryDb();
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			DatabaseConnector.log.error("Exception occured: ", e);
 		}
 		try {
-			weeklyHistoryStm.setString(1, controlIdentifiers.getControllerIdentifier().convert());
-			weeklyHistoryStm.setString(2, controlIdentifiers.getNodeIdentifier());
-			weeklyHistoryStm.setString(3, controlIdentifiers.getValueIdentifier());
-			weeklyHistoryStm.setString(4, unit);
-			weeklyHistoryStm.setString(5, valueString);
-			weeklyHistoryStm.setDouble(6, valueDouble);
-			weeklyHistoryStm.addBatch();
-			currentWeeklyBatchSize++;
-			
-			if(currentWeeklyBatchSize >= WEEKLY_BATCH_SIZE) {
-				flushWeeklyDb();
+			this.weeklyHistoryStm.setString(1, controlIdentifiers.getControllerIdentifier().convert());
+			this.weeklyHistoryStm.setString(2, controlIdentifiers.getNodeIdentifier());
+			this.weeklyHistoryStm.setString(3, controlIdentifiers.getValueIdentifier());
+			this.weeklyHistoryStm.setString(4, unit);
+			this.weeklyHistoryStm.setString(5, valueString);
+			this.weeklyHistoryStm.setDouble(6, valueDouble);
+			this.weeklyHistoryStm.addBatch();
+			this.currentWeeklyBatchSize++;
+
+			if (this.currentWeeklyBatchSize >= this.WEEKLY_BATCH_SIZE) {
+				this.flushWeeklyDb();
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
-		}		
-		
+			DatabaseConnector.log.error("Exception occured: ", e);
+		}
+
 	}
 
 	private Map<String, ValueSettings> valueSettingsCache = new HashMap<String, ValueSettings>();
@@ -452,14 +483,14 @@ public class DatabaseConnector {
 			this.executeQuery(setValueSetting);
 
 			ZWaveValue value = new ZWaveValue((short) 0, settings.nodeId, settings.valueId, settings.homeId, settings.nodeInstance);
-			valueSettingsCache.put(value.toControlId(), settings);
+			this.valueSettingsCache.put(value.toControlId(), settings);
 		}
 		return false;
 	}
 
 	public ValueSettings getZWaveValueSettings(long homeId, short nodeId, BigInteger valueId, short nodeInstance) {
 		ZWaveValue value = new ZWaveValue((short) 0, nodeId, valueId, homeId, nodeInstance);
-		ValueSettings settings = valueSettingsCache.get(value.toControlId());
+		ValueSettings settings = this.valueSettingsCache.get(value.toControlId());
 		if (settings != null) {
 			return settings;
 		} else {
@@ -470,10 +501,10 @@ public class DatabaseConnector {
 
 				// //resultTable.next();
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				DatabaseConnector.log.error("Exception occured: ", e);
 			}
 			settings = new ValueSettings(homeId, nodeId, valueId, nodeInstance, resultTable);
-			valueSettingsCache.put(value.toControlId(), settings);
+			this.valueSettingsCache.put(value.toControlId(), settings);
 			return settings;
 		}
 	}
@@ -491,11 +522,11 @@ public class DatabaseConnector {
 				valueSettingsList.add(vs);
 
 				ZWaveValue value = new ZWaveValue((short) 0, nodeId, valueId, homeId, nodeInstance);
-				valueSettingsCache.put(value.toControlId(), vs);
+				this.valueSettingsCache.put(value.toControlId(), vs);
 
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			DatabaseConnector.log.error("Exception occured: ", e);
 		}
 
 		return valueSettingsList;
@@ -527,15 +558,15 @@ public class DatabaseConnector {
 		public String alias;
 
 	}
-	
+
 	public int insertConfigurationValue(String insertString) throws SQLException {
 
 		// Insert in temporary weekly db
 		int returnId = 0;
-		if (!cleaning) {
+		if (!this.cleaning) {
 			Statement stmt = null;
 			try {
-				stmt = weeklylHistoryConnection.createStatement();
+				stmt = this.weeklylHistoryConnection.createStatement();
 				stmt.executeUpdate(insertString);
 				ResultSet keys = stmt.getGeneratedKeys();
 				if (keys != null) {
@@ -547,7 +578,7 @@ public class DatabaseConnector {
 						try {
 							keys.close();
 						} catch (SQLException e) {
-							log.error("Exception occured: ", e);
+							DatabaseConnector.log.error("Exception occured: ", e);
 						}
 					}
 				}
@@ -564,17 +595,19 @@ public class DatabaseConnector {
 	}
 
 	public void destroy() {
-		flushWeeklyDb();
-		flushHistoryDb();
+		this.flushWeeklyDb();
+		this.flushHistoryDb();
 		try {
-			if(this.weeklylHistoryConnection != null) {
+			if (this.weeklylHistoryConnection != null) {
 				this.weeklylHistoryConnection.close();
 			}
-		} catch (SQLException e) {}
+		} catch (SQLException e) {
+		}
 		try {
-			if(allHistoryConnection != null) {
+			if (this.allHistoryConnection != null) {
 				this.allHistoryConnection.close();
 			}
-		} catch (SQLException e) { }
+		} catch (SQLException e) {
+		}
 	}
 }

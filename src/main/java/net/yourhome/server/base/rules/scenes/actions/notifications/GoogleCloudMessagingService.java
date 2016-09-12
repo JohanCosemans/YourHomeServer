@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base.rules.scenes.actions.notifications;
 
 import java.sql.PreparedStatement;
@@ -21,7 +47,7 @@ import net.yourhome.server.http.HttpCommandController;
 
 public class GoogleCloudMessagingService {
 	public static final String GOOGLE_CLOUD_MESSAGING = "https://android.googleapis.com/gcm/send";
-	
+
 	private Map<String, Device> registeredDevices = new HashMap<String, Device>();
 	private static Logger log = Logger.getLogger(GoogleCloudMessagingService.class);
 	private static volatile GoogleCloudMessagingService instance;
@@ -35,14 +61,11 @@ public class GoogleCloudMessagingService {
 		try {
 			result = DatabaseConnector.getInstance().executeSelect(dbSelect);
 			while (result.next()) {
-				Device newDevice = new Device(result.getString("registration_id"),
-						result.getString("name"),
-						result.getInt("width"),
-						result.getInt("height"));
+				Device newDevice = new Device(result.getString("registration_id"), result.getString("name"), result.getInt("width"), result.getInt("height"));
 				this.registeredDevices.put(newDevice.getRegistrationId(), newDevice);
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			GoogleCloudMessagingService.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (result != null) {
@@ -50,33 +73,38 @@ public class GoogleCloudMessagingService {
 					result.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				GoogleCloudMessagingService.log.error("Exception occured: ", e);
 			}
 		}
 
 	}
 
 	public static GoogleCloudMessagingService getInstance() {
-		GoogleCloudMessagingService r = instance;
+		GoogleCloudMessagingService r = GoogleCloudMessagingService.instance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = instance; // thread may have instantiated the object
+			synchronized (GoogleCloudMessagingService.lock) { // while we were
+																// waiting for
+																// the lock,
+																// another
+				r = GoogleCloudMessagingService.instance; // thread may have
+															// instantiated the
+															// object
 				if (r == null) {
 					r = new GoogleCloudMessagingService();
-					instance = r;
+					GoogleCloudMessagingService.instance = r;
 				}
 			}
 		}
-		return instance;
+		return GoogleCloudMessagingService.instance;
 	}
 
 	public void registerClient(Device device) throws SQLException {
 		if (this.registeredDevices.get(device.getRegistrationId()) == null) {
 			this.registeredDevices.put(device.getRegistrationId(), device);
-			String dbSaveQuery = "INSERT into main.Notification_GCM ('registration_id', 'name', 'width', 'height') VALUES ('" + device.getRegistrationId() + "', '" + device.getName() + "', '"+device.getWidth()+"','"+device.getHeight()+"')";
+			String dbSaveQuery = "INSERT into main.Notification_GCM ('registration_id', 'name', 'width', 'height') VALUES ('" + device.getRegistrationId() + "', '" + device.getName() + "', '" + device.getWidth() + "','" + device.getHeight() + "')";
 			DatabaseConnector.getInstance().executeQuery(dbSaveQuery);
 
-			log.info("Successfully registered device " + device.toString());
+			GoogleCloudMessagingService.log.info("Successfully registered device " + device.toString());
 		}
 	}
 
@@ -87,8 +115,9 @@ public class GoogleCloudMessagingService {
 		stm.setString(1, deviceId);
 		DatabaseConnector.getInstance().executePreparedUpdate(stm);
 	}
+
 	public void sendMessage(ClientNotificationMessage message) {
-		sendMessage(message.getMessageMap());
+		this.sendMessage(message.getMessageMap());
 	}
 
 	private void sendMessage(Map<String, String> messageVariables) {
@@ -98,25 +127,23 @@ public class GoogleCloudMessagingService {
 
 		command.setHttpMethod("POST");
 		command.setMessageType("application/json");
-		command.setMessageBody(getMessageBody(messageVariables).toString());
-		command.setUrl(GOOGLE_CLOUD_MESSAGING);
+		command.setMessageBody(this.getMessageBody(messageVariables).toString());
+		command.setUrl(GoogleCloudMessagingService.GOOGLE_CLOUD_MESSAGING);
 		command.addHeader("Authorization", "key=" + BuildConfig.GCM_API_CODE);
 
 		try {
 			controller.sendHttpCommand(command);
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			GoogleCloudMessagingService.log.error("Exception occured: ", e);
 		}
 
 	}
 
-	
-	
 	/**
 	 * @return the registeredDevices
 	 */
 	public Map<String, Device> getRegisteredDevices() {
-		return registeredDevices;
+		return this.registeredDevices;
 	}
 
 	private JSONObject getMessageBody(Map<String, String> dataVariables) {
@@ -131,24 +158,23 @@ public class GoogleCloudMessagingService {
 				try {
 					dataObj.put(mapEntry.getKey(), mapEntry.getValue());
 				} catch (JSONException e) {
-					log.error("Exception occured: ", e);
+					GoogleCloudMessagingService.log.error("Exception occured: ", e);
 				}
 			}
 			resultObj.put("data", dataObj);
 
 			// Parse registration strings
-			for (String registrationId : registeredDevices.keySet()) {
+			for (String registrationId : this.registeredDevices.keySet()) {
 				registrationIDs.put(registrationId);
 			}
 
 			resultObj.put("registration_ids", registrationIDs);
 
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			GoogleCloudMessagingService.log.error("Exception occured: ", e);
 		}
 
 		return resultObj;
 	}
 
-	
 }

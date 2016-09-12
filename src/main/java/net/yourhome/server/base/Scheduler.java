@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base;
 
 import java.util.Date;
@@ -22,36 +48,38 @@ public class Scheduler {
 
 	private Scheduler() {
 		// Creates a Scheduler instance.
-		cronScheduler = new it.sauronsoftware.cron4j.Scheduler();
+		this.cronScheduler = new it.sauronsoftware.cron4j.Scheduler();
 		// log.debug("CronScheduler started with timezone
 		// "+cronScheduler.getTimeZone().toString());
 		// Stops the scheduler.
 		// s.stop();
 		// repeatingTimers = new ArrayList<Timer>();
-		nonRepeatingTimer = new Timer();
-		cronScheduler.start();
+		this.nonRepeatingTimer = new Timer();
+		this.cronScheduler.start();
 
 		// schedules = new ArrayList<ISchedule>();
 	}
 
 	public static Scheduler getInstance() {
 
-		Scheduler r = instance;
+		Scheduler r = Scheduler.instance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = instance; // thread may have instantiated the object
+			synchronized (Scheduler.lock) { // while we were waiting for the
+											// lock, another
+				r = Scheduler.instance; // thread may have instantiated the
+										// object
 				if (r == null) {
 					r = new Scheduler();
-					instance = r;
+					Scheduler.instance = r;
 				}
 			}
 		}
-		return instance;
+		return Scheduler.instance;
 	}
 
 	public String scheduleCron(TimerTask task, String cronString) {
-		String jobId = cronScheduler.schedule(cronString, task);
-		log.debug("Cron schedule added for " + cronString + ", type: " + task.getClass());
+		String jobId = this.cronScheduler.schedule(cronString, task);
+		Scheduler.log.debug("Cron schedule added for " + cronString + ", type: " + task.getClass());
 		return jobId;
 	}
 
