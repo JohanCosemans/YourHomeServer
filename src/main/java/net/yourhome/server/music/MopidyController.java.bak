@@ -1,0 +1,754 @@
+package net.yourhome.server.music;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.a0z.mpd.MPD;
+import org.a0z.mpd.MPDPlaylist;
+import org.a0z.mpd.MPDStatus;
+import org.a0z.mpd.MPDStatusMonitor;
+import org.a0z.mpd.event.StatusChangeListener;
+import org.a0z.mpd.event.TrackPositionListener;
+import org.a0z.mpd.exception.MPDException;
+import org.a0z.mpd.item.Item;
+import org.a0z.mpd.item.Music;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import net.yourhome.common.base.enums.ControllerTypes;
+import net.yourhome.common.base.enums.ValueTypes;
+import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.common.net.messagestructures.general.ActivationMessage;
+import net.yourhome.common.net.messagestructures.general.SetValueMessage;
+import net.yourhome.common.net.messagestructures.musicplayer.MusicPlayerStatusMessage;
+import net.yourhome.common.net.messagestructures.musicplayer.PlaylistMessage;
+import net.yourhome.common.net.messagestructures.musicplayer.PlaylistsMessage;
+import net.yourhome.common.net.messagestructures.musicplayer.PlaylistsRequestMessage;
+import net.yourhome.common.net.messagestructures.musicplayer.TrackProgressMessage;
+import net.yourhome.common.net.model.binding.ControlIdentifiers;
+import net.yourhome.server.AbstractController;
+import net.yourhome.server.ControllerNode;
+import net.yourhome.server.ControllerValue;
+import net.yourhome.server.base.BuildConfig;
+import net.yourhome.server.base.Setting;
+import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.base.Util;
+import net.yourhome.server.net.Server;
+
+public class MopidyController extends AbstractController implements IMusicPlayer {
+	public enum Settings {
+
+		MPD_HOST(new Setting("MPD_HOST", "Mopidy Host Address", "127.0.0.1")), MPD_PORT(new Setting("MPD_PORT", "Mopidy Port", "6600")), MPD_PASSWORD(new Setting("MPD_PASSWORD", "Mopidy Password (if any)"));
+
+		private Setting setting;
+
+		private Settings(Setting setting) {
+			this.setting = setting;
+		}
+
+		public Setting get() {
+			return setting;
+		}
+	}
+
+	public final static String IMAGE_PATH = "/web/albumImages";
+	public final static String IMAGE_WEBPATH = "/albumImages";
+
+	private Server netWebSocketServer;
+	private MPD mpd;
+	private boolean isEnabled = true;
+	private boolean isPlaying = false;
+	private boolean isPaused = false;
+	private boolean isStopped = true;
+	private boolean isRandom = false;
+	private MPDStatusMonitor statusMonitor;
+
+	private MopidyController() {
+		log = Logger.getLogger("net.yourhome.server.music.Mopidy");
+		this.netWebSocketServer = Server.getInstance();
+	}
+
+	// Singleton instance
+	private static volatile MopidyController mopidyControllerInstance;
+	private static Object lock = new Object();
+
+	public static MopidyController getInstance() {
+		MopidyController r = mopidyControllerInstance;
+		if (r == null) {
+			synchronized (lock) { // while we were waiting for the lock, another
+				r = mopidyControllerInstance; // thread may have instantiated
+												// the object
+				if (r == null) {
+					r = new MopidyController();
+					mopidyControllerInstance = r;
+				}
+			}
+		}
+		return mopidyControllerInstance;
+	}
+
+	@Override
+	public void init() {
+		super.init();
+		try {
+			String mpdHost = SettingsManager.getStringValue(getIdentifier(), Settings.MPD_HOST.get());
+			int mpdPort = Integer.parseInt(SettingsManager.getStringValue(getIdentifier(), Settings.MPD_PORT.get()));
+
+			if (mpdHost == null || mpdHost == "" || mpdPort == 0) {
+				// return false;
+			} else {
+
+				String mpdPassword = SettingsManager.getStringValue(getIdentifier(), Settings.MPD_PASSWORD.get());
+				try {
+					if (this.mpd != null) {
+						this.mpd.disconnect();
+					}
+
+					this.mpd = new CachedMPD(true);
+					if (mpdPassword == null || mpdPassword.equals("")) {
+						this.mpd.connect(mpdHost, mpdPort, null);
+					} else {
+						this.mpd.connect(mpdHost, mpdPort, mpdPassword);
+					}
+					MusicPlayer.registerPlayer(this);
+
+					if (statusMonitor != null) {
+						statusMonitor.giveup();
+					}
+					statusMonitor = new MPDStatusMonitor(mpd, 1000 / 2L, new String[] { MPDStatusMonitor.IDLE_DATABASE, MPDStatusMonitor.IDLE_MIXER, MPDStatusMonitor.IDLE_OPTIONS, MPDStatusMonitor.IDLE_OUTPUT, MPDStatusMonitor.IDLE_PLAYER, MPDStatusMonitor.IDLE_PLAYLIST, MPDStatusMonitor.IDLE_STICKER, MPDStatusMonitor.IDLE_UPDATE, });
+					statusMonitor.addStatusChangeListener(new StatusChangeListener() {
+
+						@Override
+						public void volumeChanged(MPDStatus mpdStatus, int oldVolume) {
+							// System.out.println("volumeChanged: " +
+							// mpdStatus.getVolume());
+							if (MusicPlayer.getVolume() != mpdStatus.getVolume()) {
+								MusicPlayer.setVolume(mpdStatus.getVolume());
+								netWebSocketServer.broadcast(MusicPlayer.getVolumeMessage());
+							}
+						}
+
+						@Override
+						public void trackChanged(MPDStatus mpdStatus, int oldTrack) {
+							// System.out.println("trackChanged: " +
+							// mpdStatus.getSongPos());
+							netWebSocketServer.broadcast(getPlayerStatus());
+						}
+
+						@Override
+						public void stickerChanged(MPDStatus mpdStatus) {
+							// System.out.println("stickerChanged");
+
+						}
+
+						@Override
+						public void stateChanged(MPDStatus mpdStatus, int oldState) {
+							updateState(mpdStatus);
+							netWebSocketServer.broadcast(getPlayerStatus());
+							// System.out.println("stateChanged: " +
+							// mpdStatus.getState());
+							if (mpdStatus.getState() == MPDStatus.STATE_PLAYING) {
+								MusicPlayer.playBackStarted();
+							}
+						}
+
+						@Override
+						public void repeatChanged(boolean repeating) {
+							// System.out.println("repeatChanged");
+						}
+
+						@Override
+						public void randomChanged(boolean random) {
+							// System.out.println("randomChanged");
+							isRandom = random;
+							netWebSocketServer.broadcast(getPlayerStatus());
+						}
+
+						@Override
+						public void playlistChanged(MPDStatus mpdStatus, int oldPlaylistVersion) {
+							// System.out.println("playlistChanged");
+							netWebSocketServer.broadcast(getPlaylist(0));
+						}
+
+						@Override
+						public void libraryStateChanged(boolean updating, boolean dbChanged) {
+
+							// System.out.println("libraryStateChanged");
+
+						}
+
+						@Override
+						public void connectionStateChanged(boolean connected, boolean connectionLost) {
+							// TODO Auto-generated method stub
+							// System.out.println("connectionStateChanged");
+
+						}
+					});
+
+					statusMonitor.addTrackPositionListener(new TrackPositionListener() {
+
+						@Override
+						public void trackPositionChanged(MPDStatus status) {
+							// System.out.println("trackPositionChanged: " +
+							// status.getElapsedTime());
+							TrackProgressMessage trackProgressMessage = new TrackProgressMessage();
+							trackProgressMessage.controlIdentifiers = new ControlIdentifiers(getIdentifier());
+							trackProgressMessage.trackProgressPercentage = getTrackProgressPercentage();
+							netWebSocketServer.broadcast(trackProgressMessage);
+						}
+					});
+
+					statusMonitor.start();
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (MPDException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			log.info("Initialized");
+		} catch (NumberFormatException e) {
+			log.info("Could not find mopidy settings. Disabling mopidy.");
+			isEnabled = false;
+		}
+	}
+
+	private int getSongIdIndex() {
+
+		if (ensureConnected()) {
+			return this.mpd.getStatus().getSongPos();
+		}
+		return 0;
+	}
+
+	@Override
+	public void setVolume(int volume) {
+		try {
+			if (ensureConnected()) {
+				this.mpd.setVolume(volume);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MPDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public int getVolume() {
+		if (ensureConnected()) {
+			return this.mpd.getStatus().getVolume();
+		}
+		return 0;
+	}
+
+	public void playStream(String streamUrl) {
+		if (ensureConnected()) {
+			try {
+				this.mpd.addStream(streamUrl, false, true);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MPDException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public JSONMessage stop() {
+		if (ensureConnected()) {
+			try {
+				this.mpd.stop();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MPDException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public MusicPlayerStatusMessage getPlayerStatus() {
+		MusicPlayerStatusMessage playerStatusMessage = new MusicPlayerStatusMessage();
+		if (ensureConnected()) {
+			Music currentSong = this.mpd.getPlaylist().getByIndex(this.mpd.getStatus().getSongPos());
+			if (!isStopped && currentSong != null) {
+				playerStatusMessage.status.artist = currentSong.getAlbumArtistOrArtist();
+				playerStatusMessage.status.title = currentSong.getTitle();
+				playerStatusMessage.status.trackIndex = this.mpd.getStatus().getSongPos();
+				playerStatusMessage.status.imagePath = getAlbumImage(currentSong);
+				playerStatusMessage.status.trackProgressPercentage = getTrackProgressPercentage();
+			}
+
+			// updateState(this.mpd.getStatus());
+			playerStatusMessage.status.isPaused = isPaused;
+			playerStatusMessage.status.isPlaying = isPlaying;
+			playerStatusMessage.status.isStopped = isStopped;
+			playerStatusMessage.status.randomStatus = isRandom;
+
+			playerStatusMessage.broadcast = true;
+			playerStatusMessage.status.trackIndex = getSongIdIndex();// this.mpdPlayer.getCurrentSong().getId();
+			return playerStatusMessage;
+		}
+		return null;
+	}
+
+	private String getAlbumImage(Music song) {
+		// http://ws.audioscrobbler.com/2.0/?artist=Ben+Howard&album=I+Forget+Where+We+Were&method=album.getInfo&api_key=077c9fa281240d1c38b24d48bc234940&callback=jsonp1426372798115&format=json
+		try {
+			String artist = URLEncoder.encode(song.getAlbumArtistOrArtist(), "UTF-8");
+			String album = URLEncoder.encode(song.getAlbum(), "UTF-8");
+
+			File albumImagefile = new File(SettingsManager.getBasePath() + IMAGE_PATH + "/" + artist + "_" + album + ".jpg");
+
+			if (!albumImagefile.exists()) {
+
+				// Get JSON info regarding the current album
+				try {
+					JSONObject albumInfo = Util.readJsonFromUrl("http://ws.audioscrobbler.com/2.0/?artist=" + artist + "&album=" + album + "&method=album.getInfo&api_key=077c9fa281240d1c38b24d48bc234940&format=json");
+
+					// Parse URL from albuminfo
+					JSONObject albumObj = albumInfo.getJSONObject("album");
+					JSONArray imageObjArr = albumObj.getJSONArray("image");
+					String imageUrl = null;
+					for (int i = 0; i < imageObjArr.length(); i++) {
+						JSONObject imageObj = imageObjArr.getJSONObject(i);
+						if (imageObj.getString("size").equals("extralarge")) {
+							imageUrl = imageObj.getString("#text");
+						}
+					}
+
+					if (imageUrl != null && !imageUrl.equals("")) {
+						Util.writeToFile(new URL(imageUrl).openStream(), albumImagefile);
+					}
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+			if (albumImagefile.exists()) {
+				try {
+					return IMAGE_WEBPATH + "/" + URLEncoder.encode(albumImagefile.getName(), "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					return "";
+				}
+			}
+
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return "";
+		// ;
+
+		// Save album image to file
+		/*
+		 * if(!file.exists()) { byte[] albumImageBytes = albumImage.getBytes();
+		 * if(albumImageBytes != null && albumImageBytes.length > 0) {
+		 * FileOutputStream fos = new
+		 * FileOutputStream(Settings.getBasePath()+this
+		 * .IMAGE_PATH+"/"+imageFile); if(fos != null && albumImage != null) {
+		 * fos.write(albumImageBytes); fos.close(); } } }
+		 */
+	}
+
+	private void updateState(MPDStatus fromState) {
+		switch (fromState.getState()) {
+		case MPDStatus.STATE_PAUSED:
+			isPaused = true;
+			isPlaying = false;
+			isStopped = false;
+			break;
+		case MPDStatus.STATE_PLAYING:
+			isPaused = false;
+			isPlaying = true;
+			isStopped = false;
+			break;
+		case MPDStatus.STATE_STOPPED:
+			isPaused = false;
+			isPlaying = false;
+			isStopped = true;
+			break;
+		case MPDStatus.STATE_UNKNOWN:
+		}
+	}
+
+	@Override
+	public JSONMessage parseNetMessage(JSONMessage message) {
+		if (message instanceof ActivationMessage) {
+			String action = message.controlIdentifiers.getValueIdentifier();
+			if (action.equals("Stop")) {
+				MusicPlayer.stopAllPlayers();
+			} else if (action.equals("Next")) {
+				this.next();
+			} else if (action.equals("Previous")) {
+				this.previous();
+			} else if (action.equals("VolumeUp")) {
+				return this.volumeUp();
+			} else if (action.equals("VolumeDown")) {
+				JSONMessage m = this.volumeDown();
+				m.broadcast = true;
+				return m;
+			}
+			return getPlayerStatus();
+		} else if (message instanceof SetValueMessage) {
+			SetValueMessage setValueMessage = (SetValueMessage) message;
+			String value = setValueMessage.value.toLowerCase();
+			if (setValueMessage.controlIdentifiers.getValueIdentifier().equals("PlayPause")) {
+				if (value.equals("play")) {
+					this.resume();
+				} else if (value.equals("pause")) {
+					this.pause();
+				}
+			} else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals("Random")) {
+				if (value.equals("true")) {
+					this.setRandom(true);
+				} else if (value.equals("false")) {
+					this.setRandom(false);
+				}
+			} else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals("Playlist")) {
+				int trackIndex = Integer.parseInt(setValueMessage.value);
+				this.playCurrentPlaylistItem(trackIndex);
+			} else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals("Playlists")) {
+				int playlistId = Integer.parseInt(setValueMessage.value);
+				try {
+					if (ensureConnected()) {
+						List<Item> playlists = this.mpd.getPlaylists(false);
+						Item playlistItem = playlists.get(playlistId);
+						List<Music> playlistContent = this.mpd.getPlaylistSongs(playlistItem.getName());
+						this.mpd.getPlaylist().clear();
+						this.mpd.getPlaylist().addAll(playlistContent);
+						log.info("Set mopidy playlist to: " + playlistItem.getName());
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return getPlayerStatus();
+		} else if (message instanceof PlaylistsRequestMessage) {
+			// Build return message
+			PlaylistsMessage playlistsMessage = new PlaylistsMessage();
+			playlistsMessage.controlIdentifiers = message.controlIdentifiers;
+
+			try {
+				if (ensureConnected()) {
+					Collection<Item> playlists;
+					int i = 0;
+					playlists = this.mpd.getPlaylists(false);
+
+					for (Item playlist : playlists) {
+						PlaylistsMessage.PlaylistDescription playlistDescription = playlistsMessage.new PlaylistDescription(i, playlist.getName());
+						playlistsMessage.playlists.add(playlistDescription);
+						i++;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return playlistsMessage;
+		}
+
+		return null;
+
+	}
+
+	public double getTrackProgressPercentage() {
+
+		if (ensureConnected()) {
+			long totalTime = this.mpd.getStatus().getTotalTime();
+
+			if (totalTime > 0) {
+				double progressPercentage = this.mpd.getStatus().getElapsedTime() / (double) totalTime * 100.00;
+				double roundedDouble = Util.round(progressPercentage, 4);
+				return roundedDouble;
+			}
+		}
+		return 0;
+	}
+
+	public PlaylistMessage getPlaylist(int maximumSongs) {
+
+		PlaylistMessage playlistMessage = new PlaylistMessage();
+		playlistMessage.controlIdentifiers = new ControlIdentifiers(getIdentifier());
+		try {
+			this.mpd.refreshDatabase();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (MPDException e) {
+			e.printStackTrace();
+		}
+
+		if (ensureConnected()) {
+			MPDPlaylist currentPlaylist = this.mpd.getPlaylist();
+			List<Music> tracks;
+			tracks = currentPlaylist.getMusicList();
+			for (int i = 0; i < tracks.size(); i++) {
+				Music track = tracks.get(i);
+				PlaylistMessage.PlaylistItem item = playlistMessage.new PlaylistItem();
+				item.artist = track.getAlbumArtistOrArtist();
+				item.title = track.getTitle();
+				item.trackIndex = i;
+				playlistMessage.playlist.add(item);
+			}
+		}
+		return playlistMessage;
+	}
+
+	public JSONMessage playCurrentPlaylistItem(int trackIndex) {
+
+		if (ensureConnected()) {
+			// MPDPlaylist currentPlaylist = this.mpd.getPlaylist();
+			// List<Music> songs = currentPlaylist.getMusicList();
+			try {
+				if (trackIndex < 0) {
+					MusicPlayer.stopAllPlayers(this);
+					this.mpd.skipToPosition(0);
+				} else {
+					MusicPlayer.stopAllPlayers(this);
+					this.mpd.skipToPosition(trackIndex);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MPDException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public void pause() {
+		try {
+			if (ensureConnected() && this.isPlaying) {
+				isPlaying = false;
+				isStopped = false;
+				isPaused = true;
+				this.mpd.pause();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MPDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void resume() {
+		try {
+
+			if (ensureConnected()) {
+				isPlaying = true;
+				isPaused = false;
+				isStopped = false;
+				this.mpd.play();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MPDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private boolean ensureConnected() {
+		if (this.mpd == null | (this.mpd != null && !this.mpd.isConnected())) {
+			init();
+		}
+
+		if (this.mpd != null && this.mpd.isConnected()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public void next() {
+		try {
+
+			if (ensureConnected()) {
+				this.mpd.next();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MPDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void previous() {
+		try {
+
+			if (ensureConnected()) {
+				this.mpd.previous();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MPDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void setRandom(boolean onOff) {
+		try {
+			isRandom = onOff;
+			if (ensureConnected()) {
+				this.mpd.setRandom(onOff);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MPDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public JSONMessage volumeUp() {
+		int currentVolume = MusicPlayer.getVolume();
+		int newVolume = 0;
+
+		if (currentVolume > 9) {
+			newVolume = currentVolume + 5;
+			if (newVolume >= 100) {
+				newVolume = 100;
+			}
+		} else {
+			newVolume = currentVolume + 1;
+		}
+
+		MusicPlayer.setVolume(newVolume);
+
+		// }
+		return MusicPlayer.getVolumeMessage();
+	}
+
+	public JSONMessage volumeDown() {
+		int currentVolume = MusicPlayer.getVolume();
+
+		if (currentVolume > 0) {
+			if (currentVolume - 5 < 10) {
+				MusicPlayer.setVolume(currentVolume - 1);
+			} else {
+				MusicPlayer.setVolume(currentVolume - 5);
+			}
+		}
+		// }
+		return MusicPlayer.getVolumeMessage();
+
+	}
+
+	@Override
+	public String getIdentifier() {
+		// TODO Auto-generated method stub
+		return ControllerTypes.SPOTIFY.convert();
+	}
+
+	@Override
+	public String getName() {
+		return "Mopidy";
+	}
+
+	@Override
+	public List<JSONMessage> initClient() {
+		if(isInitialized()) {
+			List<JSONMessage> returnList = new ArrayList<JSONMessage>();
+			returnList.add(getPlayerStatus());
+			returnList.add(getPlaylist(500));
+			return returnList;
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	@Override
+	public List<ControllerNode> getNodes() {
+
+		List<ControllerNode> returnList = new ArrayList<ControllerNode>();
+		ControllerNode commandsNode = new ControllerNode(this, "MopidyCommands", "Mopidy Commands", "");
+		commandsNode.addValue(new ControllerValue("PlayPause", "Play / Pause", ValueTypes.MUSIC_PLAY_PAUSE));
+		commandsNode.addValue(new ControllerValue("Stop", "Stop", ValueTypes.MUSIC_ACTION));
+		commandsNode.addValue(new ControllerValue("Next", "Next", ValueTypes.MUSIC_ACTION));
+		commandsNode.addValue(new ControllerValue("Previous", "Previous", ValueTypes.MUSIC_ACTION));
+		commandsNode.addValue(new ControllerValue("Random", "Random", ValueTypes.MUSIC_RANDOM));
+		commandsNode.addValue(new ControllerValue("VolumeUp", "Volume Up", ValueTypes.MUSIC_ACTION));
+		commandsNode.addValue(new ControllerValue("VolumeDown", "Volume Down", ValueTypes.MUSIC_ACTION));
+		commandsNode.addValue(new ControllerValue("AlbumImage", "Album Image", ValueTypes.MUSIC_ALBUM_IMAGE));
+		commandsNode.addValue(new ControllerValue("Playlist", "Playlist", ValueTypes.MUSIC_PLAYLIST));
+		commandsNode.addValue(new ControllerValue("Playlists", "Playlists", ValueTypes.MUSIC_PLAYLISTS));
+		commandsNode.addValue(new ControllerValue("Progress", "Progress", ValueTypes.MUSIC_PROGRESS));
+		commandsNode.addValue(new ControllerValue("TrackDisplay", "Title / Artist", ValueTypes.MUSIC_TRACK_DISPLAY));
+		returnList.add(commandsNode);
+
+		return returnList;
+	}
+
+	@Override
+	public String getValueName(ControlIdentifiers valueIdentifier) {
+		return "Unkown";
+	}
+
+	@Override
+	public List<ControllerNode> getTriggers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getValue(ControlIdentifiers valueIdentifiers) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isInitialized() {
+		boolean isNotConnected = this.mpd == null | (this.mpd != null && !this.mpd.isConnected());
+		return !isNotConnected;
+	}
+
+	@Override
+	public List<Setting> getSettings() {
+		List<Setting> returnList = new ArrayList<Setting>();
+		for (Settings s : Settings.values()) {
+			returnList.add(s.setting);
+		}
+		return returnList;
+	}
+
+}
