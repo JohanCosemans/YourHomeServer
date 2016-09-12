@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="content-language" content="en" />
+
+<link href="css/jquery.zrssfeed.css" rel="stylesheet" type="text/css" />
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+
+<script src="jquery.min.js" type="text/javascript"></script>
+<script src="jquery.zrssfeed.js" type="text/javascript"></script>
+<script src="util.js" type="text/javascript"></script>
+
+<title>zRSSFeed</title>
+</head>
+<body>
+<script type="text/javascript">
+$(document).ready(function () {
+	var feedUrl = getURIParameter("feedUrl", false);
+	var textColor = getURIParameter("textColor", false);
+	$('#feed').rssfeed([feedUrl], {
+		limit: 50,
+		snippet: false
+	}, function() {
+		$('a').css("color","#"+textColor);
+	}).css("color","#"+textColor);
+	
+	
+});
+</script>
+
+<div id="feed"></div>
+
+</body>
+</html>

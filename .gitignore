@@ -1,0 +1,8 @@
+/bin/
+/build/
+/distributions/
+/target/
+/.gradle/
+/.settings/
+/src/main/resources/logs/
+/src/main/resources/ipcamerasnapshots/

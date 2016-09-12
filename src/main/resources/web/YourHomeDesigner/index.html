@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+<head>
+    <meta charset="utf-8" />
+    <title>YourHome Designer</title>
+    <meta name="description" content="Control your house as you want it" />
+
+    <!-- JavaScript libraries -->
+
+	<script src="js/vendor/jquery-1.11.3.js"></script>
+	
+    <script src="js/vendor/jquery-ui-1.10.2.custom.js" type="text/javascript"></script>
+	<script src="js/vendor/jstree.js"></script>
+    
+	<script src="js/vendor/json2.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.mousewheel.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.browser.min.js" type="text/javascript"></script>
+    <script src="js/vendor/dragscrollable.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.contextMenu.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.ui.position.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.ui.tabs.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.minicolors.js" type="text/javascript"></script>
+    <script src="js/vendor/uploader.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.freetrans.js" type="text/javascript"></script>
+    <script src="js/vendor/image-picker.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.smartWizard.js" type="text/javascript"></script>
+    <script src="js/vendor/jqCron.js" type="text/javascript"></script>
+    <script src="js/vendor/jqCron.en.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.ui.touch-punch.js" type="text/javascript"></script>
+    <script src="js/vendor/jquery.query-object.js" type="text/javascript"></script>
+
+    <!-- JavaScript custom -->
+    <script type="text/javascript">
+        var rootUrl = "";
+        var json = '';
+        var base = '';
+		apiBase = '/api';
+		json = '';
+
+        window.images = null;
+        window.copyPasteMemory = null;
+        window.zwaveObjects = null;
+		window.dialogOptions = new Object();
+		window.zoomRatio = 1;
+    </script>
+
+    <script src="js/homeDesigner_util.js" type="text/javascript"></script>
+    <script src="js/homeDesigner_center.js" type="text/javascript"></script>
+    <script src="js/homeDesigner_menu.js" type="text/javascript"></script>
+    <script src="js/homeDesigner_right.js" type="text/javascript"></script>
+    <script src="js/homeDesigner_left.js" type="text/javascript"></script>
+    <script src="js/homeDesigner_ruleBuilder.js" type="text/javascript"></script>
+
+
+    <!--- CSS --->
+    <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.10.2.custom.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.dragscroll.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.contextMenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.minicolors/jquery.minicolors.css" />
+    <link rel="stylesheet" type="text/css" href="css/image-picker.css" />
+    <link rel="stylesheet" type="text/css" href="css/smart_wizard.css" />
+    <link rel="stylesheet" type="text/css" href="css/jqCron.css" />
+	<link rel="stylesheet" type="text/css" href="css/icomoon/style.css">
+	<link rel="stylesheet" href="css/jstree-themes/default/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/tree.css" />
+</head>
+
+<body>
+
+    <!--- TOP PANEL --->
+    <div id="toolbar-wrapper">
+	
+		<div class="currentScreenText">
+			<div class="logo-link table-cell fullheight middle">
+				<a target="_blank" href="http://www.yourhomeapp.net" style="text-decoration: none;">
+				<img class="logo-image" src="css/images/logo_white_no_shadow.png">
+				<div class="logo-container">
+					<div class="logo">YourHome
+						<span style="color:#e25740">Beta</span>
+					</div>
+				</div>
+				</a>
+			</div>
+		</div>
+		<div class="currentScreenText">
+			<div style="padding: 5px;margin-right: 20px;">
+				<div><span class="currentScreen">Project: </span><span id="currentProject"> </span></div>
+				<div><span class="currentScreen">Screen: </span><span id="currentScreen"></span></div>
+			</div>
+		</div>
+        <!-- Main menu -->
+        <div id="box">
+            <a id="dropdown_menu_file" href="#" class="dropDownMenu bt btleft">
+			<i class="ic icon-file-o ic-color ic-in-button ic-fw"></i>Project <span>&#9660;</span></a>
+            <a id="dropdown_menu_pages" href="#" class="dropDownMenu bt btright">
+			<i class="ic icon-screens2 ic-color ic-in-button ic-fw"></i>Screens <span>&#9660;</span></a>
+            <a id="dropdown_menu_zoom" href="#" class="dropDownMenu bt btright">
+			<i class="ic icon-search ic-color ic-in-button ic-fw"></i>Zoom <span>&#9660;</span></a>
+            <a id="dropdown_menu_background" href="#" class="dropDownMenu bt btleft">
+			<i class="ic icon-image2 ic-color ic-in-button ic-fw"></i>Background <span>&#9660;</span></a>
+            <a id="dropdown_menu_rules_scenes" href="#" class="dropDownMenu bt btright">
+			<i class="ic icon-clapperboard ic-color ic-in-button ic-fw"></i>Scenes & Rules <span>&#9660;</span></a>
+            <a id="dropdown_menu_settings" href="#" class="dropDownMenu bt btright">
+			<i class="ic icon-cog ic-color ic-in-button ic-fw"></i>Settings <span>&#9660;</span></a>
+			
+        </div>
+
+        <!-- Sub menus -->
+        <div id="menu_file" class="subMenu" style="display:none;">
+            <div id="tooltip_menu"  class="arrow_box">
+                <a id="menu_new" href="#" class="menu_top" onClick="newProject()">
+                    <i class="ic icon-file-o ic-color ic-in-button ic-fw"></i>New</a>
+                <a id="menu_import" href="#" class="menu_row" onClick="openImportDialog()">
+                    <i class="ic icon-folder-open-o ic-color ic-in-button ic-fw"></i>Open</a>
+                <a id="menu_save" href="#" class="menu_row" onClick="exportProject(true, false)">
+                    <i class="ic icon-floppy-o ic-color ic-in-button ic-fw"></i>Save</a>
+                <a id="menu_save" href="#"  class="menu_row" onClick="exportProject(true, true)">
+                    <i class="ic icon-floppy-o ic-color ic-in-button ic-fw"></i>Save as</a>
+				<a id="menu_publish" href="#"  class="menu_row"  onClick="publishProject(true)">
+                    <i class="ic icon-globe ic-color ic-in-button ic-fw"></i>Save and publish</a>
+                <a id="menu_import" href="#"  class="menu_row" onClick="openPublicationsDialog()">
+                    <i class="ic icon-globe ic-color ic-in-button ic-fw"></i>Publications</a>
+                <a id="menu_set_screen_size" href="#" class="menu_bottom" onClick="openScreenSizePopup()">
+                    <i class="ic icon-mobile2 ic-color ic-in-button ic-fw"></i>Set screen size</a>
+            </div>
+        </div>
+
+        <div id="menu_zoom" class="subMenu" style="display:none;">
+            <div id="tooltip_menu"  class="arrow_box">
+                <a href="#" onClick="zoomStage(150)" class="menu_top">
+                    <i class="ic icon-search-plus ic-color ic-in-button ic-fw"></i>150%</a>
+                <a href="#" onClick="zoomStage(100)"  class="menu_row" >
+                    <i class="ic icon-search ic-color ic-in-button ic-fw"></i>100%</a>
+                <a href="#" onClick="zoomStage(75)"  class="menu_row" >
+                    <i class="ic icon-search-minus ic-color ic-in-button ic-fw"></i>75%</a>
+                <a href="#" onClick="zoomStage(50)"  class="menu_row" >
+                    <i class="ic icon-search-minus ic-color ic-in-button ic-fw"></i>50%</a>
+                <a href="#" onClick="zoomStage(40)"  class="menu_row" >
+                    <i class="ic icon-search-minus ic-color ic-in-button ic-fw"></i>40%</a>
+                <a href="#" onClick="zoomFit()" class="menu_bottom">
+                    <i class="ic icon-search ic-color ic-in-button ic-fw"></i>Best fit</a>
+            </div>
+        </div>
+
+        <div id="menu_pages" class="subMenu" style="display:none;">
+            <div id="tooltip_menu"  class="arrow_box">
+                <ul id="tooltip_menu_list" class="screenSortableList">
+                </ul>
+                <a href="#" onClick="createPageInline()" class="menu_bottom">
+                    <i class="ic icon-file-o ic-color ic-in-button ic-fw"></i>Create new screen</a>
+            </div>
+        </div>
+
+        <div id="menu_background" class="subMenu" style="display:none;">
+            <div id="tooltip_menu" class="arrow_box">
+                <table>
+                    <tr>
+                        <td>
+                            <i class="ic icon-picture-o ic-color ic-in-button ic-fw"></i>
+                        </td>
+                        <td class="menuText menuDiv" valign="middle">Background image:</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td />
+                        <td valign="middle">
+							 <button id="background_clear" onClick="clearBackgroundImageSrc();" class="button">
+								Clear current</button>          
+                            <p>
+                               <button onClick="openImageValueHelp(setBackgroundImageSrc, '', 'backgrounds');" class="button">Select image</button>
+                            </p>
+                            <p>
+                               <label>Upload image: </label> <input type="file" id="upload_background_file" size="15" />
+                            </p>
+                            <p>                      
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                           <i class="ic icon-paint-brush ic-color ic-in-button ic-fw"></i>
+                        </td>
+                        <td valign="middle" class="menuText menuDiv"><span>Background color: </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td />
+                        <td valign="middle">
+                            <input type="text" id="stage-color-picker" value="#2e2e2e" class="minicolors minicolors-input" size="7" maxlength="7">
+                        </td>
+                    </tr>
+                </table>
+                <a id="menu_toggle_grid" href="#" onClick="setVisibilityOfGrid()" class="menu_bottom">
+                    <i class="ic icon-hashtag ic-color ic-in-button ic-fw"></i>Show/hide grid</a>
+            </div>
+        </div>
+
+		<div id="menu_rules_scenes" class="subMenu" style="display:none;">
+            <div id="tooltip_menu" class="arrow_box">
+                
+					
+                <a id="menu_new" href="#" class="menu_top" onClick="openScenesOverviewDialog()">
+                    <i class="ic icon-clapperboard ic-color ic-in-button"></i>Scenes</a>
+				<a id="menu_new" href="#" class="menu_row
+				" onClick="openRulesOverviewDialog()">
+                    <i class="ic icon-rules2 ic-color ic-in-button"></i>Rules</a>
+            </div>
+        </div>
+
+        <div id="menu_settings" class="subMenu" style="display:none;">
+            <div id="tooltip_menu" class="arrow_box">
+                <a id="menu_new" href="#" class="menu_top" onClick="openSettingsDialog()">
+                    <i class="ic icon-cogs ic-color ic-in-button ic-fw"></i>System</a>
+                <a id="menu_new" href="#" class="menu_row" onClick="openDevicesDialog()">
+                    <i class="ic icon-mobile2 ic-color ic-in-button ic-fw"></i>Connected devices</a>
+				<a id="menu_new" href="#" class="menu_bottom" onClick="openLogFile('HomeServer')">
+                    <i class="ic icon-file-text-o ic-color ic-in-button ic-fw"></i>Logs HomeServer</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialogs opened from the menu -->
+    <div id="screen-size-dialog" class="dialog form" title="Set project screen size">
+        <p id="screen-size-dialog-header" class="dialog-header">Please specify the project size here. The window size can be different based on the type of tablet/phone you are using.</p>
+		
+			<label for="screen-size-width">Width (px):</label>
+			<input id="screen-size-width" value="1280"></input>
+			<br />
+			<label for="screen-size-width">Height (px):</label>
+			<input id="screen-size-height" value="720"></input>
+			<br />
+			<label for="screen-orientation">Screen orientation: </label>
+			<span id = "screen-orientation">
+				
+				<input type="radio" name="orientation" value="landscape" checked>Landscape</input>
+				<input type="radio" name="orientation" value="portrait">Portrait</input>
+			</span>
+    </div>
+	 <div id="settings-dialog" class="dialog form" title="System settings">
+        <p id="screen-size-dialog-header" class="dialog-header">Here you can adjust the system settings. After saving the system will restart.</p>
+		<div id="settings-dialog-settings">
+		</div>
+<!--			<label for="screen-size-width">Width (px):</label>
+			<input id="screen-size-width" value="1280"></input>-->
+    </div>
+	 <div id="stage-item-resize-dialog" class="dialog form" title="Set size">
+        <p id="screen-size-dialog-header" class="dialog-header">Enter the new size</p>
+		<div id="">
+			<label for="stage-item-resize-width">Width (px):</label>
+			<input id="stage-item-resize-width"></input>
+			
+			<label for="stage-item-resize-height">Height (px):</label>
+			<input id="stage-item-resize-height"></input>
+		</div>
+    </div>
+	<div id="devices-dialog" class="dialog form" title="Devices">
+        <p>Below are all the mobile devices that have connected to your server. When you forget a device, it will not receive notifications anymore. A removed device will automatically be added again on the next connection attempt.</p>
+		<div id="">
+			<table style="width:100%" id="devices-dialog-table">
+				<tr>
+					<th>Name</th>
+					<th>Resolution</th>
+					<th>Forget</th>
+				</tr>
+			</table>
+		
+		</div>
+    </div>
+
+    <!-- LEFT PANEL --->
+    <div id="sidebar-left-wrapper" class="sidebar-left-wrapper sidebar-left-wrapper-width">
+		<div class="sidebar-title" style="margin-top: 2px;"> <span><i class="fa icon-gallery"></i><span class="title"> Views<span></span></div>
+        <div id="accordion">
+
+
+        </div>
+    </div>
+	
+	
+
+    <!-- CENTER PANEL -->
+
+    <div id="center-wrapper" class="center-wrapper-left">
+		<div id="center-selectable">
+			<div id="htmlStage" class="dragger" style="">
+				<!--- Draw Grid -->
+				<svg id="svgObject" zoomAndPan="disable" currentScale="1" xmlns="http://www.w3.org/2000/svg" version="1.1">
+					<defs>
+						<pattern id="gridPattern" patternUnits="userSpaceOnUse" x="0px" y="0px" width="100px" height="100px">
+							<!-- horizontal -->
+							<line x1="0px" x2="100px" y1="20px" y2="20px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<line x1="0px" x2="100px" y1="40px" y2="40px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<line x1="0px" x2="100px" y1="60px" y2="60px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<line x1="0px" x2="100px" y1="80px" y2="80px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<!-- vertical-->
+							<line x1="20px" x2="20px" y1="0px" y2="100px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<line x1="40px" x2="40px" y1="0px" y2="100px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<line x1="60px" x2="60px" y1="0px" y2="100px" stroke="#F2F2F2" stroke-width="0.2px" />
+							<line x1="80px" x2="80px" y1="0px" y2="100px" stroke="#F2F2F2" stroke-width="0.2px" />
+
+							<line x1="100px" x2="100px" y1="0px" y2="100px" stroke="#F2F2F2" stroke-width="1px" />
+							<line x1="0px" x2="100px" y1="100px" y2="100px" stroke="#F2F2F2" stroke-width="1px" />
+						</pattern>
+
+					</defs>
+
+					<rect class="dragger" id="grid" fill="url(#gridPattern)" width="100%" height="100%" opacity="0.35" />
+
+					<!-- selection helper -->
+					<div id="selection-helper" style='display:none'><span></span>
+					</div>
+
+				</svg>
+			</div>
+		</div>
+    </div>
+
+
+    <!-- RIGHT PANEL --->
+    <div id="sidebar-right-wrapper" class="sidebar-right-wrapper-width">
+<!--		<div class="ui-resizable-handle ui-resizable-w" id="sidebar-right-wrapper-wgrip"></div>-->
+		<div class="sidebar-title"><span><i class="ic icon-remote_control"></i><span class="title"> Controls</span></span></div>
+        <div id="sidebar-loader" class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div id="binding-selector-tree" class="hidden">
+            <ul>
+				<!-- Placeholder for node/Value tree on the right -->
+            </ul>
+        </div>
+        
+        <!-- Form ZWave value selection -->
+        <div id="zwave-value-selector-dialog" class="zwave-value-selector-dialog-title dialog" title="Node values">
+            <p id="zwave-value-selector-dialog-header" class="validateTips zwave-value-selector-dialog-header">Header text</p>
+            <input type="hidden" name="nodeId" id="zwave-value-selector-dialog-nodeId" />
+            <input type="hidden" name="homeId" id="zwave-value-selector-dialog-homeId" />
+                <div id="zwave-value-selector-dialog-form">
+                </div>
+            <div id="zwave-value-selector-loader">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+		
+		<!-- Form new IP Camera -->
+		<div id="new-ipcamera-dialog" class="hidden dialog form" title="New IP Camera">
+            <p id="new-ipcamera-dialog-header" class="dialog-header">Please enter the details of your IP camera</p>
+			<label>Name</label>
+			<input id="new-ipcamera-name" type="text" style="width:350px;" />
+			<label>Snapshot URL</label>          
+			<input id="new-ipcamera-snapshot-url" type="text" style="width:350px;" />
+			<label>Video URL</label>  
+			<input id="new-ipcamera-mjpg-url" type="text" style="width:350px;" />
+        </div>
+		<!-- Form edit IP Camera -->
+		<div id="edit-ipcamera-dialog" class="hidden dialog form" title="Edit IP Camera">
+            <p id="edit-ipcamera-dialog-header" class="dialog-header">Please enter the details of your IP camera</p>
+			<label>Name</label>
+			<input id="edit-ipcamera-name" type="text" style="width:350px;" />
+			<label>Snapshot URL</label>          
+			<input id="edit-ipcamera-snapshot-url" type="text" style="width:350px;" />
+			<label>Video URL</label>  
+			<input id="edit-ipcamera-mjpg-url" type="text" style="width:350px;" />
+        </div>
+        <!-- Form new HTTP command
+        <div id="new-httpcommand-dialog" class="hidden dialog" title="New HTTP Command">
+            <p id="new-httpcommand-dialog-header" class="validateTips dialog-header">Please enter the details to create a new HTTP command</p>
+
+
+            <div align="center" style="width: auto; min-height: 93px; max-height: none; height: auto;" class="dialog dialog dialog-subtext ui-dialog-content ui-widget-content">
+                <div align="left">
+                    <h2>HTTP Command details</h2>
+                </div>
+                <table width="360px">
+                    <tbody>
+                        <tr>
+                            <td width="70%" class="dialog-table-header"></td>
+                            <td width="30%" class="dialog-table-header"></td>
+                        </tr>
+                        <tr>
+                            <td width="70%">Name</td>
+                            <td width="30%">
+                                <input id="new-httpcommand-name" type="text" style="width:350px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="70%">Description</td>
+                            <td width="30%">
+                                <input id="new-httpcommand-description" type="text" style="width:350px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="70%">URL</td>
+                            <td width="30%">
+                                <input id="new-httpcommand-url" type="text" style="width:350px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="70%">HTTP Method</td>
+                            <td width="30%">
+                                <select id="new-httpcommand-method" style="width:350px;">
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="DELETE">DELETE</option>
+                                    <option value="PUT">PUT</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="70%">Message type (e.g. application/json)</td>
+                            <td width="30%">
+                                <input id="new-httpcommand-msgty" type="text" style="width:350px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="70%">Message body (e.g. json data)</td>
+                            <td width="30%">
+                                <textarea id="new-httpcommand-msgbody" style="width:350px;"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <button id="testCommand" onClick="testNewHttpCommand()">Test command</button>
+                </table>
+            </div>
+        </div> -->
+ <div id="new-httpcommand-dialog" class="hidden dialog form" title="New HTTP Command">
+	<p id="new-httpcommand-dialog-header" class="validateTips dialog-header">Please enter the details to create a new HTTP command</p>
+	<div class="controller-container">
+		<div class="controller-setting">
+			<label>Name</label><input id="new-httpcommand-name" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>Description</label>
+			<input id="new-httpcommand-description" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>URL</label>
+			<input id="new-httpcommand-url" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>HTTP Method</label>
+			<select id="new-httpcommand-method">
+				<option value="GET">GET</option>
+				<option value="POST">POST</option>
+				<option value="DELETE">DELETE</option>
+				<option value="PUT">PUT</option>
+			</select>
+		</div>
+		<div class="controller-setting">
+			<label>Content-Type (e.g. application/json)</label>
+			<input id="new-httpcommand-msgty" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 1</label>
+			<div class="controller-setting-key-value"><input id="new-httpcommand-header-1-key" type="text" /><span style="width:10%"/>:</span><input id="new-httpcommand-header-1-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 2</label>
+			<div class="controller-setting-key-value"><input id="new-httpcommand-header-2-key" type="text" /><span style="width:10%"/>:</span><input id="new-httpcommand-header-2-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 3</label>
+			<div class="controller-setting-key-value"><input id="new-httpcommand-header-3-key" type="text" /><span style="width:10%"/>:</span><input id="new-httpcommand-header-3-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 4</label>
+			<div class="controller-setting-key-value"><input id="new-httpcommand-header-4-key" type="text" /><span style="width:10%"/>:</span><input id="new-httpcommand-header-4-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Message body (e.g. json data)</label>
+			<textarea rows="10" id="new-httpcommand-msgbody"></textarea>
+		</div>
+	<button id="testCommand" onClick="testNewHttpCommand()">Test command</button>
+	</div>
+</div>
+        <!-- Form edit HTTP command -->
+<div id="edit-httpcommand-dialog" class="hidden dialog form" title="Edit HTTP Command">
+	<p id="edit-httpcommand-dialog-header" class="validateTips dialog-header">Please enter the details for the HTTP command</p>
+	<div class="controller-container">
+		<div class="controller-setting">
+			<label>Name</label><input id="edit-httpcommand-name" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>Description</label>
+			<input id="edit-httpcommand-description" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>URL</label>
+			<input id="edit-httpcommand-url" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>HTTP Method</label>
+			<select id="edit-httpcommand-method">
+				<option value="GET">GET</option>
+				<option value="POST">POST</option>
+				<option value="DELETE">DELETE</option>
+				<option value="PUT">PUT</option>
+			</select>
+		</div>
+		<div class="controller-setting">
+			<label>Content-Type (e.g. application/json)</label>
+			<input id="edit-httpcommand-msgty" type="text" />
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 1</label>
+			<div class="controller-setting-key-value"><input id="edit-httpcommand-header-1-key" type="text" /><span style="width:10%"/>:</span><input id="edit-httpcommand-header-1-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 2</label>
+			<div class="controller-setting-key-value"><input id="edit-httpcommand-header-2-key" type="text" /><span style="width:10%"/>:</span><input id="edit-httpcommand-header-2-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 3</label>
+			<div class="controller-setting-key-value"><input id="edit-httpcommand-header-3-key" type="text" /><span style="width:10%"/>:</span><input id="edit-httpcommand-header-3-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Additional header 4</label>
+			<div class="controller-setting-key-value"><input id="edit-httpcommand-header-4-key" type="text" /><span style="width:10%"/>:</span><input id="edit-httpcommand-header-4-value" type="text" /></div>
+		</div>
+		<div class="controller-setting">
+			<label>Message body (e.g. json data)</label>
+			<textarea rows="10" id="edit-httpcommand-msgbody"></textarea>
+		</div>
+	<button id="testCommand" onClick="testEditHttpCommand()">Test command</button>
+	</div>
+</div>
+<!-- Form new HTTP Node -->
+<div id="new-httpnode-dialog" class="hidden dialog form" title="New HTTP Group">
+	<p id="edit-ipcamera-dialog-header" class="dialog-header">Please enter the name of your new group.</p>
+	<label>Name</label>
+	<input id="new-httpnode-name" type="text" style="width:350px;" />
+	<div id="new-httpnode-loader" class="hidden">
+		<table>
+			<tr>
+				<td>
+					<img src="css/images/loader.gif" />
+				</td>
+				<td valign="middle">Loading...</td>
+			</tr>
+		</table>
+	</div>
+</div>
+		
+<!-- Form new radio channel -->
+<div id="new-radioChannel-dialog" class="hidden dialog form" title="New radio channel">
+
+	<p id="new-radioChannel-dialog-header" class="validateTips dialog-header">Please enter the details to create a new radio channel</p>
+		<label>Channel Name</label>
+		<input id="new-radioChannel-name" type="text" style="width:350px;" />
+		<label>Channel URL</label>
+		<input id="new-radioChannel-url" type="text" style="width:350px;" />
+	</div>
+
+	<div id="new-httpnode-loader" class="hidden">
+		<table>
+			<tr>
+				<td>
+					<img src="css/images/loader.gif" />
+				</td>
+				<td valign="middle">Loading...</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+        <!-- Form ZWave node associations -->
+        <div id="zwave-node-associations-dialog" class="dialog" title="Associations">
+            <!--		<p id = "zwave-value-node-associations-header" class="dialog-header" >Node associations </p>-->
+            <input type="hidden" name="nodeId" id="zwave-node-associations-dialog-nodeId" />
+            <input type="hidden" name="homeId" id="zwave-node-associations-dialog-homeId" />
+            <div>
+                Here you can manage the associations for node <span id="node">?</span>. With associations, you can link different ZWave devices to each other. Please find more details about the associations of this node in the manual of your ZWave device.
+                <div>
+                    <br />Examples:
+                    <ul>
+                        <li>Associate a movement sensor with a light so that the light powers on when there is movement in the room</li>
+                        <li>Associate the controller with a temperature sensor so that it will receive updates without polling the sensor.</li>
+                    </ul>
+                </div>
+                <br />
+            </div>
+            <h2>Current associations</h2>
+            <div>
+				<table width="100%" id="zwave-node-associations-list">
+					<tr>
+						<td width="25%" class="dialog-table-header">From node</td>
+						<td width="25%" class="dialog-table-header">To node</td>
+						<td width="40%" class="dialog-table-header">Association class</td>
+						<td width="10%" class="dialog-table-header">&nbsp;</td>
+					</tr>
+				</table>
+            </div>
+            <br />
+            <div>
+                <h2>Create a new association</h2>
+                <table width="100%">
+                    <tr width="100%">
+                        <td width="25%" class="dialog-table-header">From node</td>
+                        <td width="25%" class="dialog-table-header">To node</td>
+                        <td width="40%" class="dialog-table-header">Association class</td>
+                        <td width="10%" class="dialog-table-header">&nbsp;</td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="25%" class="dialog-table-header">
+                            <select id="zwave-node-associations-fromNode" disabled="disabled" />
+                        </td>
+                        <td width="25%" class="dialog-table-header">
+                            <select id="zwave-node-associations-toNode" />
+                        </td>
+                        <td width="40%" class="dialog-table-header">
+                            <select id="zwave-node-associations-associationClass" />
+                        </td>
+                        <td width="10%" class="dialog-table-header">
+                            <!--<button class="button" id="zwave-node-associations-createAssociations" onClick="createAssociation();">Create</button>-->
+							<a href="#" onClick="createAssociation();"><img src = "css/menu/new.png" /></a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!--		<form>
+			<fieldset id="zwave-value-selector-dialog-form">
+			</fieldset>
+		</form>-->
+            <div id="zwave-node-associations-loader" style="display:none;">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+		<!-- Form ZWave transaction -->
+		<div id="zwave-transaction-dialog" class="dialog form" title="ZWave Transaction">
+			<p id="screen-size-dialog-header" class="dialog-header">Please let the device send a node identification message. This is usually done by pressing a button on the device three times. Read your device manual to verify how this can be done.
+			<div><img src="css/images/loader.gif" style="vertical-align: middle;"/> The status is refreshed automatically</div>
+			</p>
+			
+			
+			<div><label>Command:</label>
+			<span id="zwave-transaction-command"></span>
+			</div>
+			
+			<div>
+			<label>State:</label>
+			<span id="zwave-transaction-state"></span>
+			</div>
+			
+			<div>
+			<label>Error:</label>
+			<span id="zwave-transaction-error"></span>			
+			</div>
+		</div>
+        <!-- Form ZWave node configuration -->
+        <div id="zwave-configuration-dialog" class="dialog " title="ZWave Network Configuration" style="display:none;" align="center">
+            <!--		<p id = "zwave-value-node-associations-header" class="dialog-header" >Node associations </p>-->
+            <div align="left">
+                Here you can maintain your ZWave network. You can include new nodes into the network and exclude existing nodes from it.
+
+                <h2>ZWave Network Management</h2>
+            </div>
+            <table width="360px">
+                <tr>
+                    <td width="70%" class="dialog-table-header">Description</td>
+                    <td width="30%" class="dialog-table-header">Action</td>
+                </tr>
+				<tr>
+                    <td width="70%">Start node inclusion mode</td>
+                    <td width="30%">
+                        <button onClick="startInclusionMode()">Start</button</td>
+                </tr>
+								<tr>
+                    <td width="70%">Start node removal mode</td>
+                    <td width="30%">
+                        <button onClick="startRemovalMode()">Start</button</td>
+                </tr>
+                <tr>
+                    <td width="70%">Heal the network.</td>
+                    <td width="30%">
+                        <button onClick="healNetwork(false)">Start</button</td>
+                </tr>
+                <tr>
+                    <td width="70%">Reset your controller</td>
+                    <td width="30%">
+                        <button onClick="resetNetwork(false)">Start</button</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Form ZWave value configuration -->
+        <div id="zwave-value-configuration-dialog" class="zwave-value-selector-dialog-title dialog" title="Configuration">
+            <p id="zwave-value-configuration-dialog-header" class="validateTips zwave-value-selector-dialog-header"></p>
+            <input type="hidden" name="nodeId" id="zwave-value-configuration-dialog-nodeId" />
+			<div id="zwave-value-configuration-dialog-form">
+			</div>
+
+            <div id="zwave-value-configuration-loader">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Form rename node -->
+        <div id="zwave-value-alias-dialog" title="Alias" class="dialog form">
+            <p id="zwave-value-alias-dialog-header" class="validateTips zwave-value-alias-dialog-header">Please specify how you would like to name the node below.</p>
+			<label for="zwave-value-alias-input" class="zwave-value-selector-dialog">New name:</label>
+			<input id="zwave-value-alias-input" style="width:350px;"></input>
+
+            <div id="zwave-value-alias-loader" class="hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Form project load -->
+        <div id="project-load-dialog" title="Load project" class="dialog">
+            <p id="project-project-load-dialog-header" class="validateTips dialog-header">Click on the link below to load the project.
+
+                <ul id="project-load-projects" class="dialog-list"> 
+                </ul>
+
+                <div id="project-load-loader" class="hidden">
+                    <table>
+                        <tr>
+                            <td>
+                                <img src="css/images/loader.gif" />
+                            </td>
+                            <td valign="middle">Loading...</td>
+                        </tr>
+                    </table>
+                </div>
+        </div>
+		
+        <!-- Form project save as -->
+		 <div id="project-save-as-dialog" title="Save project" class="dialog">
+            <p id="project-project-save-as-dialog-header" class="validateTips dialog-header">Save your project.</p>
+			
+			
+				<label for="project-save-as-input" class="zwave-value-selector-dialog">Project name:</label>
+				<input id="project-save-as-input"></input>
+			
+                <div id="project-save-loader" class="hidden">
+                    <table>
+                        <tr>
+                            <td>
+                                <img src="css/images/loader.gif" />
+                            </td>
+                            <td valign="middle">Loading...</td>
+                        </tr>
+                    </table>
+                </div>
+        </div>
+		
+		<!-- Form publish project -->
+        <div id="publish-project-dialog" class="zwave-value-selector-dialog-title dialog" title="Publish project">
+            <!--<p id="publish-project-dialog-header" class="validateTips zwave-value-selector-dialog-header"></p>-->
+            <div>
+                <table>
+                    <tr>
+                        <td>
+                            <img id="publish-project-loader" src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle"><span id="publish-project-status"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+		
+		<!-- Form manage publications -->
+        <div id="project-publications-dialog" title="Publications" class="dialog">
+            <p id="project-project-publications-dialog-header" class="validateTips dialog-header">This are all the published configurations:
+
+                <ul id="project-publications" class="dialog-list">
+                </ul>
+
+                <div id="project-publications-loader" class="hidden">
+                    <table>
+                        <tr>
+                            <td>
+                                <img src="css/images/loader.gif" />
+                            </td>
+                            <td valign="middle">Loading...</td>
+                        </tr>
+                    </table>
+                </div>
+        </div>
+		
+        <!---- Form wizard scheduling 
+<div id="wizard-scheduling-overview-dialog" class="zwave-value-selector-dialog-title dialog" title="Save project">
+	<p id = "wizard-scheduling-overview" class="validateTips zwave-value-selector-dialog-header" ></p>
+	<div>
+		<table>
+		<tr>
+			<td></td>
+			<td valign="middle"><span id="wizard-scheduling-overview"></span></td>
+		<tr>
+		</table>
+	</div>
+</div>	---->
+
+        <!---- Form wizard scheduling ---->
+        <div id="overview-scheduling-dialog" title="Rule overview" class="dialog" style="display:none;">
+            <div id="overview-scheduling-loader" class="hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                        <tr>
+                </table>
+            </div>
+            <div id="overview-scheduling" width='100%'> 
+                <table id="overview-scheduling-table"  cellspacing="0" cellpadding="1" width='100%'>
+                    <tr>
+                        <td width="5%" class="dialog-table-header">Id</td>
+                        <td width="10%" class="dialog-table-header">Trigger</td>
+                        <td width="35%" class="dialog-table-header">Trigger details</td>
+                        <td width="10%" class="dialog-table-header">Action</td>
+                        <td width="30%" class="dialog-table-header">Action details</td>
+                        <td width = "5%" class="dialog-table-header" >Edit</td>
+                        <td width="5%" class="dialog-table-header">Status</td>
+                        <td width="5%" class="dialog-table-header">Delete</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+		
+		<!---- Form overview scenes ---->
+        <div id="scenes-overview-dialog" title="Scene overview" class="dialog" style="display:none;">
+            <div id="scenes-overview-dialog-loader" class="hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                        <tr>
+                </table>
+            </div>
+            <div id="scenes-overview" class="overview-dialog" width='100%'> 
+				<span class="noscenes">There are no scenes yet. Click on "Create new" to build a scene!</span>
+            </div>
+
+        </div>
+
+		<!---- Form overview rules ---->
+        <div id="rules-overview-dialog" title="Rule overview" class="dialog" style="display:none;">
+            <div id="rules-overview-dialog-loader" class="hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                        <tr>
+                </table>
+            </div>
+            <div id="rules-overview" class="overview-dialog" width='100%'> 
+				<span class="norules">There are no rules yet. Click on "Create new" to start building!</span>
+            </div>
+
+        </div>
+        <!---- Form log ---->
+        <div id="homeserver-log-dialog" title="HomeServer log" class="dialog" style="display:none;">
+            <textarea id="homeserver-log-dialog-logarea" class="homeserverlog" rows="30" readonly width="100%" height="100%"></textarea>
+			<a id="homeserver-log-dialog-download" href="/api/Logs/0">Download logfile</a>
+        </div>
+
+        <!---- Form scene overview ---->
+        <div id="overview-scene-dialog" title="Overview ZWave Scenes" class="dialog" style="display:none;">
+            <div id="overview-scene-loader" class="hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                        <tr/>
+                        <tr>
+                            <td colspan="2"><span id="scene-overview-status"></span>
+                            </td>
+                            <tr/>
+                </table>
+            </div>
+            <div id="overview-scenes" width='100%'>
+                <table id="overview-scenes-table" width='100%' style="min-width: 360px;">
+                    <tr>
+                        <td width="40%" class="dialog-table-header">Scene Id</td>
+                        <td width="40%" class="dialog-table-header">Label</td>
+                        <td width="10%" class="dialog-table-header">Edit</td>
+                        <td width="10%" class="dialog-table-header">Delete</td>
+                    </tr>
+                </table>
+                <table id="overview-scene-new" width='100%'>
+                    <tr>
+                        <td width="100%" align="right" valign="top"><a href="#" onClick="sceneCreateDialog()">Create new</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!---- Form scene details ---->
+        <div id="scene-details-dialog" title="New ZWave Scene" class="dialog" style="display:none;">
+            <!--<input type="hidden" id="scene-details-dialog-sceneid"/>-->
+            <div id="scene-details-loader" class="hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="css/images/loader.gif" />
+                        </td>
+                        <td valign="middle">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="scene-details" width='100%'>
+                <table style="min-width: 360px;">
+                    <tr>
+                        <td>Name:</td>
+                        <td id="scene-details-name"></td>
+                        <td id="scene-details-name-icon"></td>
+                    </tr>
+                    <tr>
+                        <td>Icon:</td>
+                        <td>
+                            <img id="scene-details-icon" width="60px" />
+                        </td>
+
+                        <td id="scene-details-name-icon">
+                            <a id="scene-details-ic icon-selector" onclick="openImageValueHelp(sceneSetIconOrLabelCallback, '#scene-details-icon', 'scenes')">
+                                <img src="css/menu/edit.png" />
+                            </a>
+                        </td>
+                    </tr>
+                    <tr id="scene-details-create">
+                        <td colspan="3">
+                            <button class="button" style="width:90px" onClick="sceneCreate()">Create</button>
+                        </td>
+                    </tr>
+                </table>
+                <table id="scene-details-table" width='100%' cellspacing="0px" cellpadding="3px">
+                    <tr>
+                        <td width="45%" class="dialog-table-header">Node</td>
+                        <td width="35%" class="dialog-table-header">Scene value</td>
+                        <td width="10%" class="dialog-table-header"></td>
+                        <!--edit-->
+                        <td width="10%" class="dialog-table-header"></td>
+                        <!--delete-->
+                    </tr>
+                </table>
+                <button style="margin-top: 10px;" class="button" id="scene-details-button-add" onclick="sceneAddValue()">Add new value</button>
+            </div>
+
+        </div>
+		
+		
+		
+		<div id="wizard-scene-builder-dialog" title="Create new scene" class="dialog" style="display:none;">
+            
+        </div>		
+		<div id="wizard-scene-builder-template" style="display:none;" class="swMain">
+			<ul>
+				<li>
+					<a href="#scene-builder-definition">
+						<span class="stepDesc">1 Definition</span>
+					</a>
+				</li>
+				<li>
+					<a href="#scene-builder-description">
+						<span class="stepDesc">2 Description</span>
+					</a>
+				</li>
+			</ul>
+			
+			<i class="builder-loading ic-spin icon-spinner ic ic-2x ic-color"></i>
+			<div id="scene-builder-definition">                   
+				<h2 class="wizardTitle">Define the scene</h2>
+				
+				<div class="wizardSubTitle">
+					<span>Please add all elements that define your scene below.</span>
+					<span style="float: right; margin-right: 15px;">
+						<button autofocus class="button button-with-ic" id="scene-builder-add-action-btn" >
+							<i class="ic icon-plus-circle ic-color ic-in-button"></i>
+							<span>Add action</span>
+						</button>
+					</span>
+				</div>
+				
+				<div id="scene-builder-definition-container">
+					<div id="scene-builder-definition-values" style="margin-right: 15px;"> 		
+						<ul class="screenSortableList"/>
+					</div>
+					<div id="scene-builder-definition-value-container" style="display:none;">
+						<div class="deleteIcon">
+						
+							<a href="javascript://" style="text-decoration: initial;">
+									<span class="ic icon-trash-o ic-fw ic-color" onclick="wizardSceneBuilderRemoveValue(this)"/>
+							</a>
+							<a href="javascript://" style="text-decoration: initial;">
+									<span class="ic icon-folder-open ic-fw ic-color" onclick="wizardSceneBuilderCollapse(this)"/>
+							</a>
+						</div>
+						<div style="padding: 5px;">
+							<span class="controllerLabel">Controller </span>
+							<select id="scene-builder-definition-controllers"  style="display: inline-table;" onChange="" ></select>
+						</div>
+						<div class="actionDefinition" style="padding-right: 5px;padding-left: 5px;padding-bottom: 5px;">
+							<span class="beforeLabel" id="scene-builder-definition-before-description"></span>
+							<select id="scene-builder-definition-nodes"  style="display: inline-table;" onChange=""  ></select>
+							<select id="scene-builder-definition-values"  style="display: inline-table;" onChange="" ></select>
+							<span id="scene-builder-definition-value-details" style="display: inline-block;"></span>
+						</div>
+					</div>
+						
+					<!--- Special treatment for some general controls -->
+					<div id="scene-builder-definition-notification" style="margin-top: 10px;display:none;" class="wizard-scheduling-action">
+						<select id="scene-builder-definition-notification-type">
+							<option value="mobile" selected="selected">Mobile notification</option>
+							<option value="sms">SMS</option>
+							<option value="email">E-mail</option>
+						</select>
+						<table>
+							<tr id="scene-builder-definition-notification-phoneNumber-tr">
+								<td  width="200px">Phone number:
+									<br/><span style="font-size:8pt;">Format 32495152003</span>
+								</td>
+								<td>
+									<input id="scene-builder-definition-notification-phoneNumber" />
+								</td>
+							</tr>
+							<tr id="scene-builder-definition-notification-email-tr">
+								<td  width="200px">E-mail address</td>
+								<td>
+									<input id="scene-builder-definition-notification-email"/>
+								</td>
+							</tr>
+							<tr id="scene-builder-definition-notification-camera-tr">
+								<td  width="200px">Include snapshot of camera:</td>
+								<td>
+									<select id="scene-builder-definition-notification-camera"  />
+								</td>
+							</tr>
+							<tr id="scene-builder-definition-notification-subject-tr">
+								<td  width="200px">Title:</td>
+								<td>
+									<input id="scene-builder-definition-notification-subject"/>
+								</td>
+							</tr>
+							<tr id="scene-builder-definition-notification-message-tr">
+								<td  width="200px">Message :</td>
+								<td>
+									<textarea id="scene-builder-definition-notification-message" cols="20" rows="5"></textarea>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+			<div id="scene-builder-description">
+				<h2 class="wizardTitle">Scene description</h2> 
+				<div class="wizardSubTitle">
+					<span>Please specify which scene you are creating</span>
+					<div class="form">
+						<label>Name</label> <input id="scene-builder-description-name" type="text" />
+					</div>
+				</div>					
+			</div>
+		</div>
+		
+		<!----- Rule builder ----->
+		<div id="wizard-rule-builder-dialog" title="Create new rule" class="dialog" style="display:none;">
+            	
+        </div>		
+		<div id="wizard-rule-builder-template" style="display:none;" class="swMain">
+			<ul>
+				<li>
+					<a href="#rule-builder-definition">
+						<span class="stepDesc">1 Trigger</span>
+					</a>
+				</li>
+				<li>
+					<a href="#rule-builder-action">
+						<span class="stepDesc">2 Actions</span>
+					</a>
+				</li>
+				<li>
+					<a href="#rule-builder-description">
+						<span class="stepDesc">3 Description</span>
+					</a>
+				</li>
+			</ul>
+
+			<i class="builder-loading ic-spin icon-spinner ic ic-2x ic-color"></i>
+			<div id="rule-builder-definition">                   
+				<h2 class="wizardTitle">Define the triggers</h2>
+				
+					<!-- 
+				<div class="wizardSubTitle">
+				</div>-->
+				
+				<div id="rule-builder" class="rule-builder">		
+					
+				</div>
+			</div>
+			<div id="rule-builder-action">                   
+				<h2 class="wizardTitle">Define the actions</h2>
+				<div class="wizardSubTitle">
+					<span>Add all actions that should be executed when this rule is triggered</span>
+					<span style="float: right; margin-right: 15px;">
+						<button class="button button-with-ic" id="scene-builder-add-action-btn" >
+							<i class="ic icon-plus-circle ic-color ic-in-button"></i>
+							<span>Add action</span>
+						</button>
+					</span>
+				</div>
+				<div id="rule-builder-action-container">
+				
+				</div>
+			</div>
+			<div id="rule-builder-description">
+				<h2 class="wizardTitle">Rule description</h2> 
+				<div class="wizardSubTitle">
+					<span>Please specify which rule you are creating</span>
+					<div class="form">
+					<div>
+						<label>Name</label> <input id="rule-builder-description-name" type="text" style="width:520px"/>
+					</div>
+					<div>
+						<label>Limitation</label><input type="checkbox" id="rule-builder-description-limitation-active"/>Only execute this once per <select id="rule-builder-description-limitation-period">
+																		<option value="" selected="selected">-- No Limit --</option>
+																		<option value="ten_seconds">10 seconds</option>
+																		<option value="five_minutes">5 minutes</option>
+																		<option value="one_day">day</option>
+																  </select>
+					</div>
+					</div>
+				</div>					
+			</div>
+		</div>
+		
+		
+        <!----- popovers ------>
+        
+		<div id="interactive_colorPicker" style="display:none;">
+			<span id="label_1">RGB(W) Color picker</span>
+			<span id="action"></span>
+			<p>Red:</p>
+			<div>
+				<span id="rgbw_red" style="background-color:red;" class="jstree-drop stageItem dropArea">Drop value here</span>
+			</div>
+			<p>Green:</p>
+			<div>
+				<span id="rgbw_green" style="background-color:green;"  class="jstree-drop stageItem dropArea">Drop value here</span>
+			</div>
+			<p>Blue:</p>
+			<div>
+				<span id="rgbw_blue" style="background-color:blue;" class="jstree-drop stageItem dropArea">Drop value here</span>
+			</div>
+			<p>White (if available)</p>
+			<div>
+				<span id="rgbw_white" style="background-color:grey;" class="jstree-drop stageItem dropArea">Drop value here</span>
+			</div>
+        </div>
+</body>
+
+</html>
