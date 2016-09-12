@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.radio;
 
 import java.io.IOException;
@@ -42,16 +68,16 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 	private Map<Integer, RadioChannel> radioChannels;
 
 	private RadioController() {
-		log = Logger.getLogger("net.yourhome.server.radio.Radio");
-		
+		this.log = Logger.getLogger("net.yourhome.server.radio.Radio");
+
 		// Read all the radio channels from the db
-		radioChannels = new HashMap<Integer, RadioChannel>();
-		readRadioStations();
+		this.radioChannels = new HashMap<Integer, RadioChannel>();
+		this.readRadioStations();
 		MusicPlayer.registerPlayer(this);
 	}
 
 	public void readRadioStations() {
-		radioChannels.clear();
+		this.radioChannels.clear();
 
 		String sql = "SELECT * from main.Radio_Channels";
 		ResultSet allChannelsResult = null;
@@ -64,7 +90,7 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 				this.radioChannels.put(channelId, radioChannel);
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (allChannelsResult != null) {
@@ -72,24 +98,27 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 					allChannelsResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 	}
 
 	public static RadioController getInstance() {
-		RadioController r = radioController;
+		RadioController r = RadioController.radioController;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = radioController; // thread may have instantiated the object
+			synchronized (RadioController.lock) { // while we were waiting for
+													// the lock, another
+				r = RadioController.radioController; // thread may have
+														// instantiated the
+														// object
 				if (r == null) {
 					r = new RadioController();
-					radioController = r;
+					RadioController.radioController = r;
 				}
 			}
 		}
 
-		return radioController;
+		return RadioController.radioController;
 	}
 
 	@Override
@@ -101,19 +130,19 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 				try {
 					return this.playRadioStream();
 				} catch (IOException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (JavaLayerException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (UnsupportedAudioFileException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (LineUnavailableException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 			} else {
 				JSONMessage returnMessage = this.stop();
 				ClientMessageMessage informClientsMessage = new ClientMessageMessage();
 				informClientsMessage.broadcast = true;
-				informClientsMessage.messageContent = "Radio " + currentRadioChannel.channelName + " stopped";
+				informClientsMessage.messageContent = "Radio " + this.currentRadioChannel.channelName + " stopped";
 				Server.getInstance().broadcast(informClientsMessage);
 				return returnMessage;
 			}
@@ -126,19 +155,19 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 						JSONMessage returnMessage = this.stop();
 						ClientMessageMessage informClientsMessage = new ClientMessageMessage();
 						informClientsMessage.broadcast = true;
-						informClientsMessage.messageContent = "Radio " + currentRadioChannel.channelName + " stopped";
+						informClientsMessage.messageContent = "Radio " + this.currentRadioChannel.channelName + " stopped";
 						Server.getInstance().broadcast(informClientsMessage);
 					} else {
 						Server.getInstance().broadcast(this.playRadioStream());
 					}
 				} catch (IOException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (JavaLayerException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (UnsupportedAudioFileException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				} catch (LineUnavailableException e) {
-					log.error("Exception occured: ", e);
+					this.log.error("Exception occured: ", e);
 				}
 			} else {
 				String action = message.controlIdentifiers.getValueIdentifier();
@@ -157,20 +186,20 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 	// Should only be called from MusicPlayer class!!
 	@Override
 	public void setVolume(int volume) {
-		if (radioPlayer != null) {
-			radioPlayer.setVolume(volume);
+		if (this.radioPlayer != null) {
+			this.radioPlayer.setVolume(volume);
 		}
 	}
 
 	@Override
 	public JSONMessage stop() {
-		if (radioPlayer != null) {
-			radioPlayer.stopPlayback();
+		if (this.radioPlayer != null) {
+			this.radioPlayer.stopPlayback();
 			this.isPlaying = false;
 			MusicPlayer.stopAllPlayers(this);
 		}
 
-		RadioOnOffMessage returnMessage = getRadioMessage();
+		RadioOnOffMessage returnMessage = this.getRadioMessage();
 		returnMessage.broadcast = true;
 		return returnMessage;
 	}
@@ -190,43 +219,43 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 
 	public JSONMessage playRadioStream() throws IOException, JavaLayerException, UnsupportedAudioFileException, LineUnavailableException {
 		boolean firstRun = false;
-		if (radioPlayer == null) {
-			radioPlayer = new BasicPlayer();
+		if (this.radioPlayer == null) {
+			this.radioPlayer = new BasicPlayer();
 			firstRun = true;
 		}
 
 		if (this.isPlaying) {
-			radioPlayer.stopPlayback();
+			this.radioPlayer.stopPlayback();
 		} else {
 			try {
 				MusicPlayer.stopAllPlayers(this);
 			} catch (Exception e) {
 			}
 		}
-		if (currentRadioChannel != null) {
-			radioPlayer.stopPlayback();
-			radioPlayer.setDataSource(new URL(currentRadioChannel.channelUrl));
+		if (this.currentRadioChannel != null) {
+			this.radioPlayer.stopPlayback();
+			this.radioPlayer.setDataSource(new URL(this.currentRadioChannel.channelUrl));
 			MusicPlayer.playBackStarted();
-			if (radioPlayer.startPlayback()) {
+			if (this.radioPlayer.startPlayback()) {
 				this.isPlaying = true;
 				ClientMessageMessage informClientsMessage = new ClientMessageMessage();
 				informClientsMessage.broadcast = true;
-				informClientsMessage.messageContent = "Radio " + currentRadioChannel.channelName + " started";
+				informClientsMessage.messageContent = "Radio " + this.currentRadioChannel.channelName + " started";
 				Server.getInstance().broadcast(informClientsMessage);
 			}
 		}
 		// MopidyController.getInstance().playStream(currentRadioChannel.channelUrl);
-		return getRadioMessage();
+		return this.getRadioMessage();
 	}
 
 	private RadioOnOffMessage getRadioMessage() {
 		RadioOnOffMessage radioActivationMessage = new RadioOnOffMessage();
-		if (currentRadioChannel != null) {
-			radioActivationMessage.controlIdentifiers = new ControlIdentifiers(getIdentifier(), "RadioChannels", currentRadioChannel.id + "");
+		if (this.currentRadioChannel != null) {
+			radioActivationMessage.controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), "RadioChannels", this.currentRadioChannel.id + "");
 		} else {
-			radioActivationMessage.controlIdentifiers = new ControlIdentifiers(getIdentifier());
+			radioActivationMessage.controlIdentifiers = new ControlIdentifiers(this.getIdentifier());
 		}
-		radioActivationMessage.status = isPlaying;
+		radioActivationMessage.status = this.isPlaying;
 		radioActivationMessage.broadcast = true;
 
 		return radioActivationMessage;
@@ -314,7 +343,7 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 		String sql = "delete from main.Radio_Channels where id = '" + radioChannelId + "'";
 		boolean returnBool = DatabaseConnector.getInstance().executeQuery(sql);
 		if (returnBool) {
-			readRadioStations();
+			this.readRadioStations();
 		}
 		return returnBool;
 	}
@@ -368,14 +397,14 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 	@Override
 	public void init() {
 		super.init();
-		log.info("Initialized");
+		this.log.info("Initialized");
 	}
 
 	@Override
 	public List<JSONMessage> initClient() {
 		List<JSONMessage> returnList = new ArrayList<JSONMessage>();
 		// if(isPlaying) {
-		returnList.add(getRadioMessage());
+		returnList.add(this.getRadioMessage());
 		// }
 		return returnList;
 	}
@@ -396,7 +425,7 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 
 		ControllerNode channelsNode = new ControllerNode(this, "RadioChannels", "Radio Channels", "");
 		// Add all radio channels
-		for (Map.Entry<Integer, RadioChannel> entry : radioChannels.entrySet()) {
+		for (Map.Entry<Integer, RadioChannel> entry : this.radioChannels.entrySet()) {
 			channelsNode.addValue(new ControllerValue("" + entry.getValue().id, entry.getValue().channelName, ValueTypes.RADIO_STATION));
 		}
 		returnList.add(channelsNode);

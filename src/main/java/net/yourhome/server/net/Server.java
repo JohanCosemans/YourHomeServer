@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net;
 
 import java.io.IOException;
@@ -51,7 +77,7 @@ import net.yourhome.server.net.rest.Info;
 import net.yourhome.server.net.rest.view.ImageHelper;
 
 /*
- * This class is the link between the NET (websocket, http) and all the controllers (general, zwave, mopidy, radio, http, ...) 
+ * This class is the link between the NET (websocket, http) and all the controllers (general, zwave, mopidy, radio, http, ...)
  * 
  */
 
@@ -73,17 +99,18 @@ public class Server {
 	private static Object lock = new Object();
 
 	public static Server getInstance() {
-		Server r = instance;
+		Server r = Server.instance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = instance; // thread may have instantiated the object
+			synchronized (Server.lock) { // while we were waiting for the lock,
+											// another
+				r = Server.instance; // thread may have instantiated the object
 				if (r == null) {
 					r = new Server();
-					instance = r;
+					Server.instance = r;
 				}
 			}
 		}
-		return instance;
+		return Server.instance;
 	}
 
 	// Constructor: Initialize all the controllers
@@ -113,11 +140,11 @@ public class Server {
 								try {
 									factoryMethod = controllerClass.getDeclaredMethod("getInstance");
 									IController controllerObject = (IController) factoryMethod.invoke(null, null);
-									controllers.put(controllerObject.getIdentifier(), controllerObject);
+									Server.this.controllers.put(controllerObject.getIdentifier(), controllerObject);
 									SettingsManager.readSettings(controllerObject);
 									controllerObject.init();
 								} catch (Exception e) {
-									log.error("Could not instantiate " + controllerClass.getName() + " because getInstance is missing", e);
+									Server.log.error("Could not instantiate " + controllerClass.getName() + " because getInstance is missing", e);
 								}
 							}
 						}.start();
@@ -132,7 +159,7 @@ public class Server {
 		/*
 		 * First: Initialize Web (HTTP+REST API) and websocket connection
 		 */
-		initWebAndSocketServer();
+		this.initWebAndSocketServer();
 
 		/*
 		 * Set/update server info
@@ -144,7 +171,7 @@ public class Server {
 			serverInfo.setVersion(BuildConfig.VERSION);
 			Info.writeServerInfo(serverInfo);
 		} catch (IOException | JSONException e1) {
-			log.error("Could not update server info. Designer might not work as expected: " + e1.getMessage());
+			Server.log.error("Could not update server info. Designer might not work as expected: " + e1.getMessage());
 		}
 
 		RuleManager.init();
@@ -152,18 +179,18 @@ public class Server {
 
 	private void initWebAndSocketServer() {
 
-		server = new org.eclipse.jetty.server.Server();
+		this.server = new org.eclipse.jetty.server.Server();
 		// Port
-		ServerConnector connector = new ServerConnector(server);
+		ServerConnector connector = new ServerConnector(this.server);
 		connector.setPort(Integer.parseInt(SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_HTTP_PORT.get())));
-		server.addConnector(connector);
+		this.server.addConnector(connector);
 
 		List<Handler> handlerList = new ArrayList<Handler>();
 
 		// Create websocket context
 		ServletContextHandler webSocketRestcontext = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		webSocketRestcontext.addServlet(new ServletHolder(new NetServer()), WEBSOCKET_PATH);
-		server.setHandler(webSocketRestcontext);
+		webSocketRestcontext.addServlet(new ServletHolder(new NetServer()), Server.WEBSOCKET_PATH);
+		this.server.setHandler(webSocketRestcontext);
 
 		// Attach REST api
 		final ServletHolder servletHolder = new ServletHolder(new CXFServlet());
@@ -176,7 +203,7 @@ public class Server {
 		ContextHandler fileServerContext = new ContextHandler();
 		ResourceHandler resource_handler = new ResourceHandler();
 		resource_handler.setDirectoriesListed(true);
-		resource_handler.setResourceBase(SettingsManager.getBasePath() + FILESERVER_PATH);
+		resource_handler.setResourceBase(SettingsManager.getBasePath() + Server.FILESERVER_PATH);
 		resource_handler.setCacheControl("no-cache");
 		resource_handler.setMinMemoryMappedContentLength(-1);
 		fileServerContext.setHandler(resource_handler);
@@ -189,7 +216,7 @@ public class Server {
 		if (!username.equals("") && !password.equals("")) {
 			HashLoginService loginService = new HashLoginService();
 			ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-			server.addBean(loginService);
+			this.server.addBean(loginService);
 
 			loginService.putUser(username, new Password(password), new String[] { "admin" });
 
@@ -217,17 +244,17 @@ public class Server {
 		// });
 		contexts.setHandlers(handlerList.toArray(new Handler[handlerList.size()]));
 
-		server.setHandler(contexts);
+		this.server.setHandler(contexts);
 
 		try {
-			server.start();
-			log.info("Webserver initialized. Address: "+InetAddress.getLocalHost().getHostName()+":"+connector.getPort()+" / "+InetAddress.getLocalHost().getHostAddress()+":"+connector.getPort());
+			this.server.start();
+			Server.log.info("Webserver initialized. Address: " + InetAddress.getLocalHost().getHostName() + ":" + connector.getPort() + " / " + InetAddress.getLocalHost().getHostAddress() + ":" + connector.getPort());
 			// server.join();
 
-		}catch(BindException e){
-			log.error("Could not bind to port "+connector.getPort()+". Is it already in use by another application? Please change the port in the configuration file and restart the server.");
-		}catch (Exception e) {
-			log.error("Exception occured: ", e);
+		} catch (BindException e) {
+			Server.log.error("Could not bind to port " + connector.getPort() + ". Is it already in use by another application? Please change the port in the configuration file and restart the server.");
+		} catch (Exception e) {
+			Server.log.error("Exception occured: ", e);
 		}
 
 		NetworkDiscoveryBroadcast discovery = new NetworkDiscoveryBroadcast();
@@ -237,19 +264,19 @@ public class Server {
 
 	public void destroy() {
 		try {
-			server.stop();
+			this.server.stop();
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			Server.log.error("Exception occured: ", e);
 		}
-		server.destroy();
-		
+		this.server.destroy();
+
 		for (IController controller : this.controllers.values()) {
 			controller.destroy();
 		}
 		this.connectedClients.clear();
 		this.controllers.clear();
-		instance = null;
-		
+		Server.instance = null;
+
 		DatabaseConnector.getInstance().destroy();
 	}
 
@@ -261,10 +288,10 @@ public class Server {
 		try {
 			JSONObject jsonObject = new JSONObject(json);
 			JSONMessage message = MessageTypes.getMessage(jsonObject);
-			return processMessage(message);
-		}catch (Exception e) {
-			log.error("Exception occured: ", e);
-			log.error("Incorrect json received: " + json);
+			return this.processMessage(message);
+		} catch (Exception e) {
+			Server.log.error("Exception occured: ", e);
+			Server.log.error("Incorrect json received: " + json);
 		}
 		return null;
 	}
@@ -285,7 +312,7 @@ public class Server {
 				returningMessage = null;
 			}
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			Server.log.error("Exception occured: ", e);
 		}
 		return returningMessage;
 
@@ -301,15 +328,15 @@ public class Server {
 
 	public void broadcast(JSONMessage message) {
 		String messageString = message.serialize().toString();
-		log.debug("Broadcast: " + messageString);
-		for (WebSocketAdapter u : connectedClients) {
+		Server.log.debug("Broadcast: " + messageString);
+		for (WebSocketAdapter u : this.connectedClients) {
 			u.getRemote().sendStringByFuture(messageString);
 		}
 	}
 
 	public void initializeClient(WebSocketAdapter client) {
 		// Send node information to client
-		log.debug("Send initial node info to " + client);
+		Server.log.debug("Send initial node info to " + client);
 
 		for (IController controller : this.controllers.values()) {
 			if (controller != null && controller.isEnabled() && controller.isInitialized()) {

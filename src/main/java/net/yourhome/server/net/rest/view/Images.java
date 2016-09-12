@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.net.rest.view;
 
 import java.io.File;
@@ -46,7 +72,7 @@ public class Images {
 		File imagesFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + ImageHelper.IMAGE_FOLDER);
 		for (File subFolder : imagesFolder.listFiles()) {
 			if (subFolder.isDirectory()) {
-				ViewGroup folderImages = imageHelper.getImagesIn(subFolder.getAbsolutePath());
+				ViewGroup folderImages = this.imageHelper.getImagesIn(subFolder.getAbsolutePath());
 				if (folderImages.getObjects().size() > 0) {
 					folderImages.setTitle(subFolder.getName());
 					allImagesInViewElements.add(folderImages);
@@ -74,7 +100,7 @@ public class Images {
 	// GET /api/Images/backgrounds
 	public String getBackgrounds(@PathParam("imagePath") final String imagePath) {
 		// Get images array
-		JSONArray imageArray = imageHelper.getImagePathJSON(imagePath);
+		JSONArray imageArray = this.imageHelper.getImagePathJSON(imagePath);
 
 		// Build return message
 		return imageArray.toString();
@@ -86,9 +112,9 @@ public class Images {
 	@Path("StageImage")
 	@POST
 	public ImageButton uploadStageImage(final MultipartBody multipart) {
-		String path = uploadImage(multipart, SettingsManager.getBasePath() + Server.FILESERVER_PATH, ImageHelper.USER_IMAGES + "/");
+		String path = this.uploadImage(multipart, SettingsManager.getBasePath() + Server.FILESERVER_PATH, ImageHelper.USER_IMAGES + "/");
 		String type = ViewTypes.IMAGE_BUTTON.convert();
-		String id = Util.MD5(type+path+path+"");
+		String id = Util.MD5(type + path + path + "");
 		ImageButton imageButton = new ImageButton(id, path, "");
 		imageButton.addAllowed(new ValueTypes[] { ValueTypes.SCENE_ACTIVATION, ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION });
 		return imageButton;
@@ -100,7 +126,7 @@ public class Images {
 	@Path("backgroundImageSrc")
 	@POST
 	public String uploadbackgroundImageSrc(final MultipartBody multipart) {
-		String path = uploadImage(multipart, SettingsManager.getBasePath() + Server.FILESERVER_PATH, ImageHelper.USER_BACKGROUND_IMAGES + "/");
+		String path = this.uploadImage(multipart, SettingsManager.getBasePath() + Server.FILESERVER_PATH, ImageHelper.USER_BACKGROUND_IMAGES + "/");
 		return "{ \"path\" : \"" + path + "\" }";
 	}
 
@@ -121,7 +147,7 @@ public class Images {
 			return webPath + imageName;
 
 		} catch (IOException e1) {
-			log.error("[API] Cannot read uploaded file");
+			Images.log.error("[API] Cannot read uploaded file");
 			return "";
 		}
 	}

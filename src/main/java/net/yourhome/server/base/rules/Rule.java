@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base.rules;
 
 import java.util.Calendar;
@@ -28,11 +54,11 @@ public class Rule {
 
 		@Override
 		public String convert() {
-			return value;
+			return this.value;
 		}
 
 		public static LimitationPeriods convert(String val) {
-			return map.get(val);
+			return LimitationPeriods.map.get(val);
 		}
 
 		public String getValue() {
@@ -55,37 +81,37 @@ public class Rule {
 	private Date lastRuntime;
 
 	public Rule(JSONObject jsonObject) throws JSONException {
-		sourceJsonObject = jsonObject;
+		this.sourceJsonObject = jsonObject;
 
 		// Triggers
-		trigger = new TriggerGroup(this, jsonObject.getJSONObject("triggers").getJSONObject("details"));
+		this.trigger = new TriggerGroup(this, jsonObject.getJSONObject("triggers").getJSONObject("details"));
 
 		// Actions
-		action = new Scene(jsonObject);
+		this.action = new Scene(jsonObject);
 
 		// Description
 		JSONObject descriptionObject = jsonObject.getJSONObject("description");
-		name = descriptionObject.getString("name");
-		limited = descriptionObject.getBoolean("isLimited");
-		if (limited) {
-			limitationPeriod = LimitationPeriods.convert(descriptionObject.get("period").toString());
+		this.name = descriptionObject.getString("name");
+		this.limited = descriptionObject.getBoolean("isLimited");
+		if (this.limited) {
+			this.limitationPeriod = LimitationPeriods.convert(descriptionObject.get("period").toString());
 		}
 	}
 
 	public void setTriggers() {
-		trigger.setTrigger();
+		this.trigger.setTrigger();
 	}
 
 	public void unsetTriggers() {
-		trigger.unsetTrigger();
+		this.trigger.unsetTrigger();
 	}
 
 	public void run() {
 		boolean run = true;
-		if (limited && lastRuntime != null) {
+		if (this.limited && this.lastRuntime != null) {
 			// Check if the rule can be executed
 			Date now = new Date();
-			long difference = (now.getTime() - lastRuntime.getTime()) / 1000;
+			long difference = (now.getTime() - this.lastRuntime.getTime()) / 1000;
 			switch (this.limitationPeriod) {
 			case TEN_SECONDS:
 				if (difference < 10L) {
@@ -100,7 +126,7 @@ public class Rule {
 			case ONE_DAY:
 				Calendar nowCal = Calendar.getInstance();
 				Calendar lastRuntimeCal = Calendar.getInstance();
-				nowCal.setTime(lastRuntime);
+				nowCal.setTime(this.lastRuntime);
 				lastRuntimeCal.setTime(now);
 				boolean isOnSameDay = nowCal.get(Calendar.YEAR) == lastRuntimeCal.get(Calendar.YEAR) && nowCal.get(Calendar.DAY_OF_YEAR) == lastRuntimeCal.get(Calendar.DAY_OF_YEAR);
 				run = !isOnSameDay;
@@ -111,30 +137,30 @@ public class Rule {
 			}
 		}
 		if (run) {
-			lastRuntime = new Date();
+			this.lastRuntime = new Date();
 			this.action.activate();
 		} else {
-			log.debug("[Rule] Skipped executing rule " + this.id + "." + this.name + " because of the time limitation. (last executed on " + lastRuntime + ")");
+			Rule.log.debug("[Rule] Skipped executing rule " + this.id + "." + this.name + " because of the time limitation. (last executed on " + this.lastRuntime + ")");
 		}
 	}
 
 	public boolean evaluate(ITrigger startingTrigger) {
-		if (trigger.evaluate(startingTrigger)) {
-			run();
+		if (this.trigger.evaluate(startingTrigger)) {
+			this.run();
 			return true;
 		}
 		return false;
 	}
 
 	public JSONObject getSourceJsonObject() {
-		return sourceJsonObject;
+		return this.sourceJsonObject;
 	}
 
 	/**
 	 * @return the action
 	 */
 	public Scene getAction() {
-		return action;
+		return this.action;
 	}
 
 	/**
@@ -149,7 +175,7 @@ public class Rule {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -164,7 +190,7 @@ public class Rule {
 	 * @return the id
 	 */
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -174,9 +200,9 @@ public class Rule {
 	public void setId(int id) {
 		this.id = id;
 		try {
-			sourceJsonObject.put("id", id);
+			this.sourceJsonObject.put("id", id);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Rule.log.error("Exception occured: ", e);
 		}
 	}
 
@@ -184,7 +210,7 @@ public class Rule {
 	 * @return the active
 	 */
 	public boolean isActive() {
-		return active;
+		return this.active;
 	}
 
 	/**
@@ -194,9 +220,9 @@ public class Rule {
 	public void setActive(boolean active) {
 		this.active = active;
 		try {
-			sourceJsonObject.put("active", active);
+			this.sourceJsonObject.put("active", active);
 		} catch (JSONException e) {
-			log.error("Exception occured: ", e);
+			Rule.log.error("Exception occured: ", e);
 		}
 	}
 

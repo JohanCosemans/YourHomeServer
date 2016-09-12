@@ -47,8 +47,8 @@ public class CachedMPD extends MPD {
 
 	public CachedMPD(final boolean isEnabled) {
 		super();
-		mCache = AlbumCache.getInstance(this);
-		mIsEnabled = isEnabled;
+		this.mCache = AlbumCache.getInstance(this);
+		this.mIsEnabled = isEnabled;
 	}
 
 	/**
@@ -86,15 +86,15 @@ public class CachedMPD extends MPD {
 	 */
 	@Override
 	protected void addAlbumPaths(final List<Album> albums) throws IOException, MPDException {
-		if (!isCached()) {
+		if (!this.isCached()) {
 			super.addAlbumPaths(albums);
 			return;
 		}
 		for (final Album album : albums) {
 			final Artist artist = album.getArtist();
-			final String artistName = getArtistName(artist);
+			final String artistName = CachedMPD.getArtistName(artist);
 
-			final AlbumCache.AlbumDetails details = mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
+			final AlbumCache.AlbumDetails details = this.mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
 			if (details != null) {
 				album.setPath(details.mPath);
 			}
@@ -105,8 +105,8 @@ public class CachedMPD extends MPD {
 	 * Forced cache refresh.
 	 */
 	public void clearCache() {
-		if (mIsEnabled) {
-			mCache.refresh(true);
+		if (this.mIsEnabled) {
+			this.mCache.refresh(true);
 		}
 	}
 
@@ -124,13 +124,13 @@ public class CachedMPD extends MPD {
 	 */
 	@Override
 	protected void getAlbumDetails(final List<Album> albums, final boolean findYear/* ignored */) throws IOException, MPDException {
-		if (isCached()) {
+		if (this.isCached()) {
 			for (final Album album : albums) {
 				final Artist artist = album.getArtist();
-				final String artistName = getArtistName(artist);
+				final String artistName = CachedMPD.getArtistName(artist);
 				final AlbumCache.AlbumDetails details;
 
-				details = mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
+				details = this.mCache.getAlbumDetails(artistName, album.getName(), album.hasAlbumArtist());
 
 				if (null != details) {
 					album.setSongCount(details.mNumTracks);
@@ -159,8 +159,8 @@ public class CachedMPD extends MPD {
 	public List<Album> getAllAlbums(final boolean trackCountNeeded) throws IOException, MPDException {
 		final List<Album> allAlbums;
 
-		if (isCached()) {
-			final Set<List<String>> albumListSet = mCache.getUniqueAlbumSet();
+		if (this.isCached()) {
+			final Set<List<String>> albumListSet = this.mCache.getUniqueAlbumSet();
 			final Set<Album> albums = new HashSet<Album>(albumListSet.size());
 
 			for (final List<String> ai : albumListSet) {
@@ -182,7 +182,7 @@ public class CachedMPD extends MPD {
 			} else {
 				allAlbums = new ArrayList<Album>(albums);
 				Collections.sort(allAlbums);
-				getAlbumDetails(allAlbums, true);
+				this.getAlbumDetails(allAlbums, true);
 			}
 		} else {
 			allAlbums = super.getAllAlbums(trackCountNeeded);
@@ -197,7 +197,7 @@ public class CachedMPD extends MPD {
 	 * @return True if enabled and ready for use, false otherwise.
 	 */
 	protected boolean isCached() {
-		return mIsEnabled && mCache.refresh();
+		return this.mIsEnabled && this.mCache.refresh();
 	}
 
 	/**
@@ -215,14 +215,14 @@ public class CachedMPD extends MPD {
 	public List<String[]> listAlbumArtists(final List<Album> albums) throws IOException, MPDException {
 		final List<String[]> albumArtists;
 
-		if (isCached()) {
+		if (this.isCached()) {
 			albumArtists = new ArrayList<String[]>(albums.size());
 			for (final Album album : albums) {
 				final Artist artist = album.getArtist();
 				final Set<String> albumArtist;
-				final String artistName = getArtistName(artist);
+				final String artistName = CachedMPD.getArtistName(artist);
 
-				albumArtist = mCache.getAlbumArtists(album.getName(), artistName);
+				albumArtist = this.mCache.getAlbumArtists(album.getName(), artistName);
 				albumArtists.add(albumArtist.toArray(new String[albumArtist.size()]));
 			}
 		} else {
@@ -249,8 +249,8 @@ public class CachedMPD extends MPD {
 	public List<String> listAlbums(final String artist, final boolean useAlbumArtist) throws IOException, MPDException {
 		final List<String> albums;
 
-		if (isCached()) {
-			albums = new ArrayList(mCache.getAlbums(artist, useAlbumArtist));
+		if (this.isCached()) {
+			albums = new ArrayList(this.mCache.getAlbums(artist, useAlbumArtist));
 		} else {
 			albums = super.listAlbums(artist, useAlbumArtist);
 		}
@@ -275,10 +275,10 @@ public class CachedMPD extends MPD {
 	public List<String[]> listArtists(final List<Album> albums, final boolean useAlbumArtist) throws IOException, MPDException {
 		final List<String[]> artists;
 
-		if (isCached()) {
+		if (this.isCached()) {
 			artists = new ArrayList<String[]>(albums.size());
 			for (final Album album : albums) {
-				final List<String> aba = mCache.getArtistsByAlbum(album.getName(), useAlbumArtist);
+				final List<String> aba = this.mCache.getArtistsByAlbum(album.getName(), useAlbumArtist);
 				artists.add(aba.toArray(new String[aba.size()]));
 			}
 		} else {
@@ -295,7 +295,7 @@ public class CachedMPD extends MPD {
 	 *            True to use the AlbumCache, false otherwise.
 	 */
 	public void setUseCache(final boolean useCache) {
-		mIsEnabled = useCache;
+		this.mIsEnabled = useCache;
 	}
 
 }

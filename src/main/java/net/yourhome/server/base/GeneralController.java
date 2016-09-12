@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base;
 
 import java.io.BufferedReader;
@@ -27,7 +53,6 @@ import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
 import net.yourhome.common.net.messagestructures.general.ActivationMessage;
 import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
-import net.yourhome.common.net.messagestructures.general.ClientNotificationMessage;
 import net.yourhome.common.net.messagestructures.general.GCMRegistrationMessage;
 import net.yourhome.common.net.messagestructures.general.SetValueMessage;
 import net.yourhome.common.net.messagestructures.general.ValueHistoryMessage;
@@ -41,26 +66,14 @@ import net.yourhome.server.IController;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.base.rules.scenes.SceneManager;
 import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
-import net.yourhome.server.demo.DemoController;
 import net.yourhome.server.net.Server;
 import net.yourhome.server.radio.BasicPlayer;
 
 public class GeneralController extends AbstractController {
 
 	public enum Settings {
-		SERVER_NAME(new Setting("SERVER_NAME", "Server name")),
-		NET_HTTP_PORT(new Setting("NET_HTTP_PORT", "Server Port")),
-		NET_USERNAME(new Setting("NET_USERNAME", "Username of UI Designer", "Leave empty if none")),
-		NET_PASSWORD(new Setting("NET_PASSWORD", "Password of UI Designer", "Leave empty if none")),
-		SMTP_ADDRESS(new Setting("SMTP_ADDRESS", "SMTP Address (get one free at eg app.mailjet.com/signup)", "in-v3.mailjet.com")),
-		SMTP_PORT(new Setting("SMTP_PORT", "SMTP Port")),
-		SMTP_USER(new Setting("SMTP_USER", "SMTP User")),
-		SMTP_PASSWORD(new Setting("SMTP_PASSWORD", "SMTP Password")),
-		SMTP_SENDER(new Setting("SMTP_SENDER", "SMTP Sender Email")),
-		SMS_KEY(new Setting("SMS_KEY", "SMS API Key (get one at nexmo.com)", "c164e41d")),
-		SMS_PASSWORD(new Setting("SMS_PASSWORD", "SMS API Secret key", "9448240b")),
-		SUNSET_LAT(new Setting("SUNSET_LAT", "Server Latitude (see www.latlong.net)", "50.8503")),
-		SUNSET_LONG(new Setting("SUNSET_LONG", "Server Longitude", "4.3517"));
+		SERVER_NAME(new Setting("SERVER_NAME", "Server name")), NET_HTTP_PORT(new Setting("NET_HTTP_PORT", "Server Port")), NET_USERNAME(new Setting("NET_USERNAME", "Username of UI Designer", "Leave empty if none")), NET_PASSWORD(new Setting("NET_PASSWORD", "Password of UI Designer", "Leave empty if none")), SMTP_ADDRESS(new Setting("SMTP_ADDRESS", "SMTP Address (get one free at eg app.mailjet.com/signup)", "in-v3.mailjet.com")), SMTP_PORT(new Setting("SMTP_PORT", "SMTP Port")), SMTP_USER(new Setting("SMTP_USER", "SMTP User")), SMTP_PASSWORD(new Setting("SMTP_PASSWORD", "SMTP Password")), SMTP_SENDER(new Setting("SMTP_SENDER", "SMTP Sender Email")), SMS_KEY(new Setting("SMS_KEY", "SMS API Key (get one at nexmo.com)", "c164e41d")), SMS_PASSWORD(
+				new Setting("SMS_PASSWORD", "SMS API Secret key", "9448240b")), SUNSET_LAT(new Setting("SUNSET_LAT", "Server Latitude (see www.latlong.net)", "50.8503")), SUNSET_LONG(new Setting("SUNSET_LONG", "Server Longitude", "4.3517"));
 		private Setting setting;
 
 		private Settings(Setting setting) {
@@ -68,7 +81,7 @@ public class GeneralController extends AbstractController {
 		}
 
 		public Setting get() {
-			return setting;
+			return this.setting;
 		}
 	}
 
@@ -80,18 +93,21 @@ public class GeneralController extends AbstractController {
 	private static Object lock = new Object();
 
 	public static GeneralController getInstance() {
-		GeneralController r = generalControllerInstance;
+		GeneralController r = GeneralController.generalControllerInstance;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = generalControllerInstance; // thread may have instantiated
-												// the object
+			synchronized (GeneralController.lock) { // while we were waiting for
+													// the lock, another
+				r = GeneralController.generalControllerInstance; // thread may
+																	// have
+																	// instantiated
+				// the object
 				if (r == null) {
 					r = new GeneralController();
-					generalControllerInstance = r;
+					GeneralController.generalControllerInstance = r;
 				}
 			}
 		}
-		return generalControllerInstance;
+		return GeneralController.generalControllerInstance;
 	}
 
 	@Override
@@ -103,17 +119,17 @@ public class GeneralController extends AbstractController {
 			try {
 				GCMService.registerClient(new Device(GCMMessage.registrationId, GCMMessage.name, GCMMessage.screenWidth, GCMMessage.screenHeight));
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				GeneralController.log.error("Exception occured: ", e);
 			}
 		} else if (message instanceof ValueHistoryRequest) {
 			// Build original message
 			ValueHistoryRequest message2 = (ValueHistoryRequest) message;
-			
+
 			// Prepare answer message
 			ValueHistoryMessage historyMessage = new ValueHistoryMessage();
 			historyMessage.controlIdentifiers = message2.controlIdentifiers;
 			historyMessage.offset = message2.offset;
-			
+
 			try {
 				String operation = "value as value";
 				switch (message2.operation) {
@@ -204,27 +220,27 @@ public class GeneralController extends AbstractController {
 				historyMessage.title = title;
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				log.error("Exception occured: ", e);
+				GeneralController.log.error("Exception occured: ", e);
 			}
 			return historyMessage;
 		} else if (message instanceof ActivationMessage) {
 			// Scenes
 			if (message.controlIdentifiers.getNodeIdentifier().equals("Scenes")) {
 				try {
-					Scene sceneToActivate = SceneManager.getScene(Integer.parseInt(message.controlIdentifiers.getValueIdentifier())); 
-					if(sceneToActivate != null && sceneToActivate.activate()) {
+					Scene sceneToActivate = SceneManager.getScene(Integer.parseInt(message.controlIdentifiers.getValueIdentifier()));
+					if (sceneToActivate != null && sceneToActivate.activate()) {
 						ClientMessageMessage informClientsMessage = new ClientMessageMessage();
 						informClientsMessage.broadcast = true;
 						informClientsMessage.messageContent = "Scene " + sceneToActivate.getName() + " activated";
 						return informClientsMessage;
-					}else {
+					} else {
 						ClientMessageMessage informClientsMessage = new ClientMessageMessage();
 						informClientsMessage.broadcast = false;
 						informClientsMessage.messageContent = "Could not activate scene " + sceneToActivate.getName();
-						return informClientsMessage;						
+						return informClientsMessage;
 					}
 				} catch (NumberFormatException | SQLException | JSONException e) {
-					log.error("Exception occured: ", e);
+					GeneralController.log.error("Exception occured: ", e);
 				}
 			} else if (message.controlIdentifiers.getNodeIdentifier().equals("Commands")) {
 				if (message.controlIdentifiers.getValueIdentifier().equals(ValueTypes.SOUND_NOTIFICATION.convert())) {
@@ -234,11 +250,11 @@ public class GeneralController extends AbstractController {
 						notificationPlayer.setVolume(100);
 						notificationPlayer.startPlayback();
 					} catch (UnsupportedAudioFileException e) {
-						log.error("Exception occured: ", e);
+						GeneralController.log.error("Exception occured: ", e);
 					} catch (LineUnavailableException e) {
-						log.error("Exception occured: ", e);
+						GeneralController.log.error("Exception occured: ", e);
 					} catch (IOException e) {
-						log.error("Exception occured: ", e);
+						GeneralController.log.error("Exception occured: ", e);
 					}
 				}
 			}
@@ -264,9 +280,9 @@ public class GeneralController extends AbstractController {
 						}
 						b.close();
 					} catch (IOException e) {
-						log.error("Error on performing action", e);
+						GeneralController.log.error("Error on performing action", e);
 					} catch (InterruptedException e) {
-						log.error("Error on performing action", e);
+						GeneralController.log.error("Error on performing action", e);
 					} finally {
 						if (b != null) {
 							try {
@@ -280,7 +296,7 @@ public class GeneralController extends AbstractController {
 					try {
 						Thread.sleep(seconds * 1000);
 					} catch (InterruptedException e) {
-						log.error("Exception occured: ", e);
+						GeneralController.log.error("Exception occured: ", e);
 					}
 				}
 			}
@@ -292,13 +308,13 @@ public class GeneralController extends AbstractController {
 	public void init() {
 		super.init();
 		try {
-			enableSunsetSunriseEvents();
+			this.enableSunsetSunriseEvents();
 		} catch (Exception e) {
-			log.error("Error on scheduling sunrise/sunset events", e);
+			GeneralController.log.error("Error on scheduling sunrise/sunset events", e);
 		}
 		Server.getInstance().init();
 
-		log.info("Initialized");
+		GeneralController.log.info("Initialized");
 	}
 
 	@Override
@@ -344,7 +360,7 @@ public class GeneralController extends AbstractController {
 				scenesNode.addValue(new ControllerValue(scene.getId() + "", scene.getName(), ValueTypes.SCENE_ACTIVATION));
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			GeneralController.log.error("Exception occured: ", e);
 		}
 
 		returnList.add(scenesNode);
@@ -382,7 +398,7 @@ public class GeneralController extends AbstractController {
 				scenesNode.addValue(new ControllerValue(scene.getId() + "", scene.getName(), ValueTypes.SCENE_ACTIVATION));
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			GeneralController.log.error("Exception occured: ", e);
 		}
 
 		returnList.add(timeNode);
@@ -397,37 +413,37 @@ public class GeneralController extends AbstractController {
 		// Schedule every day the sunrise/sunset events. The sunset event will
 		// schedule the events for the next day
 		// Location location = new Location("50.8503", "4.3517"); // Brussels
-		Location location = new Location(SettingsManager.getStringValue(getIdentifier(), Settings.SUNSET_LAT.get()), SettingsManager.getStringValue(getIdentifier(), Settings.SUNSET_LONG.get()));
+		Location location = new Location(SettingsManager.getStringValue(this.getIdentifier(), Settings.SUNSET_LAT.get()), SettingsManager.getStringValue(this.getIdentifier(), Settings.SUNSET_LONG.get()));
 		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, TimeZone.getDefault());
 		Calendar now = Calendar.getInstance();
 		Calendar sunrise = calculator.getOfficialSunriseCalendarForDate(now);
 		if (!sunrise.before(now)) {
-			log.debug("Scheduling sunrise at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
-			sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
+			GeneralController.log.debug("Scheduling sunrise at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
+			this.sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
 				@Override
 				public void run() {
-					triggerSunrise();
+					GeneralController.this.triggerSunrise();
 				}
 			}, sunrise.getTime(), 0);
 		} else {
 			Calendar sunset = calculator.getOfficialSunsetCalendarForDate(now);
 			if (!sunset.before(now)) {
-				log.debug("Scheduling sunset at " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
-				sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
+				GeneralController.log.debug("Scheduling sunset at " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
+				this.sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
 					@Override
 					public void run() {
-						triggerSunset();
+						GeneralController.this.triggerSunset();
 					}
 				}, sunset.getTime(), 0);
 			} else {
 				// Schedule the sunrise of tomorrow
 				now.add(Calendar.DAY_OF_MONTH, 1);
 				Calendar sunriseOfTomorrow = calculator.getOfficialSunriseCalendarForDate(now);
-				log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunriseOfTomorrow.getTime()));
-				sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
+				GeneralController.log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunriseOfTomorrow.getTime()));
+				this.sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
 					@Override
 					public void run() {
-						triggerSunrise();
+						GeneralController.this.triggerSunrise();
 					}
 				}, sunriseOfTomorrow.getTime(), 0);
 			}
@@ -435,8 +451,8 @@ public class GeneralController extends AbstractController {
 	}
 
 	private void triggerSunset() {
-		log.debug("Sunset! Good night!");
-		triggerEvent("Time", "Sunset");
+		GeneralController.log.debug("Sunset! Good night!");
+		this.triggerEvent("Time", "Sunset");
 		// Schedule sunrise event
 		Location location = new Location("50.8503", "4.3517"); // Brussels
 		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, TimeZone.getDefault());
@@ -444,49 +460,49 @@ public class GeneralController extends AbstractController {
 		tomorrow.add(Calendar.DAY_OF_WEEK, 1);
 		Calendar sunrise = calculator.getOfficialSunriseCalendarForDate(tomorrow);
 		try {
-			log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
+			GeneralController.log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
 			Scheduler.getInstance().schedule(new TimerTask() {
 				@Override
 				public void run() {
-					triggerSunrise();
+					GeneralController.this.triggerSunrise();
 				}
 			}, sunrise.getTime(), 0);
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			GeneralController.log.error("Exception occured: ", e);
 		}
 	}
 
 	private void triggerSunrise() {
-		log.debug("Sunrise! Good morning!");
-		triggerEvent("Time", "Sunrise");
+		GeneralController.log.debug("Sunrise! Good morning!");
+		this.triggerEvent("Time", "Sunrise");
 
 		// Schedule sunset event
 		Location location = new Location("50.8503", "4.3517"); // Brussels
 		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, TimeZone.getDefault());
 		Calendar sunset = calculator.getOfficialSunsetCalendarForDate(Calendar.getInstance());
 		try {
-			log.debug("Scheduling sunset " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
+			GeneralController.log.debug("Scheduling sunset " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
 			Scheduler.getInstance().schedule(new TimerTask() {
 				@Override
 				public void run() {
-					triggerSunset();
+					GeneralController.this.triggerSunset();
 				}
 			}, sunset.getTime(), 0);
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			GeneralController.log.error("Exception occured: ", e);
 		}
 	}
 
 	public void triggerMusicStopped() {
-		triggerEvent("Music", "MusicStopped");
+		this.triggerEvent("Music", "MusicStopped");
 	}
 
 	public void triggerMusicStarted() {
-		triggerEvent("Music", "MusicStarted");
+		this.triggerEvent("Music", "MusicStarted");
 	}
 
 	public void triggerSceneActivated(Scene scene) {
-		triggerEvent("Scenes", scene.getId() + "");
+		this.triggerEvent("Scenes", scene.getId() + "");
 	}
 
 	@Override
@@ -511,9 +527,9 @@ public class GeneralController extends AbstractController {
 	@Override
 	public void destroy() {
 		super.destroy();
-		if (sunsetTask != null) {
-			sunsetTask.cancel();
+		if (this.sunsetTask != null) {
+			this.sunsetTask.cancel();
 		}
-		generalControllerInstance = null;
+		GeneralController.generalControllerInstance = null;
 	}
 }

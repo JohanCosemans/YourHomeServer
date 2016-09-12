@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.http;
 
 import java.io.BufferedReader;
@@ -49,24 +75,29 @@ import net.yourhome.server.base.Setting;
 public class HttpCommandController extends AbstractController {
 	private static volatile HttpCommandController httpCommandController;
 	private static Object lock = new Object();
+
 	private HttpCommandController() {
-		log = Logger.getLogger("net.yourhome.server.http.Http");
+		this.log = Logger.getLogger("net.yourhome.server.http.Http");
 	}
 
 	public static HttpCommandController getInstance() {
-		HttpCommandController r = httpCommandController;
+		HttpCommandController r = HttpCommandController.httpCommandController;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = httpCommandController; // thread may have instantiated the
-											// object
+			synchronized (HttpCommandController.lock) { // while we were waiting
+														// for the lock, another
+				r = HttpCommandController.httpCommandController; // thread may
+																	// have
+																	// instantiated
+																	// the
+				// object
 				if (r == null) {
 					r = new HttpCommandController();
-					httpCommandController = r;
+					HttpCommandController.httpCommandController = r;
 				}
 			}
 		}
 
-		return httpCommandController;
+		return HttpCommandController.httpCommandController;
 	}
 
 	@Override
@@ -75,9 +106,9 @@ public class HttpCommandController extends AbstractController {
 			try {
 				Integer commandId = Integer.parseInt(((ActivationMessage) message).controlIdentifiers.getValueIdentifier());
 				HttpCommand command = this.getCommand(commandId);
-				sendHttpCommand(command);
+				this.sendHttpCommand(command);
 			} catch (Exception e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 		/*
@@ -120,8 +151,8 @@ public class HttpCommandController extends AbstractController {
 
 	public HttpCommandMessage sendHttpCommand(HttpCommand command) throws Exception {
 
-		log.debug("[" + Thread.currentThread().getId() + "] Executing http command ");
-		HttpClient client = getHttpClient();
+		this.log.debug("[" + Thread.currentThread().getId() + "] Executing http command ");
+		HttpClient client = this.getHttpClient();
 		HttpRequestBase request = null;
 
 		if (command.getHttpMethod().equals("POST")) {
@@ -157,7 +188,7 @@ public class HttpCommandController extends AbstractController {
 				request.setHeader(s.getKey(), s.getValue());
 			}
 		}
-		log.debug("Out: " + request.toString());
+		this.log.debug("Out: " + request.toString());
 		HttpResponse response = client.execute(request);
 
 		InputStream ips = response.getEntity().getContent();
@@ -167,8 +198,9 @@ public class HttpCommandController extends AbstractController {
 		String s;
 		while (true) {
 			s = buf.readLine();
-			if (s == null || s.length() == 0)
+			if (s == null || s.length() == 0) {
 				break;
+			}
 			sb.append(s);
 
 		}
@@ -218,7 +250,7 @@ public class HttpCommandController extends AbstractController {
 			return httpClient;
 
 		} catch (Exception e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 			return HttpClientBuilder.create().build();
 		}
 	}
@@ -234,7 +266,7 @@ public class HttpCommandController extends AbstractController {
 		PreparedStatement preparedInsert = DatabaseConnector.getInstance().prepareStatement(sql);
 		preparedInsert.setInt(1, message.httpCommand.getParentNodeId());
 		preparedInsert.setString(2, message.httpCommand.serialize().toString());
-		Integer id = DatabaseConnector.getInstance().executePreparedUpdate(preparedInsert);		
+		Integer id = DatabaseConnector.getInstance().executePreparedUpdate(preparedInsert);
 		return "{ \"id\" : " + id + " }";
 	}
 
@@ -244,9 +276,9 @@ public class HttpCommandController extends AbstractController {
 		PreparedStatement preparedUpdate = DatabaseConnector.getInstance().prepareStatement(sql);
 		preparedUpdate.setString(1, changedHttpCommand.httpCommand.serialize().toString());
 		preparedUpdate.setInt(2, changedHttpCommand.httpCommand.getId());
-		Integer id = DatabaseConnector.getInstance().executePreparedUpdate(preparedUpdate);		
+		Integer id = DatabaseConnector.getInstance().executePreparedUpdate(preparedUpdate);
 
-		return "{ \"result\" : " + (id==null) + " }";
+		return "{ \"result\" : " + (id == null) + " }";
 	}
 
 	public HttpCommand getCommand(int commandId) throws SQLException {
@@ -258,23 +290,24 @@ public class HttpCommandController extends AbstractController {
 			allCommandsResult = DatabaseConnector.getInstance().executeSelect(sql);
 			returnCommand = null;
 			while (allCommandsResult.next()) {
-				
+
 				try {
 					String jsonString = allCommandsResult.getString("json");
-					if(jsonString != null) {
+					if (jsonString != null) {
 						returnCommand = new HttpCommand(new JSONObject(jsonString));
 						returnCommand.setId(allCommandsResult.getInt("id"));
 						returnCommand.setParentNodeId(allCommandsResult.getInt("parentNodeId"));
 					}
-				}catch(SQLException e) {}
-				
-				if(returnCommand == null) {
+				} catch (SQLException e) {
+				}
+
+				if (returnCommand == null) {
 					returnCommand = new HttpCommand(allCommandsResult);
 				}
-				
+
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (allCommandsResult != null) {
@@ -282,7 +315,7 @@ public class HttpCommandController extends AbstractController {
 					allCommandsResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 
@@ -305,22 +338,23 @@ public class HttpCommandController extends AbstractController {
 				HttpCommand command = null;
 				try {
 					String jsonString = allCommandsResult.getString("json");
-					if(jsonString != null) {
+					if (jsonString != null) {
 						command = new HttpCommand(new JSONObject(jsonString));
 						command.setId(allCommandsResult.getInt("id"));
 						command.setParentNodeId(allCommandsResult.getInt("parentNodeId"));
 					}
-				}catch(SQLException e) {}
-				
+				} catch (SQLException e) {
+				}
+
 				// To be removed when other columns are removed
-				if(command == null) {
+				if (command == null) {
 					command = new HttpCommand(allCommandsResult);
 				}
-				
+
 				commandsList.add(command);
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (allCommandsResult != null) {
@@ -328,7 +362,7 @@ public class HttpCommandController extends AbstractController {
 					allCommandsResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 
@@ -350,7 +384,7 @@ public class HttpCommandController extends AbstractController {
 				nodesArray.add(node);
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (allNodesResult != null) {
@@ -358,7 +392,7 @@ public class HttpCommandController extends AbstractController {
 					allNodesResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 		return nodesArray;
@@ -378,7 +412,7 @@ public class HttpCommandController extends AbstractController {
 				}
 			}
 		} catch (SQLException e) {
-			log.error("Exception occured: ", e);
+			this.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (allNodesResult != null) {
@@ -386,7 +420,7 @@ public class HttpCommandController extends AbstractController {
 					allNodesResult.close();
 				}
 			} catch (SQLException e) {
-				log.error("Exception occured: ", e);
+				this.log.error("Exception occured: ", e);
 			}
 		}
 		return thisNode;
@@ -420,7 +454,7 @@ public class HttpCommandController extends AbstractController {
 	@Override
 	public void init() {
 		super.init();
-		log.info("Initialized");
+		this.log.info("Initialized");
 	}
 
 	@Override

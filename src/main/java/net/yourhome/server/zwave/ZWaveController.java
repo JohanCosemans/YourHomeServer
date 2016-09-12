@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.zwave;
 
 import java.io.File;
@@ -26,10 +52,8 @@ import org.zwave4j.ValueType;
 import org.zwave4j.ZWave4j;
 
 import net.yourhome.common.base.enums.GeneralCommands;
-import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.base.enums.zwave.ZWaveCommandClassTypes;
 import net.yourhome.common.net.messagestructures.zwave.ZWaveValue;
-import net.yourhome.server.ControllerValue;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.Scheduler;
 import net.yourhome.server.base.SettingsManager;
@@ -52,39 +76,43 @@ public class ZWaveController {
 	private boolean m_allNodesQueried = false;
 	private boolean m_awakeNodesQueried = false;
 	private boolean isEnabled = true;
-	private Map<Integer,ControllerTransaction> controllerTransactions = new LRUMap(100);
-	
+	private Map<Integer, ControllerTransaction> controllerTransactions = new LRUMap(100);
+
 	/* Initialization */
 	private ZWaveController() {
 	}
 
 	public static ZWaveController getInstance() {
-		ZWaveController r = controller;
+		ZWaveController r = ZWaveController.controller;
 		if (r == null) {
-			synchronized (lock) { // while we were waiting for the lock, another
-				r = controller; // thread may have instantiated the object
+			synchronized (ZWaveController.lock) { // while we were waiting for
+													// the lock, another
+				r = ZWaveController.controller; // thread may have instantiated
+												// the object
 				if (r == null) {
 					r = new ZWaveController();
-					controller = r;
+					ZWaveController.controller = r;
 				}
 			}
 		}
-		return controller;
+		return ZWaveController.controller;
 	}
+
 	public Manager getManager() {
-		return m_manager;
+		return this.m_manager;
 	}
+
 	public void writeConfig() {
 		// Get homeid
-		if (m_homeId != 0) {
+		if (this.m_homeId != 0) {
 			this.m_manager.writeConfig(this.m_homeId);
 		} else {
-			log.info("Could not save config - Controller not initialized yet?");
+			ZWaveController.log.info("Could not save config - Controller not initialized yet?");
 		}
 	}
 
 	public boolean isEnabled() {
-		return isEnabled;
+		return this.isEnabled;
 	}
 
 	public void initialize() {
@@ -98,7 +126,7 @@ public class ZWaveController {
 			// Create the Options
 
 			String configPath = new File(SettingsManager.getBasePath(), "/openZWave/config").getAbsolutePath();
-			m_options = Options.create(configPath, "", "");
+			this.m_options = Options.create(configPath, "", "");
 
 			// Add any app specific options here...
 			File openZwaveFolder = new File(SettingsManager.getBasePath() + "/openZWave/");
@@ -106,81 +134,82 @@ public class ZWaveController {
 				openZwaveFolder.mkdirs();
 			}
 
-			m_options.addOptionString("UserPath", openZwaveFolder.getAbsolutePath() + "/", true); // Write
-																									// all
-																									// files
-																									// zo
-																									// openZwave
-																									// folder
-			m_options.addOptionInt("SaveLogLevel", LogLevel.DETAIL.ordinal()); // ordinarily,
-																				// just
-																				// write
-																				// "Detail"
-																				// level
-																				// messages
-																				// to
-																				// the
-																				// log
-			m_options.addOptionInt("QueueLogLevel", LogLevel.DEBUG.ordinal()); // save
-																				// recent
-																				// messages
-																				// with
-																				// "Debug"
-																				// level
-																				// messages
-																				// to
-																				// be
-																				// dumped
-																				// if
-																				// an
-																				// error
-																				// occurs
-			m_options.addOptionInt("DumpTriggerLevel", LogLevel.ERROR.ordinal()); // only
-																					// "dump"
-																					// Debug
-																					// to
-																					// the
-																					// log
-																					// emessages
-																					// when
-																					// an
-																					// error-level
-																					// message
-																					// is
-																					// logged
-			m_options.addOptionBool("ConsoleOutput", false); // Do not print
-																// output on
-																// console
-			m_options.addOptionString("LogFileName", "../logs/OZW_Log.txt", true);
-			m_options.addOptionBool("AppendLogFile", false);
+			this.m_options.addOptionString("UserPath", openZwaveFolder.getAbsolutePath() + "/", true); // Write
+																										// all
+																										// files
+																										// zo
+																										// openZwave
+																										// folder
+			this.m_options.addOptionInt("SaveLogLevel", LogLevel.DETAIL.ordinal()); // ordinarily,
+			// just
+			// write
+			// "Detail"
+			// level
+			// messages
+			// to
+			// the
+			// log
+			this.m_options.addOptionInt("QueueLogLevel", LogLevel.DEBUG.ordinal()); // save
+			// recent
+			// messages
+			// with
+			// "Debug"
+			// level
+			// messages
+			// to
+			// be
+			// dumped
+			// if
+			// an
+			// error
+			// occurs
+			this.m_options.addOptionInt("DumpTriggerLevel", LogLevel.ERROR.ordinal()); // only
+																						// "dump"
+																						// Debug
+																						// to
+																						// the
+																						// log
+																						// emessages
+																						// when
+																						// an
+																						// error-level
+																						// message
+																						// is
+																						// logged
+			this.m_options.addOptionBool("ConsoleOutput", false); // Do not
+																	// print
+																	// output on
+																	// console
+			this.m_options.addOptionString("LogFileName", "../logs/OZW_Log.txt", true);
+			this.m_options.addOptionBool("AppendLogFile", false);
 			// m_options.addOptionString("NetworkKey",Settings.getStringValue(Settings.ZWAVE_KEY,
 			// "1234567890123456"), false);
 
 			// Lock the options
-			m_options.lock();
+			this.m_options.lock();
 
 			// Create the OpenZWave Manager
-			m_manager = new Manager();
+			this.m_manager = new Manager();
 			Manager.create();
 
 			// Add a driver
 			if (usbConnection.startsWith("COM")) {
-				m_driverPort = "\\\\.\\" + usbConnection;
+				ZWaveController.m_driverPort = "\\\\.\\" + usbConnection;
 			} else {
-				m_driverPort = usbConnection;
+				ZWaveController.m_driverPort = usbConnection;
 			}
-			m_manager.addDriver(m_driverPort);
+			this.m_manager.addDriver(ZWaveController.m_driverPort);
 			// m_manager.AddDriver(@"HID Controller",
 			// ZWControllerInterface.Hid);
 
-			m_manager.addWatcher(watcher, null);
+			this.m_manager.addWatcher(this.watcher, null);
 
 			this.dbConnector = DatabaseConnector.getInstance();
-			log.info("Initializing");
+			ZWaveController.log.info("Initializing");
 		} else {
 
-			log.info("Could not find Z-Wave settings. Disabling Z-Wave.");
-			isEnabled = false;
+			ZWaveController.log.info("Could not find Z-Wave settings. Disabling Z-Wave.");
+			this.isEnabled = false;
 		}
 	}
 
@@ -191,19 +220,19 @@ public class ZWaveController {
 
 			switch (notification.getType()) {
 			case VALUE_ADDED: {
-				Node node = getNode(notification.getHomeId(), notification.getNodeId());
+				Node node = ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId());
 
 				if (node != null) {
-					node.addValue(new Value(controller,notification.getValueId()));
+					node.addValue(new Value(ZWaveController.controller, notification.getValueId()));
 				}
 				break;
 			}
 
 			case VALUE_REMOVED: {
-				Node node = getNode(notification.getHomeId(), notification.getNodeId());
+				Node node = ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId());
 				if (node != null) {
 					Value v = node.getValue(notification.getValueId());
-					if(v != null) {
+					if (v != null) {
 						node.removeValue(v);
 					}
 				}
@@ -212,10 +241,10 @@ public class ZWaveController {
 
 			case VALUE_CHANGED: {
 				ValueId v = notification.getValueId();
-				Object value = getValueOfValue(v);
-				log.debug("Value change: ID=" + (getValueId(v)) + ", Node: " + v.getNodeId() + ", Instance: " + v.getInstance() + ", Commandclass: " + v.getCommandClassId() + ", value: " + value + " " + m_manager.getValueUnits(v));
-				if (zwaveNetController != null) {
-					zwaveNetController.ZWaveValueChanged(v);
+				Object value = ZWaveController.getValueOfValue(v);
+				ZWaveController.log.debug("Value change: ID=" + (ZWaveController.this.getValueId(v)) + ", Node: " + v.getNodeId() + ", Instance: " + v.getInstance() + ", Commandclass: " + v.getCommandClassId() + ", value: " + value + " " + ZWaveController.this.m_manager.getValueUnits(v));
+				if (ZWaveController.this.zwaveNetController != null) {
+					ZWaveController.this.zwaveNetController.ZWaveValueChanged(v);
 				}
 				break;
 			}
@@ -227,28 +256,28 @@ public class ZWaveController {
 				// notification
 				// if not, the NodeNew notification should already have been
 				// received
-				if (getNode(notification.getHomeId(), notification.getNodeId()) == null) {
-					Node node = new Node(controller);
+				if (ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId()) == null) {
+					Node node = new Node(ZWaveController.controller);
 					node.setId(notification.getNodeId());
 					node.setHomeId(notification.getHomeId());
-					m_nodeList.add(node);
+					ZWaveController.this.m_nodeList.add(node);
 				}
 				break;
 			}
 
 			case NODE_NEW: {
 				// Add the new node to our list (and flag as uninitialized)
-				Node node = new Node(controller);
+				Node node = new Node(ZWaveController.controller);
 				node.setId(notification.getNodeId());
 				node.setHomeId(notification.getHomeId());
-				m_nodeList.add(node);
+				ZWaveController.this.m_nodeList.add(node);
 				break;
 			}
 
 			case NODE_REMOVED: {
-				for (Node node : m_nodeList) {
+				for (Node node : ZWaveController.this.m_nodeList) {
 					if (node.getId() == notification.getNodeId()) {
-						m_nodeList.remove(node);
+						ZWaveController.this.m_nodeList.remove(node);
 						break;
 					}
 				}
@@ -256,15 +285,15 @@ public class ZWaveController {
 			}
 
 			case NODE_PROTOCOL_INFO: {
-				Node node = getNode(notification.getHomeId(), notification.getNodeId());
+				Node node = ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId());
 				if (node != null) {
-					node.setLabel(m_manager.getNodeType(m_homeId, node.getId()));
+					node.setLabel(ZWaveController.this.m_manager.getNodeType(ZWaveController.this.m_homeId, node.getId()));
 				}
 				break;
 			}
 
 			case NODE_NAMING: {
-				Node node = getNode(notification.getHomeId(), notification.getNodeId());
+				Node node = ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId());
 				if (node != null) {
 					node.readProperties();
 				}
@@ -274,87 +303,87 @@ public class ZWaveController {
 			case NODE_EVENT: {
 				ValueId v = notification.getValueId();
 
-				Node node = getNode(notification.getHomeId(), notification.getNodeId());
+				Node node = ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId());
 				if (node != null) {
-					Event event = node.getEvent(getValueId(v));
+					Event event = node.getEvent(ZWaveController.this.getValueId(v));
 					if (event == null) {
-						node.addEvent(getEventInformation(v));
+						node.addEvent(ZWaveController.this.getEventInformation(v));
 					}
 				}
 
-				log.debug("Event! ID=" + (getValueId(v)) + ", Node: " + v.getNodeId() + ", Commandclass: " + "0x" + v.getCommandClassId() + ", value: " + getValueOfValue(v) + " " + m_manager.getValueUnits(v));
+				ZWaveController.log.debug("Event! ID=" + (ZWaveController.this.getValueId(v)) + ", Node: " + v.getNodeId() + ", Commandclass: " + "0x" + v.getCommandClassId() + ", value: " + ZWaveController.getValueOfValue(v) + " " + ZWaveController.this.m_manager.getValueUnits(v));
 				// eventTriggered(v);
 
 				break;
 			}
 
 			case POLLING_DISABLED: {
-				log.debug("Polling disabled");
+				ZWaveController.log.debug("Polling disabled");
 				break;
 			}
 
 			case POLLING_ENABLED: {
-				log.debug("Polling enabled");
+				ZWaveController.log.debug("Polling enabled");
 				break;
 			}
 
 			case DRIVER_READY: {
-				m_homeId = notification.getHomeId();
+				ZWaveController.this.m_homeId = notification.getHomeId();
 				break;
 			}
 			case NODE_QUERIES_COMPLETE: {
-				if(m_awakeNodesQueried) {
-					log.info("Node queries complete (Node " + notification.getNodeId() + ")");
-					Node node = getNode(notification.getHomeId(), notification.getNodeId());
-					writeConfig();
+				if (ZWaveController.this.m_awakeNodesQueried) {
+					ZWaveController.log.info("Node queries complete (Node " + notification.getNodeId() + ")");
+					Node node = ZWaveController.this.getNode(notification.getHomeId(), notification.getNodeId());
+					ZWaveController.this.writeConfig();
 				}
 				break;
 			}
 			case ESSENTIAL_NODE_QUERIES_COMPLETE: {
-				log.debug("Essential node queries complete (Node "+notification.getNodeId()+")");
-//				writeConfig();
+				ZWaveController.log.debug("Essential node queries complete (Node " + notification.getNodeId() + ")");
+				// writeConfig();
 				break;
 			}
 			case ALL_NODES_QUERIED: {
-				m_allNodesQueried = true;
-				writeConfig();
+				ZWaveController.this.m_allNodesQueried = true;
+				ZWaveController.this.writeConfig();
 
-				log.info("");
-				log.info("Network initialization finished. Here are the nodes in the network: ");
+				ZWaveController.log.info("");
+				ZWaveController.log.info("Network initialization finished. Here are the nodes in the network: ");
 
-				log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", "nodeId", "Label", "Manufacturer", "Product", "Location"));
-				log.info("" + "------------------------------------------------------------------------------------------------------");
-				for (Node node : m_nodeList) {
-					log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", node.getId(), node.getLabel(), node.getManufacturer(), node.getProduct(), node.getLocation()));
+				ZWaveController.log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", "nodeId", "Label", "Manufacturer", "Product", "Location"));
+				ZWaveController.log.info("" + "------------------------------------------------------------------------------------------------------");
+				for (Node node : ZWaveController.this.m_nodeList) {
+					ZWaveController.log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", node.getId(), node.getLabel(), node.getManufacturer(), node.getProduct(), node.getLocation()));
 				}
-				log.info("");
+				ZWaveController.log.info("");
 
 				break;
 			}
 			case AWAKE_NODES_QUERIED: {
-				m_awakeNodesQueried = true;
-				m_manager.writeConfig(notification.getHomeId());
-				m_allNodesQueried = true;
+				ZWaveController.this.m_awakeNodesQueried = true;
+				ZWaveController.this.m_manager.writeConfig(notification.getHomeId());
+				ZWaveController.this.m_allNodesQueried = true;
 
-				log.info("");
-				log.info("Network initialization finished for awake nodes. Here are the nodes in the network: ");
+				ZWaveController.log.info("");
+				ZWaveController.log.info("Network initialization finished for awake nodes. Here are the nodes in the network: ");
 
-				log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", "nodeId", "Label", "Manufacturer", "Product", "Location"));
-				log.info("" + "------------------------------------------------------------------------------------------------------");
-				for (Node node : m_nodeList) {
-					log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", node.getId(), node.getLabel(), node.getManufacturer(), node.getProduct(), node.getLocation()));
+				ZWaveController.log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", "nodeId", "Label", "Manufacturer", "Product", "Location"));
+				ZWaveController.log.info("" + "------------------------------------------------------------------------------------------------------");
+				for (Node node : ZWaveController.this.m_nodeList) {
+					ZWaveController.log.info("" + String.format("%-7s %-30s %-15s %-30s %-20s", node.getId(), node.getLabel(), node.getManufacturer(), node.getProduct(), node.getLocation()));
 				}
-				log.info("");
+				ZWaveController.log.info("");
 
-				postProcessActivities();
+				ZWaveController.this.postProcessActivities();
 
 				break;
 			}
 			case ALL_NODES_QUERIED_SOME_DEAD:
-				log.info("All nodes queried - some dead");
-				m_awakeNodesQueried = true;
-				writeConfig();
-				m_allNodesQueried = true;
+				ZWaveController.log.info("All nodes queried - some dead");
+				ZWaveController.this.m_awakeNodesQueried = true;
+				ZWaveController.this.writeConfig();
+				ZWaveController.this.m_allNodesQueried = true;
 				break;
 			case BUTTON_OFF:
 				break;
@@ -371,8 +400,8 @@ public class ZWaveController {
 			case NOTIFICATION:
 				break;
 			case SCENE_EVENT:
-				log.info("Scene event for scene ID " + notification.getSceneId());
-				zwaveNetController.triggerEvent("Scenes", notification.getSceneId() + "");
+				ZWaveController.log.info("Scene event for scene ID " + notification.getSceneId());
+				ZWaveController.this.zwaveNetController.triggerEvent("Scenes", notification.getSceneId() + "");
 				break;
 			case VALUE_REFRESHED:
 				break;
@@ -405,16 +434,16 @@ public class ZWaveController {
 
 		}
 
-		log.info("Post process activities completed");
+		ZWaveController.log.info("Post process activities completed");
 	}
 
 	public boolean isNetworkInitialized() {
-		return m_allNodesQueried;
+		return this.m_allNodesQueried;
 	}
 
 	/* ZWave node & value getters */
 	public Node getNode(short nodeId) {
-		for (Node node : m_nodeList) {
+		for (Node node : this.m_nodeList) {
 			if ((node.getId() == nodeId)) {
 				return node;
 			}
@@ -424,7 +453,7 @@ public class ZWaveController {
 	}
 
 	public Node getNode(long homeId, short nodeId) {
-		for (Node node : m_nodeList) {
+		for (Node node : this.m_nodeList) {
 			if ((node.getId() == nodeId) && (node.getHomeId() == homeId)) {
 				return node;
 			}
@@ -436,25 +465,25 @@ public class ZWaveController {
 	public Value getValue(long homeId, short nodeId, short instance, BigInteger valueId) {
 		Node node = this.getNode(nodeId);
 		if (node != null) {
-			return node.getValue(valueId,instance);
+			return node.getValue(valueId, instance);
 		}
-		log.error("Incorrect valueId requested (id: " + valueId + ")");
+		ZWaveController.log.error("Incorrect valueId requested (id: " + valueId + ")");
 		return null;
 	}
 
 	public Value getValue(String controlId) {
 		ZWaveValue zwaveValue = new ZWaveValue(controlId);
-		return getValue(zwaveValue.getHomeId(), zwaveValue.getNodeId(), zwaveValue.getInstance(), zwaveValue.getValueId());
+		return this.getValue(zwaveValue.getHomeId(), zwaveValue.getNodeId(), zwaveValue.getInstance(), zwaveValue.getValueId());
 	}
+
 	public Value getValue(ValueId valueId) {
 		Node node = this.getNode(valueId.getNodeId());
 		if (node != null) {
 			return node.getValue(valueId);
 		}
-		log.error("Incorrect valueId requested (id: " + valueId + ")");
+		ZWaveController.log.error("Incorrect valueId requested (id: " + valueId + ")");
 		return null;
 	}
-
 
 	public List<String> getValueListItems(ValueId valueId) {
 		List<String> returnStringList = new ArrayList<String>();
@@ -510,50 +539,49 @@ public class ZWaveController {
 	}
 
 	public String getValueUnits(ValueId valueId) {
-		return m_manager.getValueUnits(valueId);
+		return this.m_manager.getValueUnits(valueId);
 	}
 
 	public List<Node> getNodeList() {
 		return this.m_nodeList;
 	}
-/*
-	public List<Node> getExtendedNodeList(boolean includeConfigurationValues) {
-		List<Node> textNodeList = new ArrayList<Node>();
-
-		for (Node node : getNodeList()) {
-			textNodeList.add(getNodeInformation(node, includeConfigurationValues));
-		}
-
-		return textNodeList;
-	}*/
+	/*
+	 * public List<Node> getExtendedNodeList(boolean includeConfigurationValues)
+	 * { List<Node> textNodeList = new ArrayList<Node>();
+	 * 
+	 * for (Node node : getNodeList()) {
+	 * textNodeList.add(getNodeInformation(node, includeConfigurationValues)); }
+	 * 
+	 * return textNodeList; }
+	 */
 
 	public String getValueLabel(ValueId valueId) {
-		return m_manager.getValueLabel(valueId);
+		return this.m_manager.getValueLabel(valueId);
 	}
 
 	public String getValueHelp(ValueId valueId) {
-		return m_manager.getValueHelp(valueId);
+		return this.m_manager.getValueHelp(valueId);
 	}
 
 	public Boolean getValueReadOnly(ValueId valueId) {
-		return m_manager.isValueReadOnly(valueId);
+		return this.m_manager.isValueReadOnly(valueId);
 	}
 
 	public Boolean getValuePolled(ValueId valueId) {
-		return m_manager.isValuePolled(valueId);
+		return this.m_manager.isValuePolled(valueId);
 	}
 
 	public void allOn(long homeId) {
 		this.m_manager.switchAllOn(homeId);
-		zwaveNetController.triggerEvent(GeneralCommands.getNodeIdentifier(), GeneralCommands.ALL_ON.convert());
-		performSoftRefresh(true);
+		this.zwaveNetController.triggerEvent(GeneralCommands.getNodeIdentifier(), GeneralCommands.ALL_ON.convert());
+		this.performSoftRefresh(true);
 	}
 
 	private boolean refreshingNodes = false;
 
 	private void performSoftRefresh(boolean offNodes) {
-		if (!refreshingNodes) {
-			refreshingNodes = true;
+		if (!this.refreshingNodes) {
+			this.refreshingNodes = true;
 			int secondsDelay = 0;
 
 			// Update values for switches and dimmers : keep 6 seconds between
@@ -568,22 +596,22 @@ public class ZWaveController {
 						case SwitchBinary:
 						case SwitchMultilevel:
 							if (valueId.getType() == ValueType.INT) {
-								Integer value = (Integer) getValueOfValue(valueId);
+								Integer value = (Integer) ZWaveController.getValueOfValue(valueId);
 								if (value != 0) {
 									refreshValueNeeded = true;
 								}
 							} else if (valueId.getType() == ValueType.BYTE) {
-								short value = (Short) getValueOfValue(valueId);
+								short value = (Short) ZWaveController.getValueOfValue(valueId);
 								if (value != 0) {
 									refreshValueNeeded = true;
 								}
 							} else if (valueId.getType() == ValueType.BOOL) {
-								Boolean value = (Boolean) getValueOfValue(valueId);
+								Boolean value = (Boolean) ZWaveController.getValueOfValue(valueId);
 								if (value) {
 									refreshValueNeeded = true;
 								}
 							} else if (valueId.getType() == ValueType.DECIMAL) {
-								Float value = (Float) getValueOfValue(valueId);
+								Float value = (Float) ZWaveController.getValueOfValue(valueId);
 								if (value != 0) {
 									refreshValueNeeded = true;
 								}
@@ -598,25 +626,25 @@ public class ZWaveController {
 								Scheduler.getInstance().schedule(new TimerTask() {
 									@Override
 									public void run() {
-										m_manager.refreshValue(valueId);
+										ZWaveController.this.m_manager.refreshValue(valueId);
 									}
 								}, (new Date(new Date().getTime() + secondsDelay * 1000)), 0);
 							} catch (Exception e) {
-								log.error("Error in schedule");
+								ZWaveController.log.error("Error in schedule");
 							}
 							secondsDelay += 6;
 						}
 					}
 				}
 			}
-			refreshingNodes = false;
+			this.refreshingNodes = false;
 		}
 	}
 
 	public void allOff(long homeId) {
 		this.m_manager.switchAllOff(homeId);
-		zwaveNetController.triggerEvent(GeneralCommands.getNodeIdentifier(), GeneralCommands.ALL_OFF.convert());
-		performSoftRefresh(false);
+		this.zwaveNetController.triggerEvent(GeneralCommands.getNodeIdentifier(), GeneralCommands.ALL_OFF.convert());
+		this.performSoftRefresh(false);
 	}
 
 	/* ZWave node & value setters */
@@ -624,7 +652,7 @@ public class ZWaveController {
 		Node node = this.getNode(homeId, nodeId);
 
 		if (node != null) {
-			m_manager.setNodeLevel(node.getHomeId(), node.getId(), (short) value);
+			this.m_manager.setNodeLevel(node.getHomeId(), node.getId(), (short) value);
 		}
 	}
 
@@ -633,17 +661,17 @@ public class ZWaveController {
 		Value value = node.getValue(valueId, instance);
 
 		if (value != null && polled) {
-			return m_manager.enablePoll(value.getOriginalValueId());
+			return this.m_manager.enablePoll(value.getOriginalValueId());
 		} else if (value != null & !polled) {
-			return m_manager.disablePoll(value.getOriginalValueId());
+			return this.m_manager.disablePoll(value.getOriginalValueId());
 		}
 		return false;
 	}
 
 	public Boolean setConfiguration(long homeId, short nodeId, Byte param, int value) {
-		log.info("Set configuration: " + "homeId: " + homeId + ", nodeId:" + nodeId + ", param: " + param + ", Value: " + value);
+		ZWaveController.log.info("Set configuration: " + "homeId: " + homeId + ", nodeId:" + nodeId + ", param: " + param + ", Value: " + value);
 
-		return m_manager.setConfigParam(homeId, nodeId, param, value);
+		return this.m_manager.setConfigParam(homeId, nodeId, param, value);
 	}
 
 	public ValueId setValue(long homeId, short nodeId, short instance, BigInteger valueId, String val) {
@@ -652,7 +680,7 @@ public class ZWaveController {
 			final Value valueObj = node.getValue(valueId, instance);
 			ValueId valueIdObj = valueObj.getOriginalValueId();
 
-			log.info("Set value: " + "homeId: " + homeId + ", nodeId:" + nodeId + ", instance: " + instance + ", valueid:" + valueId + ", Value: " + val);
+			ZWaveController.log.info("Set value: " + "homeId: " + homeId + ", nodeId:" + nodeId + ", instance: " + instance + ", valueid:" + valueId + ", Value: " + val);
 
 			switch (valueIdObj.getType()) {
 			case BOOL:
@@ -662,16 +690,16 @@ public class ZWaveController {
 				} else {
 					boolValue = false;
 				}
-				m_manager.setValueAsBool(valueIdObj, boolValue);
+				this.m_manager.setValueAsBool(valueIdObj, boolValue);
 				break;
 			case STRING:
-				m_manager.setValueAsString(valueIdObj, val);
+				this.m_manager.setValueAsString(valueIdObj, val);
 				break;
 			case LIST:
-				boolean result = m_manager.setValueListSelection(valueIdObj, val);
+				boolean result = this.m_manager.setValueListSelection(valueIdObj, val);
 				break;
 			default:
-				m_manager.setValueAsString(valueIdObj, val);
+				this.m_manager.setValueAsString(valueIdObj, val);
 				break;
 			}
 			return valueIdObj;
@@ -681,31 +709,31 @@ public class ZWaveController {
 
 	/* Associations */
 	public void addAssociation(long homeId, short nodeId, int groupID, int targetnodeId) {
-		m_manager.addAssociation(homeId, (byte) nodeId, (byte) groupID, (byte) targetnodeId);
+		this.m_manager.addAssociation(homeId, (byte) nodeId, (byte) groupID, (byte) targetnodeId);
 	}
 
 	public void removeAssociation(long homeId, short nodeId, int groupID, int targetnodeId) {
-		m_manager.removeAssociation(homeId, (byte) nodeId, (byte) groupID, (byte) targetnodeId);
+		this.m_manager.removeAssociation(homeId, (byte) nodeId, (byte) groupID, (byte) targetnodeId);
 	}
 
 	public int getMaxAssociations(long homeId, int nodeId, int groupID) {
-		return m_manager.getMaxAssociations(homeId, (byte) nodeId, (byte) groupID);
+		return this.m_manager.getMaxAssociations(homeId, (byte) nodeId, (byte) groupID);
 	}
 
 	/* ZWave Network commands */
 	public void healNetwork() {
-		log.info("Healing network");
-		m_manager.healNetwork(m_homeId, true);
+		ZWaveController.log.info("Healing network");
+		this.m_manager.healNetwork(this.m_homeId, true);
 	}
 
 	public void healNetworkNode(long homeId, short nodeId) {
-		log.info("Healing network node " + nodeId + " in home " + homeId);
-		m_manager.healNetworkNode(m_homeId, nodeId, true);
+		ZWaveController.log.info("Healing network node " + nodeId + " in home " + homeId);
+		this.m_manager.healNetworkNode(this.m_homeId, nodeId, true);
 	}
 
 	public void resetNetwork() {
-		log.info("Resetting network controller in home " + m_homeId);
-		m_manager.resetController(m_homeId);
+		ZWaveController.log.info("Resetting network controller in home " + this.m_homeId);
+		this.m_manager.resetController(this.m_homeId);
 	}
 
 	public long getDefaultHomeId() {
@@ -713,56 +741,58 @@ public class ZWaveController {
 	}
 
 	public ControllerTransaction getTransactionStatus(Integer transactionId) {
-		return controllerTransactions.get(transactionId);
+		return this.controllerTransactions.get(transactionId);
 	}
+
 	public boolean cancelTransaction(Integer transactionId) {
-		ControllerTransaction transaction = controllerTransactions.get(transactionId);
-		if(transaction != null) {
+		ControllerTransaction transaction = this.controllerTransactions.get(transactionId);
+		if (transaction != null) {
 			return this.m_manager.cancelControllerCommand(transaction.getHomeId());
 		}
 		return false;
 	}
+
 	public ControllerTransaction addNode() {
 		ControllerTransaction transaction = new ControllerTransaction(ControllerCommand.ADD_DEVICE, this.m_homeId);
-		controllerTransactions.put(transaction.getId(), transaction);
-		log.info("Start inclusion in network");
-		m_manager.beginControllerCommand(this.m_homeId, ControllerCommand.ADD_DEVICE, new ControllerCallback() {
+		this.controllerTransactions.put(transaction.getId(), transaction);
+		ZWaveController.log.info("Start inclusion in network");
+		this.m_manager.beginControllerCommand(this.m_homeId, ControllerCommand.ADD_DEVICE, new ControllerCallback() {
 			@Override
 			public void onCallback(ControllerState controllerState, ControllerError controllerError, Object arg2) {
 				transaction.setState(controllerState);
 				transaction.setError(controllerError);
-				log.info("State: " + controllerState.name() + ", Error: " + controllerError.name());
+				ZWaveController.log.info("State: " + controllerState.name() + ", Error: " + controllerError.name());
 			}
 		});
-		
+
 		return transaction;
 	}
 
 	public ControllerTransaction removeNode(long homeId, short nodeId) {
 		ControllerTransaction transaction = new ControllerTransaction(ControllerCommand.REMOVE_FAILED_NODE, homeId);
-		controllerTransactions.put(transaction.getId(), transaction);
-		log.info("Removing failed node " + nodeId + " in home " + homeId);
+		this.controllerTransactions.put(transaction.getId(), transaction);
+		ZWaveController.log.info("Removing failed node " + nodeId + " in home " + homeId);
 		this.m_manager.beginControllerCommand(homeId, ControllerCommand.REMOVE_FAILED_NODE, new ControllerCallback() {
 			@Override
 			public void onCallback(ControllerState controllerState, ControllerError controllerError, Object arg2) {
 				transaction.setState(controllerState);
 				transaction.setError(controllerError);
-				log.info("State: " + controllerState.name() + ", Error: " + controllerError.name());
+				ZWaveController.log.info("State: " + controllerState.name() + ", Error: " + controllerError.name());
 			}
 		}, null, false, nodeId);
 		return transaction;
 	}
 
 	public ControllerTransaction removeNode() {
-		log.info("Start deletion of node in network in home " + this.m_homeId);
+		ZWaveController.log.info("Start deletion of node in network in home " + this.m_homeId);
 		ControllerTransaction transaction = new ControllerTransaction(ControllerCommand.REMOVE_DEVICE, this.m_homeId);
-		controllerTransactions.put(transaction.getId(), transaction);
-		m_manager.beginControllerCommand(this.m_homeId, ControllerCommand.REMOVE_DEVICE, new ControllerCallback() {
+		this.controllerTransactions.put(transaction.getId(), transaction);
+		this.m_manager.beginControllerCommand(this.m_homeId, ControllerCommand.REMOVE_DEVICE, new ControllerCallback() {
 			@Override
 			public void onCallback(ControllerState controllerState, ControllerError controllerError, Object arg2) {
 				transaction.setState(controllerState);
 				transaction.setError(controllerError);
-				log.info("State: " + controllerState.name() + ", Error: " + controllerError.name());
+				ZWaveController.log.info("State: " + controllerState.name() + ", Error: " + controllerError.name());
 			}
 		});
 		return transaction;
@@ -774,7 +804,7 @@ public class ZWaveController {
 		return neighbours.get();
 	}
 
-	/* Network helpers */ 
+	/* Network helpers */
 	public List<Commands.ZWaveCommand> getCommandList(Commands requester) {
 		List<Commands.ZWaveCommand> commandList = new ArrayList<Commands.ZWaveCommand>();
 		commandList.add(requester.new ZWaveCommand("All off", "allOff"));
@@ -789,10 +819,10 @@ public class ZWaveController {
 		this.m_manager.getAllScenes(allScenesRef);
 		short[] allScenes = allScenesRef.get();
 		List<ZWaveScene> allSceneList = new ArrayList<ZWaveScene>();
-		for (int i = 0; i < allScenes.length; i++) {
+		for (short allScene : allScenes) {
 			ZWaveScene s;
 			try {
-				s = new ZWaveScene(allScenes[i], true);
+				s = new ZWaveScene(allScene, true);
 				allSceneList.add(s);
 			} catch (Exception e) {
 			}
@@ -812,7 +842,7 @@ public class ZWaveController {
 		short sceneId = this.m_manager.createScene();
 		this.writeConfig(); // Only write the scene config
 		try {
-			return getScene(sceneId);
+			return this.getScene(sceneId);
 		} catch (Exception e) {
 			return null;
 		}
@@ -855,14 +885,14 @@ public class ZWaveController {
 			case INT:
 			case SHORT:
 			case STRING:
-				this.setValue(v.getValueId().getHomeId(), v.getValueId().getNodeId(), v.getValueId().getInstance(), getValueId(v.getValueId()), "0");
+				this.setValue(v.getValueId().getHomeId(), v.getValueId().getNodeId(), v.getValueId().getInstance(), this.getValueId(v.getValueId()), "0");
 				break;
 			default:
 				// Do nothing
 				break;
 			}
 		}
-		log.info("Scene '" + sceneDetails.getLabel() + "' was active so has been deactivated");
+		ZWaveController.log.info("Scene '" + sceneDetails.getLabel() + "' was active so has been deactivated");
 		return "Scene " + sceneDetails.getLabel() + " was active so has been deactivated";
 	}
 
@@ -873,14 +903,14 @@ public class ZWaveController {
 			ZWaveScene sceneDetails;
 			try {
 				sceneDetails = this.getScene(scene);
-				boolean needReverse = isSceneActive(sceneDetails);
+				boolean needReverse = this.isSceneActive(sceneDetails);
 				if (!needReverse) {
 					boolean resultBool = this.m_manager.activateScene(scene);
 					if (resultBool) {
-						log.info("Scene '" + sceneDetails.getLabel() + "' activated");
+						ZWaveController.log.info("Scene '" + sceneDetails.getLabel() + "' activated");
 						result = "Scene " + sceneDetails.getLabel() + " activated";
 					} else {
-						log.error("Failed to start scene '" + sceneDetails.getLabel() + "' ");
+						ZWaveController.log.error("Failed to start scene '" + sceneDetails.getLabel() + "' ");
 						result = "Failed to start scene " + sceneDetails.getLabel();
 					}
 				} else {
@@ -888,10 +918,10 @@ public class ZWaveController {
 					return this.activateReversedScene(sceneDetails);
 				}
 			} catch (Exception e) {
-				log.error(e.getMessage());
+				ZWaveController.log.error(e.getMessage());
 			}
 		} else {
-			log.error("Failed to start scene - Scene id " + scene + " does not exist!");
+			ZWaveController.log.error("Failed to start scene - Scene id " + scene + " does not exist!");
 		}
 
 		return result;
@@ -953,7 +983,7 @@ public class ZWaveController {
 		 * @return the iconUrl
 		 */
 		public String getIconUrl() {
-			return iconUrl;
+			return this.iconUrl;
 		}
 
 		/**
@@ -962,15 +992,15 @@ public class ZWaveController {
 		 */
 		public void setIconUrl(String iconUrl) {
 			this.iconUrl = iconUrl;
-			updateLabelAndIcon();
+			this.updateLabelAndIcon();
 		}
 
 		public ZWaveScene(short sceneId, boolean readValues) throws Exception {
-			if (m_manager.sceneExists(sceneId) != true) {
+			if (ZWaveController.this.m_manager.sceneExists(sceneId) != true) {
 				throw new Exception("Scene " + sceneId + " does not exist.");
 			}
 			this.id = sceneId;
-			String[] labelSplitted = m_manager.getSceneLabel(sceneId).split("##");
+			String[] labelSplitted = ZWaveController.this.m_manager.getSceneLabel(sceneId).split("##");
 			if (labelSplitted.length == 1) {
 				this.label = labelSplitted[0];
 				this.iconUrl = "";
@@ -980,7 +1010,7 @@ public class ZWaveController {
 			}
 			this.values = new ArrayList<ZWaveSceneValue>();
 			if (readValues) {
-				readValues();
+				this.readValues();
 			}
 		}
 
@@ -988,18 +1018,18 @@ public class ZWaveController {
 			if (this.values != null) {
 				this.values.clear();
 			}
-			for (ValueId valueIdInScene : getSceneValues(id)) {
-				ZWaveSceneValue sceneValue = new ZWaveSceneValue(id, valueIdInScene);
+			for (ValueId valueIdInScene : ZWaveController.this.getSceneValues(this.id)) {
+				ZWaveSceneValue sceneValue = new ZWaveSceneValue(this.id, valueIdInScene);
 				if (sceneValue != null) {
 					this.values.add(sceneValue);
 				}
 			}
-			valuesRead = true;
+			this.valuesRead = true;
 		}
 
 		public boolean hasSceneValue(ValueId valueId) {
-			if (!valuesRead) {
-				readValues();
+			if (!this.valuesRead) {
+				this.readValues();
 			}
 
 			for (ZWaveSceneValue sceneValue : this.values) {
@@ -1013,15 +1043,16 @@ public class ZWaveController {
 
 		public boolean removeSceneValue(ValueId valueId) {
 			boolean result = false;
-			if (hasSceneValue(valueId)) {
-				result = m_manager.removeSceneValue(this.id, valueId);
+			if (this.hasSceneValue(valueId)) {
+				result = ZWaveController.this.m_manager.removeSceneValue(this.id, valueId);
 				if (result) {
 					for (ZWaveSceneValue value : this.values) {
 						if (value.getValueId().equals(valueId)) {
 							this.values.remove(value);
 						}
 					}
-					writeConfig(); // Only write the scene config
+					ZWaveController.this.writeConfig(); // Only write the scene
+														// config
 				}
 			}
 			return result;
@@ -1032,31 +1063,32 @@ public class ZWaveController {
 			switch (valueId.getType()) {
 			case BOOL:
 			case BUTTON:
-				result = m_manager.addSceneValueAsBool(scene, valueId, Boolean.parseBoolean(value));
+				result = ZWaveController.this.m_manager.addSceneValueAsBool(scene, valueId, Boolean.parseBoolean(value));
 				break;
 			case BYTE:
-				result = m_manager.addSceneValueAsByte(scene, valueId, Byte.parseByte(value));
+				result = ZWaveController.this.m_manager.addSceneValueAsByte(scene, valueId, Byte.parseByte(value));
 				break;
 			case SHORT:
-				result = m_manager.addSceneValueAsShort(scene, valueId, Short.parseShort(value));
+				result = ZWaveController.this.m_manager.addSceneValueAsShort(scene, valueId, Short.parseShort(value));
 				break;
 			case INT:
-				result = m_manager.addSceneValueAsInt(scene, valueId, Integer.parseInt(value));
+				result = ZWaveController.this.m_manager.addSceneValueAsInt(scene, valueId, Integer.parseInt(value));
 				break;
 			case DECIMAL:
-				result = m_manager.addSceneValueAsFloat(scene, valueId, Float.parseFloat(value));
+				result = ZWaveController.this.m_manager.addSceneValueAsFloat(scene, valueId, Float.parseFloat(value));
 				break;
 			case SCHEDULE:
 			case RAW:
 			case LIST:
 			case STRING:
-				result = m_manager.addSceneValueAsString(scene, valueId, value);
+				result = ZWaveController.this.m_manager.addSceneValueAsString(scene, valueId, value);
 				break;
 			}
 
 			if (result) {
-				writeConfig(); // Only write the scene config
-				log.info("Value added to scene " + scene);
+				ZWaveController.this.writeConfig(); // Only write the scene
+													// config
+				ZWaveController.log.info("Value added to scene " + scene);
 			}
 
 			return result;
@@ -1068,33 +1100,34 @@ public class ZWaveController {
 			switch (valueId.getType()) {
 			case BOOL:
 			case BUTTON:
-				result = m_manager.setSceneValueAsBool(scene, valueId, Boolean.parseBoolean(value));
+				result = ZWaveController.this.m_manager.setSceneValueAsBool(scene, valueId, Boolean.parseBoolean(value));
 				break;
 			case BYTE:
-				result = m_manager.setSceneValueAsInt(scene, valueId, Integer.parseInt(value));
+				result = ZWaveController.this.m_manager.setSceneValueAsInt(scene, valueId, Integer.parseInt(value));
 				// result = m_manager.setSceneValueAsByte(scene, valueId,
 				// Byte.parseByte(value));
 				break;
 			case SHORT:
-				result = m_manager.setSceneValueAsShort(scene, valueId, Short.parseShort(value));
+				result = ZWaveController.this.m_manager.setSceneValueAsShort(scene, valueId, Short.parseShort(value));
 				break;
 			case INT:
-				result = m_manager.setSceneValueAsInt(scene, valueId, Integer.parseInt(value));
+				result = ZWaveController.this.m_manager.setSceneValueAsInt(scene, valueId, Integer.parseInt(value));
 				break;
 			case DECIMAL:
-				result = m_manager.setSceneValueAsFloat(scene, valueId, Float.parseFloat(value));
+				result = ZWaveController.this.m_manager.setSceneValueAsFloat(scene, valueId, Float.parseFloat(value));
 				break;
 			case SCHEDULE:
 			case RAW:
 			case LIST:
 			case STRING:
-				result = m_manager.setSceneValueAsString(scene, valueId, value);
+				result = ZWaveController.this.m_manager.setSceneValueAsString(scene, valueId, value);
 				break;
 			}
 
 			if (result) {
-				writeConfig(); // Only write the scene config
-				log.info("Value changed in scene " + scene);
+				ZWaveController.this.writeConfig(); // Only write the scene
+													// config
+				ZWaveController.log.info("Value changed in scene " + scene);
 			}
 
 			return result;
@@ -1104,7 +1137,7 @@ public class ZWaveController {
 		 * @return the id
 		 */
 		public short getId() {
-			return id;
+			return this.id;
 		}
 
 		/**
@@ -1119,7 +1152,7 @@ public class ZWaveController {
 		 * @return the label
 		 */
 		public String getLabel() {
-			return label;
+			return this.label;
 		}
 
 		/**
@@ -1129,18 +1162,18 @@ public class ZWaveController {
 		 */
 		public void setLabel(String label) {
 			this.label = label;
-			updateLabelAndIcon();
+			this.updateLabelAndIcon();
 		}
 
 		private void updateLabelAndIcon() {
-			m_manager.setSceneLabel(this.id, label + "##" + iconUrl);
+			ZWaveController.this.m_manager.setSceneLabel(this.id, this.label + "##" + this.iconUrl);
 		}
 
 		/**
 		 * @return the values
 		 */
 		public List<ZWaveSceneValue> getValues() {
-			return values;
+			return this.values;
 		}
 
 	}
@@ -1153,14 +1186,14 @@ public class ZWaveController {
 		public ZWaveSceneValue(short sceneId, ValueId valueId) {
 			this.sceneId = sceneId;
 			this.valueId = valueId;
-			this.value = getSceneValue(sceneId, valueId);
+			this.value = ZWaveController.this.getSceneValue(sceneId, valueId);
 		}
 
 		/**
 		 * @return the sceneId
 		 */
 		public short getSceneId() {
-			return sceneId;
+			return this.sceneId;
 		}
 
 		/**
@@ -1175,14 +1208,14 @@ public class ZWaveController {
 		 * @return the valueId
 		 */
 		public ValueId getValueId() {
-			return valueId;
+			return this.valueId;
 		}
 
 		/**
 		 * @return the value
 		 */
 		public String getValue() {
-			return value;
+			return this.value;
 		}
 
 		/**
@@ -1194,47 +1227,38 @@ public class ZWaveController {
 		}
 	}
 
-/*	public Node getNodeInformation(Node node, boolean includeConfigurationValues) {
-		/*Node textNode;
-		try {
-			textNode = new Node();
+	/*
+	 * public Node getNodeInformation(Node node, boolean
+	 * includeConfigurationValues) { /*Node textNode; try { textNode = new
+	 * Node();
+	 * 
+	 * 
+	 * textNode.setId(node.getId()); textNode.setHomeId(node.getHomeId());
+	 * textNode.setName(node.getName()); textNode.setLocation(; = node.location;
+	 * textNode.label = node.label; textNode.manufacturer = node.manufacturer;
+	 * textNode.manufacturerId = node.manufacturerId; textNode.product =
+	 * node.product; textNode.productType = node.productType; textNode.productId
+	 * = node.productId;
+	 * textNode.setAlive(!this.m_manager.isNodeFailed(node.getHomeId(),
+	 * node.getId())); textNode.setNeighbours(getNeighbours(node.getHomeId(),
+	 * node.getId()));
+	 * 
+	 * // Convert values for (Value value : node.getValues()) { if
+	 * (!includeConfigurationValues && value.getOriginalValueId().getGenre() !=
+	 * ValueGenre.CONFIG) { textNode.removeValue(value); } }
+	 * 
+	 * for (org.zwave4j.ValueId valueId : node.getEvents()) {
+	 * textNode.events.add(getEventInformation(valueId)); }
+	 */
 
+	// Get associations and add info
+	// textNode.maxAssociations = getMaxAssociations((int)node.homeId,
+	// (int)node.id, 1);
 
-		textNode.setId(node.getId());
-		textNode.setHomeId(node.getHomeId());
-		textNode.setName(node.getName());
-		textNode.setLocation(; = node.location;
-		textNode.label = node.label;
-		textNode.manufacturer = node.manufacturer;
-		textNode.manufacturerId = node.manufacturerId;
-		textNode.product = node.product;
-		textNode.productType = node.productType;
-		textNode.productId = node.productId;
-		textNode.setAlive(!this.m_manager.isNodeFailed(node.getHomeId(), node.getId()));
-		textNode.setNeighbours(getNeighbours(node.getHomeId(), node.getId()));
-
-		// Convert values
- 		for (Value value : node.getValues()) {
-			if (!includeConfigurationValues && value.getOriginalValueId().getGenre() != ValueGenre.CONFIG) {
-				textNode.removeValue(value);
-			}
-		}
-
-		for (org.zwave4j.ValueId valueId : node.getEvents()) {
-			textNode.events.add(getEventInformation(valueId));
-		}*/
-
-		// Get associations and add info
-		// textNode.maxAssociations = getMaxAssociations((int)node.homeId,
-		// (int)node.id, 1);
-		
-/*
-		return textNode;		
-		} catch (CloneNotSupportedException e) {
-			log.error(e);
-		}
-		return null;
-	}*/
+	/*
+	 * return textNode; } catch (CloneNotSupportedException e) { log.error(e); }
+	 * return null; }
+	 */
 
 	public BigInteger getValueId(ValueId valueId) {
 		BigInteger integer = BigInteger.valueOf((valueId.getNodeId() << 24) | (valueId.getGenre().ordinal() << 22) | (valueId.getCommandClassId() << 14) | (valueId.getIndex() << 4) | (valueId.getType().ordinal()));
@@ -1244,10 +1268,10 @@ public class ZWaveController {
 	public List<AssociationGroup> getAssociationGroups(long homeId, short nodeId) {
 
 		List<AssociationGroup> associationGroupsList = new ArrayList<AssociationGroup>();
-		short numberOfGroups = m_manager.getNumGroups(homeId, nodeId);
+		short numberOfGroups = this.m_manager.getNumGroups(homeId, nodeId);
 		for (short associationGroup = 1; associationGroup <= numberOfGroups; associationGroup++) {
-			String groupLabel = m_manager.getGroupLabel(homeId, nodeId, associationGroup);
-			int maxAssociations = m_manager.getMaxAssociations(homeId, nodeId, associationGroup);
+			String groupLabel = this.m_manager.getGroupLabel(homeId, nodeId, associationGroup);
+			int maxAssociations = this.m_manager.getMaxAssociations(homeId, nodeId, associationGroup);
 			associationGroupsList.add(new AssociationGroup(associationGroup, maxAssociations, groupLabel));
 		}
 		return associationGroupsList;
@@ -1256,7 +1280,7 @@ public class ZWaveController {
 	public List<Association> getAssociations(long homeId, short nodeId) {
 		List<Association> associationsList = new ArrayList<Association>();
 		// short[] associations = getAssociations(homeId,nodeId, 1);
-		short numberOfGroups = m_manager.getNumGroups(homeId, nodeId);
+		short numberOfGroups = this.m_manager.getNumGroups(homeId, nodeId);
 		// log.debug("Number of groups: "+numberOfGroups);
 
 		AtomicReference<short[]> associations = new AtomicReference<short[]>();
@@ -1264,7 +1288,7 @@ public class ZWaveController {
 		for (short i = 1; i <= numberOfGroups; i++) {
 
 			// log.debug("Get group: "+i);
-			m_manager.getAssociations(homeId, nodeId, i, associations);
+			this.m_manager.getAssociations(homeId, nodeId, i, associations);
 			short[] associationsArray = associations.get();
 			// log.debug("Group retrieved");
 			if (associationsArray != null && associationsArray.length != 0) {
@@ -1279,75 +1303,75 @@ public class ZWaveController {
 		return associationsList;
 	}
 
-	/*public Value getValueInformation(ValueId valueId) {
-		Value value = new Value(valueId);
-		value.setValue(String.valueOf(ZWaveController.getValue(valueId)));
-		value.setValueUnit(getValueUnits(valueId));
-		value.setValueId(getValueId(valueId));
-		value.setHelp(getValueHelp(valueId));
-		value.setCommandClass((byte) valueId.getCommandClassId());
-		value.setValueGenre(valueId.getGenre());
-		value.setValueGenreTxt(valueId.getGenre().toString());
-		value.setValueType(valueId.getType());
-		value.setValueTypeTxt(valueId.getType().toString());
-		value.setHomeId(valueId.getHomeId());
-		value.setValueIndex((byte) valueId.getIndex());
-		value.setValueLabel(getValueLabel(valueId));
-		value.setPolled(getValuePolled(valueId));
-		value.setReadOnly(getValueReadOnly(valueId));
-		value.setInstance(valueId.getInstance());
-		value.setMaxValue(this.m_manager.getValueMax(valueId));
-		value.setNodeId(valueId.getNodeId());
-		value.setHomeId(valueId.getHomeId());
-
-		// If the valuetype is LIST, also add the possible options:
-		if (valueId.getType() == ValueType.LIST) {
-			value.setValueList(getValueListItems(valueId));
-			value.setValueListSelection(getValueListSelection(valueId));
-		} else {
-			value.setValueList(null);
-		}
-
-		// Read details from DB and overwrite // complete settings
-		DatabaseConnector.ValueSettings valueSettings = dbConnector.getZWaveValueSettings(value.getHomeId(), valueId.getNodeId(), value.getValueId(), value.getInstance());
-		value.setSubscribed(valueSettings.subscribed);
-
-		String alias = dbConnector.getAlias(this.zwaveNetController.getIdentifier(), ZWaveController.getNodeIdentifier(valueId.getNodeId(), valueId.getHomeId()), value.getControlId());
-		if (alias != null) {
-			value.setValueLabel(alias);
-		}
-		value.setSubscribed(valueSettings.subscribed);
-
-		return value;
-	}*/
+	/*
+	 * public Value getValueInformation(ValueId valueId) { Value value = new
+	 * Value(valueId);
+	 * value.setValue(String.valueOf(ZWaveController.getValue(valueId)));
+	 * value.setValueUnit(getValueUnits(valueId));
+	 * value.setValueId(getValueId(valueId));
+	 * value.setHelp(getValueHelp(valueId)); value.setCommandClass((byte)
+	 * valueId.getCommandClassId()); value.setValueGenre(valueId.getGenre());
+	 * value.setValueGenreTxt(valueId.getGenre().toString());
+	 * value.setValueType(valueId.getType());
+	 * value.setValueTypeTxt(valueId.getType().toString());
+	 * value.setHomeId(valueId.getHomeId()); value.setValueIndex((byte)
+	 * valueId.getIndex()); value.setValueLabel(getValueLabel(valueId));
+	 * value.setPolled(getValuePolled(valueId));
+	 * value.setReadOnly(getValueReadOnly(valueId));
+	 * value.setInstance(valueId.getInstance());
+	 * value.setMaxValue(this.m_manager.getValueMax(valueId));
+	 * value.setNodeId(valueId.getNodeId());
+	 * value.setHomeId(valueId.getHomeId());
+	 * 
+	 * // If the valuetype is LIST, also add the possible options: if
+	 * (valueId.getType() == ValueType.LIST) {
+	 * value.setValueList(getValueListItems(valueId));
+	 * value.setValueListSelection(getValueListSelection(valueId)); } else {
+	 * value.setValueList(null); }
+	 * 
+	 * // Read details from DB and overwrite // complete settings
+	 * DatabaseConnector.ValueSettings valueSettings =
+	 * dbConnector.getZWaveValueSettings(value.getHomeId(), valueId.getNodeId(),
+	 * value.getValueId(), value.getInstance());
+	 * value.setSubscribed(valueSettings.subscribed);
+	 * 
+	 * String alias =
+	 * dbConnector.getAlias(this.zwaveNetController.getIdentifier(),
+	 * ZWaveController.getNodeIdentifier(valueId.getNodeId(),
+	 * valueId.getHomeId()), value.getControlId()); if (alias != null) {
+	 * value.setValueLabel(alias); }
+	 * value.setSubscribed(valueSettings.subscribed);
+	 * 
+	 * return value; }
+	 */
 
 	public static String getNodeIdentifier(short id, long homeId) {
 		return "ZN_N" + id + "_H" + homeId;
 	}
-	
+
 	public Node getNodeFromIdentifier(String nodeIdentifier) {
 		String[] splittedNodeIdentifier = nodeIdentifier.split("_");
-		if(splittedNodeIdentifier.length==3) {
-			return getNode((Short.valueOf(splittedNodeIdentifier[1].substring(1))));
+		if (splittedNodeIdentifier.length == 3) {
+			return this.getNode((Short.valueOf(splittedNodeIdentifier[1].substring(1))));
 		}
 		return null;
 	}
 
 	public Event getEventInformation(ValueId valueId) {
 		Event event = new Event(valueId);
-		event.setValueId(getValueId(valueId).toString());
-		event.setValueLabel(getValueLabel(valueId));
+		event.setValueId(this.getValueId(valueId).toString());
+		event.setValueLabel(this.getValueLabel(valueId));
 		event.setInstance(valueId.getInstance());
 		event.setHomeId(valueId.getHomeId());
 		return event;
 	}
 
 	public void destroy() {
-		if (m_manager != null) {
+		if (this.m_manager != null) {
 			Manager.destroy();
 		}
 		this.m_allNodesQueried = false;
-		if (m_nodeList != null) {
+		if (this.m_nodeList != null) {
 			this.m_nodeList.clear();
 		}
 		this.m_homeId = 0;

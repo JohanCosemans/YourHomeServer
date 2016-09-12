@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.base.rules.triggers;
 
 import org.json.JSONException;
@@ -43,10 +69,10 @@ public class ValueTrigger extends Trigger {
 			return startingTrigger == this;
 		case IS:
 			// Evaluate the current value of this trigger
-			return evaluate();
+			return this.evaluate();
 		}
 
-		return evaluate();
+		return this.evaluate();
 	}
 
 	private boolean evaluate() {
@@ -54,31 +80,37 @@ public class ValueTrigger extends Trigger {
 		// Go get the actual value from the controller
 		IController myController = Server.getInstance().getControllers().get(this.getIdentifiers().getControllerIdentifier().convert());
 		if (myController != null && myController.isInitialized()) {
-			String actualValue = myController.getValue(getIdentifiers());
+			String actualValue = myController.getValue(this.getIdentifiers());
 			if (this.operand.equals("EQ")) {
-				if (this.targetValue.equals(actualValue))
+				if (this.targetValue.equals(actualValue)) {
 					trigger = true;
+				}
 			} else if (this.operand.equals("LE")) {
-				if (Float.parseFloat(actualValue) <= Float.parseFloat(this.targetValue))
+				if (Float.parseFloat(actualValue) <= Float.parseFloat(this.targetValue)) {
 					trigger = true;
+				}
 			} else if (this.operand.equals("L")) {
-				if (Float.parseFloat(actualValue) < Float.parseFloat(this.targetValue))
+				if (Float.parseFloat(actualValue) < Float.parseFloat(this.targetValue)) {
 					trigger = true;
+				}
 			} else if (this.operand.equals("GE")) {
-				if (Float.parseFloat(actualValue) >= Float.parseFloat(this.targetValue))
+				if (Float.parseFloat(actualValue) >= Float.parseFloat(this.targetValue)) {
 					trigger = true;
+				}
 			} else if (this.operand.equals("G")) {
-				if (Float.parseFloat(actualValue) > Float.parseFloat(this.targetValue))
+				if (Float.parseFloat(actualValue) > Float.parseFloat(this.targetValue)) {
 					trigger = true;
+				}
 			}
 		}
 		return trigger;
 	}
 
+	@Override
 	public void trigger() {
 		switch (this.isOrBecomes) {
 		case BECOMES:
-			if (evaluate()) {
+			if (this.evaluate()) {
 				this.parentRule.evaluate(this);
 			}
 			break;

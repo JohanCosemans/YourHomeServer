@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2016 Coteq, Johan Cosemans
+ * All rights reserved.
+ *
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.yourhome.server.radio;
 
 /**
@@ -41,8 +67,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
 
-import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
-
 /**
  * BasicPlayer implements basics features of a player. The playback is done with
  * a thread. BasicPlayer is the result of jlGui 0.5 from JavaZOOM and
@@ -76,7 +100,7 @@ public class BasicPlayer implements Runnable {
 	public static final int PLAYING = 0;
 	public static final int STOPPED = 2;
 	public static final int READY = 3;
-	private int m_status = READY;
+	private int m_status = BasicPlayer.READY;
 	private long doSeek = -1;
 	private File _file = null;
 
@@ -86,12 +110,12 @@ public class BasicPlayer implements Runnable {
 	 * Constructs a Basic Player.
 	 */
 	public BasicPlayer() {
-		m_dataSource = null;
-		m_audioInputStream = null;
-		m_audioFileFormat = null;
-		m_line = null;
-		m_gainControl = null;
-		m_panControl = null;
+		this.m_dataSource = null;
+		this.m_audioInputStream = null;
+		this.m_audioFileFormat = null;
+		this.m_line = null;
+		this.m_gainControl = null;
+		this.m_panControl = null;
 	}
 
 	/**
@@ -108,14 +132,14 @@ public class BasicPlayer implements Runnable {
 	 */
 	public BasicPlayer(BasicPlayerManager bpm) {
 		this();
-		basicPlayerManager = bpm;
+		this.basicPlayerManager = bpm;
 	}
 
 	/**
 	 * Returns BasicPlayer status.
 	 */
 	public int getStatus() {
-		return m_status;
+		return this.m_status;
 	}
 
 	/**
@@ -123,8 +147,8 @@ public class BasicPlayer implements Runnable {
 	 */
 	public void setDataSource(File file) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
 		if (file != null) {
-			m_dataSource = file;
-			initAudioInputStream();
+			this.m_dataSource = file;
+			this.initAudioInputStream();
 		}
 	}
 
@@ -133,8 +157,8 @@ public class BasicPlayer implements Runnable {
 	 */
 	public void setDataSource(URL url) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
 		if (url != null) {
-			m_dataSource = url;
-			initAudioInputStream();
+			this.m_dataSource = url;
+			this.initAudioInputStream();
 		}
 	}
 
@@ -157,10 +181,10 @@ public class BasicPlayer implements Runnable {
 	 * - AudioFileFormat
 	 */
 	private void initAudioInputStream() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
-		if (m_dataSource instanceof URL) {
-			initAudioInputStream((URL) m_dataSource);
-		} else if (m_dataSource instanceof File) {
-			initAudioInputStream((File) m_dataSource);
+		if (this.m_dataSource instanceof URL) {
+			this.initAudioInputStream((URL) this.m_dataSource);
+		} else if (this.m_dataSource instanceof File) {
+			this.initAudioInputStream((File) this.m_dataSource);
 		}
 		// else if (m_dataSource instanceof InputStream)
 		// {
@@ -172,9 +196,9 @@ public class BasicPlayer implements Runnable {
 	 * Inits Audio ressources from file.
 	 */
 	private void initAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
-		_file = file;
-		m_audioInputStream = AudioSystem.getAudioInputStream(file);
-		m_audioFileFormat = AudioSystem.getAudioFileFormat(file);
+		this._file = file;
+		this.m_audioInputStream = AudioSystem.getAudioInputStream(file);
+		this.m_audioFileFormat = AudioSystem.getAudioFileFormat(file);
 	}
 
 	/**
@@ -183,8 +207,8 @@ public class BasicPlayer implements Runnable {
 	private void initAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
 		// m_audioInputStream =
 		// AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED,AudioSystem.getAudioInputStream(url));
-		m_audioInputStream = AudioSystem.getAudioInputStream(url);
-		m_audioFileFormat = AudioSystem.getAudioFileFormat(url);
+		this.m_audioInputStream = AudioSystem.getAudioInputStream(url);
+		this.m_audioFileFormat = AudioSystem.getAudioFileFormat(url);
 	}
 
 	/**
@@ -202,16 +226,16 @@ public class BasicPlayer implements Runnable {
 	 * DateSource must be present.
 	 */
 	protected void initLine() throws LineUnavailableException {
-		if (m_line == null) {
-			createLine();
-			trace(1, getClass().getName(), "Create Line OK ");
-			openLine();
+		if (this.m_line == null) {
+			this.createLine();
+			this.trace(1, this.getClass().getName(), "Create Line OK ");
+			this.openLine();
 		} else {
-			AudioFormat lineAudioFormat = m_line.getFormat();
-			AudioFormat audioInputStreamFormat = m_audioInputStream == null ? null : m_audioInputStream.getFormat();
+			AudioFormat lineAudioFormat = this.m_line.getFormat();
+			AudioFormat audioInputStreamFormat = this.m_audioInputStream == null ? null : this.m_audioInputStream.getFormat();
 			if (!lineAudioFormat.equals(audioInputStreamFormat)) {
-				m_line.close();
-				openLine();
+				this.m_line.close();
+				this.openLine();
 			}
 		}
 	}
@@ -231,33 +255,33 @@ public class BasicPlayer implements Runnable {
 	 * size. JavaSound will use some default value for the buffer size.
 	 */
 	private void createLine() throws LineUnavailableException {
-		if (m_line == null) {
-			AudioFormat sourceFormat = m_audioInputStream.getFormat();
-			trace(1, getClass().getName(), "Source format : ", sourceFormat.toString());
+		if (this.m_line == null) {
+			AudioFormat sourceFormat = this.m_audioInputStream.getFormat();
+			this.trace(1, this.getClass().getName(), "Source format : ", sourceFormat.toString());
 			AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
 
-			trace(1, getClass().getName(), "Target format: " + targetFormat);
-			m_audioInputStream = AudioSystem.getAudioInputStream(targetFormat, m_audioInputStream);
-			AudioFormat audioFormat = m_audioInputStream.getFormat();
-			trace(1, getClass().getName(), "Create Line : ", audioFormat.toString());
+			this.trace(1, this.getClass().getName(), "Target format: " + targetFormat);
+			this.m_audioInputStream = AudioSystem.getAudioInputStream(targetFormat, this.m_audioInputStream);
+			AudioFormat audioFormat = this.m_audioInputStream.getFormat();
+			this.trace(1, this.getClass().getName(), "Create Line : ", audioFormat.toString());
 			DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
-			m_line = (SourceDataLine) AudioSystem.getLine(info);
+			this.m_line = (SourceDataLine) AudioSystem.getLine(info);
 
 			/*-- Display supported controls --*/
-			Control[] c = m_line.getControls();
-			for (int p = 0; p < c.length; p++) {
-				trace(2, getClass().getName(), "Controls : " + c[p].toString());
+			Control[] c = this.m_line.getControls();
+			for (Control element : c) {
+				this.trace(2, this.getClass().getName(), "Controls : " + element.toString());
 			}
 			/*-- Is Gain Control supported ? --*/
-			if (m_line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-				m_gainControl = (FloatControl) m_line.getControl(FloatControl.Type.MASTER_GAIN);
-				trace(1, getClass().getName(), "Master Gain Control : [" + m_gainControl.getMinimum() + "," + m_gainControl.getMaximum() + "]", "" + m_gainControl.getPrecision());
+			if (this.m_line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+				this.m_gainControl = (FloatControl) this.m_line.getControl(FloatControl.Type.MASTER_GAIN);
+				this.trace(1, this.getClass().getName(), "Master Gain Control : [" + this.m_gainControl.getMinimum() + "," + this.m_gainControl.getMaximum() + "]", "" + this.m_gainControl.getPrecision());
 			}
 
 			/*-- Is Pan control supported ? --*/
-			if (m_line.isControlSupported(FloatControl.Type.PAN)) {
-				m_panControl = (FloatControl) m_line.getControl(FloatControl.Type.PAN);
-				trace(1, getClass().getName(), "Pan Control : [" + m_panControl.getMinimum() + "," + m_panControl.getMaximum() + "]", "" + m_panControl.getPrecision());
+			if (this.m_line.isControlSupported(FloatControl.Type.PAN)) {
+				this.m_panControl = (FloatControl) this.m_line.getControl(FloatControl.Type.PAN);
+				this.trace(1, this.getClass().getName(), "Pan Control : [" + this.m_panControl.getMinimum() + "," + this.m_panControl.getMaximum() + "]", "" + this.m_panControl.getPrecision());
 			}
 		}
 	}
@@ -266,10 +290,10 @@ public class BasicPlayer implements Runnable {
 	 * Opens the line.
 	 */
 	private void openLine() throws LineUnavailableException {
-		if (m_line != null) {
-			AudioFormat audioFormat = m_audioInputStream.getFormat();
-			trace(1, getClass().getName(), "AudioFormat : " + audioFormat);
-			m_line.open(audioFormat, m_line.getBufferSize());
+		if (this.m_line != null) {
+			AudioFormat audioFormat = this.m_audioInputStream.getFormat();
+			this.trace(1, this.getClass().getName(), "AudioFormat : " + audioFormat);
+			this.m_line.open(audioFormat, this.m_line.getBufferSize());
 		}
 	}
 
@@ -282,23 +306,23 @@ public class BasicPlayer implements Runnable {
 	public void stopPlayback() {
 		// if ( (m_status == PLAYING) || (m_status == PAUSED))
 		// {
-		if (m_line != null) {
-			m_line.flush();
-			m_line.stop();
-			m_line.close();
-			m_line = null;
+		if (this.m_line != null) {
+			this.m_line.flush();
+			this.m_line.stop();
+			this.m_line.close();
+			this.m_line = null;
 		}
-		m_status = STOPPED;
+		this.m_status = BasicPlayer.STOPPED;
 		// Fix to unlock file.
 		try {
-			if (m_audioInputStream != null) {
-				m_audioInputStream.close();
+			if (this.m_audioInputStream != null) {
+				this.m_audioInputStream.close();
 			}
-			m_gainControl = null;
+			this.m_gainControl = null;
 		} catch (IOException ioe) {
-			trace(1, getClass().getName(), "Cannot close stream : " + ioe.getMessage());
+			this.trace(1, this.getClass().getName(), "Cannot close stream : " + ioe.getMessage());
 		}
-		trace(1, getClass().getName(), "Stop called");
+		this.trace(1, this.getClass().getName(), "Stop called");
 		// }
 	}
 
@@ -308,12 +332,12 @@ public class BasicPlayer implements Runnable {
 	 * Player Status = PAUSED.
 	 */
 	public void pausePlayback() {
-		if (m_line != null) {
-			if (m_status == PLAYING) {
-				m_line.flush();
-				m_line.stop();
-				m_status = PAUSED;
-				trace(1, getClass().getName(), "Pause called");
+		if (this.m_line != null) {
+			if (this.m_status == BasicPlayer.PLAYING) {
+				this.m_line.flush();
+				this.m_line.stop();
+				this.m_status = BasicPlayer.PAUSED;
+				this.trace(1, this.getClass().getName(), "Pause called");
 			}
 		}
 	}
@@ -324,11 +348,11 @@ public class BasicPlayer implements Runnable {
 	 * Player Status = PLAYING.
 	 */
 	public void resumePlayback() {
-		if (m_line != null) {
-			if (m_status == PAUSED) {
-				m_line.start();
-				m_status = PLAYING;
-				trace(1, getClass().getName(), "Resume called");
+		if (this.m_line != null) {
+			if (this.m_status == BasicPlayer.PAUSED) {
+				this.m_line.start();
+				this.m_status = BasicPlayer.PLAYING;
+				this.trace(1, this.getClass().getName(), "Resume called");
 			}
 		}
 	}
@@ -337,39 +361,39 @@ public class BasicPlayer implements Runnable {
 	 * Starts playback.
 	 */
 	public boolean startPlayback() {
-		if ((m_status == STOPPED) || (m_status == READY)) {
-			trace(1, getClass().getName(), "Start called");
-			if (!(m_thread == null || !m_thread.isAlive())) {
-				trace(1, getClass().getName(), "WARNING: old thread still running!!");
+		if ((this.m_status == BasicPlayer.STOPPED) || (this.m_status == BasicPlayer.READY)) {
+			this.trace(1, this.getClass().getName(), "Start called");
+			if (!(this.m_thread == null || !this.m_thread.isAlive())) {
+				this.trace(1, this.getClass().getName(), "WARNING: old thread still running!!");
 				int cnt = 0;
-				while (m_status != READY) {
+				while (this.m_status != BasicPlayer.READY) {
 					try {
-						if (m_thread != null) {
+						if (this.m_thread != null) {
 							cnt++;
 							Thread.sleep(1000);
 							if (cnt > 2) {
-								m_thread.interrupt();
+								this.m_thread.interrupt();
 							}
 						}
 					} catch (Exception e) {
-						trace(1, getClass().getName(), "Waiting Error : " + e.getMessage());
+						this.trace(1, this.getClass().getName(), "Waiting Error : " + e.getMessage());
 					}
-					trace(1, getClass().getName(), "Waiting ... " + cnt);
+					this.trace(1, this.getClass().getName(), "Waiting ... " + cnt);
 				}
 			}
 			try {
-				initLine();
+				this.initLine();
 			} catch (Exception e) {
-				trace(0, getClass().getName(), "Cannot init Line", e.getMessage());
-				log.error("Exception occured: ", e);
+				this.trace(0, this.getClass().getName(), "Cannot init Line", e.getMessage());
+				BasicPlayer.log.error("Exception occured: ", e);
 				return false;
 			}
-			trace(1, getClass().getName(), "Creating new thread");
-			m_thread = new Thread(this);
-			m_thread.start();
-			if (m_line != null) {
-				setVolume(volume);
-				m_line.start();
+			this.trace(1, this.getClass().getName(), "Creating new thread");
+			this.m_thread = new Thread(this);
+			this.m_thread.start();
+			if (this.m_line != null) {
+				this.setVolume(this.volume);
+				this.m_line.start();
 			}
 		}
 		return true;
@@ -384,36 +408,36 @@ public class BasicPlayer implements Runnable {
 	 */
 	@Override
 	public void run() {
-		trace(1, getClass().getName(), "Thread Running");
+		this.trace(1, this.getClass().getName(), "Thread Running");
 		// if (m_audioInputStream.markSupported())
 		// m_audioInputStream.mark(m_audioFileFormat.getByteLength());
 		// else trace(1,getClass().getName(), "Mark not supported");
 		int nBytesRead = 1;
-		m_status = PLAYING;
+		this.m_status = BasicPlayer.PLAYING;
 		int nBytesCursor = 0;
-		byte[] abData = new byte[EXTERNAL_BUFFER_SIZE];
-		float nFrameSize = m_line.getFormat().getFrameSize();
-		float nFrameRate = m_line.getFormat().getFrameRate();
+		byte[] abData = new byte[BasicPlayer.EXTERNAL_BUFFER_SIZE];
+		float nFrameSize = this.m_line.getFormat().getFrameSize();
+		float nFrameRate = this.m_line.getFormat().getFrameRate();
 		float bytesPerSecond = nFrameSize * nFrameRate;
-		int secondsTotal = Math.round(m_audioFileFormat.getByteLength() / bytesPerSecond);
+		int secondsTotal = Math.round(this.m_audioFileFormat.getByteLength() / bytesPerSecond);
 		// E.B.
 		// secondsTotal = (int) Math.round(getTotalLengthInSeconds());
-		while ((nBytesRead != -1) && (m_status != STOPPED)) {
-			if (m_status == PLAYING) {
+		while ((nBytesRead != -1) && (this.m_status != BasicPlayer.STOPPED)) {
+			if (this.m_status == BasicPlayer.PLAYING) {
 				try {
-					nBytesRead = m_audioInputStream.read(abData, 0, abData.length);
+					nBytesRead = this.m_audioInputStream.read(abData, 0, abData.length);
 				} catch (Exception e) {
-					trace(1, getClass().getName(), "InputStream error : (" + nBytesRead + ")", e.getMessage());
-					log.error("Exception occured: ", e);
-					m_status = STOPPED;
+					this.trace(1, this.getClass().getName(), "InputStream error : (" + nBytesRead + ")", e.getMessage());
+					BasicPlayer.log.error("Exception occured: ", e);
+					this.m_status = BasicPlayer.STOPPED;
 				}
 				if (nBytesRead >= 0) {
 					// if (m_bpl != null)
 					// {
 					// m_bpl.updateMediaData(abData);
 					// }
-					if (m_line != null) {
-						int nBytesWritten = m_line.write(abData, 0, nBytesRead);
+					if (this.m_line != null) {
+						int nBytesWritten = this.m_line.write(abData, 0, nBytesRead);
 						nBytesCursor = nBytesCursor + nBytesWritten;
 					}
 					// if (m_bpl != null)
@@ -426,25 +450,25 @@ public class BasicPlayer implements Runnable {
 				try {
 					Thread.sleep(1000);
 				} catch (Exception e) {
-					trace(1, getClass().getName(), "Thread cannot sleep : ", e.getMessage());
+					this.trace(1, this.getClass().getName(), "Thread cannot sleep : ", e.getMessage());
 				}
 			}
 		}
-		if (m_line != null) {
+		if (this.m_line != null) {
 			try {
-				m_line.drain();
-				m_line.stop();
-				m_line.close();
+				this.m_line.drain();
+				this.m_line.stop();
+				this.m_line.close();
 			} catch (Exception e) {
-				trace(1, getClass().getName(), "Cannot Free Audio ressources", e.getMessage());
+				this.trace(1, this.getClass().getName(), "Cannot Free Audio ressources", e.getMessage());
 			} finally {
-				m_line = null;
+				this.m_line = null;
 			}
 		}
-		trace(1, getClass().getName(), "Thread Stopped");
-		m_status = READY;
-		if (basicPlayerManager != null && nBytesRead == -1) {
-			basicPlayerManager.fileCompletedPlaying();
+		this.trace(1, this.getClass().getName(), "Thread Stopped");
+		this.m_status = BasicPlayer.READY;
+		if (this.basicPlayerManager != null && nBytesRead == -1) {
+			this.basicPlayerManager.fileCompletedPlaying();
 		}
 	}
 
@@ -456,7 +480,7 @@ public class BasicPlayer implements Runnable {
 	 * Returns true if Gain control is supported.
 	 */
 	public boolean hasGainControl() {
-		return m_gainControl != null;
+		return this.m_gainControl != null;
 	}
 
 	/**
@@ -476,14 +500,14 @@ public class BasicPlayer implements Runnable {
 		 */
 		// Check again if we have no gain control: the line has to be in use
 		// before we can get gain control
-		if (!hasGainControl()) {
-			if (m_line != null && m_line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-				m_gainControl = (FloatControl) m_line.getControl(FloatControl.Type.MASTER_GAIN);
-				trace(1, getClass().getName(), "Master Gain Control : [" + m_gainControl.getMinimum() + "," + m_gainControl.getMaximum() + "]", "" + m_gainControl.getPrecision());
+		if (!this.hasGainControl()) {
+			if (this.m_line != null && this.m_line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+				this.m_gainControl = (FloatControl) this.m_line.getControl(FloatControl.Type.MASTER_GAIN);
+				this.trace(1, this.getClass().getName(), "Master Gain Control : [" + this.m_gainControl.getMinimum() + "," + this.m_gainControl.getMaximum() + "]", "" + this.m_gainControl.getPrecision());
 			}
 		}
 
-		if (hasGainControl()) {
+		if (this.hasGainControl()) {
 			/*
 			 * double minGainDB = getMinimum(); double ampGainDB = ( (10.0f /
 			 * 20.0f) * getMaximum()) - getMinimum(); double cste =
@@ -492,7 +516,7 @@ public class BasicPlayer implements Runnable {
 			 * trace(1,getClass().getName(), "Gain : "+valueDB);
 			 */
 			float valueDB = (float) (Math.log(volume / 100.0) / Math.log(10.0) * 20.0);
-			m_gainControl.setValue(valueDB);
+			this.m_gainControl.setValue(valueDB);
 			// m_gainControl.setValue( (float) fGain);
 		}
 	}
@@ -501,8 +525,8 @@ public class BasicPlayer implements Runnable {
 	 * Returns Gain value.
 	 */
 	public float getGain() {
-		if (hasGainControl()) {
-			return m_gainControl.getValue();
+		if (this.hasGainControl()) {
+			return this.m_gainControl.getValue();
 		} else {
 			return 0.0F;
 		}
@@ -516,8 +540,8 @@ public class BasicPlayer implements Runnable {
 	 * Gets max Gain value.
 	 */
 	public float getMaximum() {
-		if (hasGainControl()) {
-			return m_gainControl.getMaximum();
+		if (this.hasGainControl()) {
+			return this.m_gainControl.getMaximum();
 		} else {
 			return 0.0F;
 		}
@@ -527,8 +551,8 @@ public class BasicPlayer implements Runnable {
 	 * Gets min Gain value.
 	 */
 	public float getMinimum() {
-		if (hasGainControl()) {
-			return m_gainControl.getMinimum();
+		if (this.hasGainControl()) {
+			return this.m_gainControl.getMinimum();
 		} else {
 			return 0.0F;
 		}
@@ -542,15 +566,15 @@ public class BasicPlayer implements Runnable {
 	 * Returns true if Pan control is supported.
 	 */
 	public boolean hasPanControl() {
-		return m_panControl != null;
+		return this.m_panControl != null;
 	}
 
 	/**
 	 * Returns Pan precision.
 	 */
 	public float getPrecision() {
-		if (hasPanControl()) {
-			return m_panControl.getPrecision();
+		if (this.hasPanControl()) {
+			return this.m_panControl.getPrecision();
 		} else {
 			return 0.0F;
 		}
@@ -560,8 +584,8 @@ public class BasicPlayer implements Runnable {
 	 * Returns Pan value.
 	 */
 	public float getPan() {
-		if (hasPanControl()) {
-			return m_panControl.getValue();
+		if (this.hasPanControl()) {
+			return this.m_panControl.getValue();
 		} else {
 			return 0.0F;
 		}
@@ -571,9 +595,9 @@ public class BasicPlayer implements Runnable {
 	 * Sets Pan value. Linear scale : -1.0 <--> +1.0
 	 */
 	public void setPan(float fPan) {
-		if (hasPanControl()) {
+		if (this.hasPanControl()) {
 			// trace(1,getClass().getName(), "Pan : "+fPan);
-			m_panControl.setValue(fPan);
+			this.m_panControl.setValue(fPan);
 		}
 	}
 
@@ -586,11 +610,11 @@ public class BasicPlayer implements Runnable {
 	 */
 	public void setSeek(double seek) throws IOException {
 		double length = -1;
-		if ((m_audioFileFormat != null) && (m_audioFileFormat.getByteLength() != AudioSystem.NOT_SPECIFIED)) {
-			length = m_audioFileFormat.getByteLength();
+		if ((this.m_audioFileFormat != null) && (this.m_audioFileFormat.getByteLength() != AudioSystem.NOT_SPECIFIED)) {
+			length = this.m_audioFileFormat.getByteLength();
 		}
 		long newPos = Math.round(seek * length);
-		doSeek = newPos;
+		this.doSeek = newPos;
 	}
 
 	/*----------------------------------------------*/
@@ -601,8 +625,8 @@ public class BasicPlayer implements Runnable {
 	 * Returns source AudioFormat.
 	 */
 	public AudioFormat getAudioFormat() {
-		if (m_audioFileFormat != null) {
-			return m_audioFileFormat.getFormat();
+		if (this.m_audioFileFormat != null) {
+			return this.m_audioFileFormat.getFormat();
 		} else {
 			return null;
 		}
@@ -612,8 +636,8 @@ public class BasicPlayer implements Runnable {
 	 * Returns source AudioFileFormat.
 	 */
 	public AudioFileFormat getAudioFileFormat() {
-		if (m_audioFileFormat != null) {
-			return m_audioFileFormat;
+		if (this.m_audioFileFormat != null) {
+			return this.m_audioFileFormat;
 		} else {
 			return null;
 		}
@@ -674,14 +698,14 @@ public class BasicPlayer implements Runnable {
 	 */
 	public int getBitRate() {
 		int bitRate = 0;
-		if (getAudioFileFormat() != null) {
-			int FL = (getAudioFileFormat()).getFrameLength();
-			int FS = (getAudioFormat()).getFrameSize();
-			float SR = (getAudioFormat()).getSampleRate();
-			float FR = (getAudioFormat()).getFrameRate();
-			int TL = (getAudioFileFormat()).getByteLength();
-			String type = (getAudioFileFormat()).getType().toString();
-			String encoding = (getAudioFormat()).getEncoding().toString();
+		if (this.getAudioFileFormat() != null) {
+			int FL = (this.getAudioFileFormat()).getFrameLength();
+			int FS = (this.getAudioFormat()).getFrameSize();
+			float SR = (this.getAudioFormat()).getSampleRate();
+			float FR = (this.getAudioFormat()).getFrameRate();
+			int TL = (this.getAudioFileFormat()).getByteLength();
+			String type = (this.getAudioFileFormat()).getType().toString();
+			String encoding = (this.getAudioFormat()).getEncoding().toString();
 			// Assumes that type includes xBitRate string.
 			if ((type != null) && ((type.startsWith("MP3")) || (type.startsWith("VORBIS")))) {
 				// BitRate string appended to type.
@@ -695,11 +719,11 @@ public class BasicPlayer implements Runnable {
 			} else {
 				bitRate = Math.round(FS * FR * 8);
 			}
-			trace(2, getClass().getName(), "Type=" + type + " Encoding=" + encoding + " FL=" + FL + " FS=" + FS + " SR=" + SR + " FR=" + FR + " TL=" + TL, " bitRate=" + bitRate);
+			this.trace(2, this.getClass().getName(), "Type=" + type + " Encoding=" + encoding + " FL=" + FL + " FS=" + FS + " SR=" + SR + " FR=" + FR + " TL=" + TL, " bitRate=" + bitRate);
 		}
 		// N/A so computes bitRate for output.
-		if ((bitRate <= 0) && (m_line != null)) {
-			bitRate = Math.round(((m_line.getFormat()).getFrameSize()) * ((m_line.getFormat()).getFrameRate()) * 8);
+		if ((bitRate <= 0) && (this.m_line != null)) {
+			bitRate = Math.round(((this.m_line.getFormat()).getFrameSize()) * ((this.m_line.getFormat()).getFrameRate()) * 8);
 		}
 		return bitRate;
 	}
