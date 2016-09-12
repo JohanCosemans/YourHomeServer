@@ -1,0 +1,5 @@
+@font-face { font-family: AppFont; src: url('OpenSans-Regular.ttf'); } 
+.appFont {
+	font-family: AppFont;
+}
+ 

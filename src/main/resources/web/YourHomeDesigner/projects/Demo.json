@@ -1,0 +1,2496 @@
+{
+	"fileName": "Demo.json",
+	"zIndexCounterUp": 11331,
+	"zIndexCounterDown": 9995,
+	"bindings": [],
+	"width": "720",
+	"height": "1280",
+	"orientation": "portrait",
+	"pages": [{
+		"width": "720",
+		"height": "1280",
+		"title": "Main",
+		"objects": [{
+			"id": "StageElement_1296",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 728.9884722206626,
+				"height": 309.9921769433184,
+				"left": -0.938337682054507,
+				"top": -4.000002769886097,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1297",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#37ba49",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 60.617578595518026,
+				"top": 360.327996436579,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1298",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#29caff",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 260.19572464337716,
+				"top": 360.327996436579,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1299",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffb730",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 60.612779955008065,
+				"top": 559.144310317077,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1300",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#e100ff",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 260.19572464337716,
+				"top": 559.7105498972522,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1301",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "You can create tiles and use them as buttons:",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "25",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 611.9766225356436,
+				"height": 35.97480807309505,
+				"left": 57.624954427887516,
+				"top": 326.0014014126419,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/User/black210.png",
+			"id": "StageElement_1302",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/black210.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/black210.png",
+				"id": "a56759b92a43b1735648d8637c8b3718",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/black210.png",
+					"key": "imageSrc"
+				}],
+				"width": 141.99477183999042,
+				"height": 141.99477183999042,
+				"left": 85.58077833799348,
+				"top": 392.9184433240131,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "3",
+				"valueName": "Lights Off",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"imageSrc": "images/User/light61.png",
+			"id": "StageElement_1303",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/light61.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/light61.png",
+				"id": "5c546892c08f3e2e52239e806c49fe7b",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/light61.png",
+					"key": "imageSrc"
+				}],
+				"width": 124.71966600413987,
+				"height": 124.71966600413987,
+				"left": 298.6414726810626,
+				"top": 396.7573557319798,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "2",
+				"valueName": "Lights on",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"imageSrc": "images/User/music.png",
+			"id": "StageElement_1304",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/music.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/music.png",
+				"id": "d0399f8cf0d88d07ae9b4d71c353852d",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/music.png",
+					"key": "imageSrc"
+				}],
+				"width": 117.71665000991919,
+				"height": 137.1811355784383,
+				"left": 92.2839992663545,
+				"top": 592.5428482663882,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "5",
+				"valueName": "Put some music on!",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"imageSrc": "images/User/flame.png",
+			"id": "StageElement_1305",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/flame.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/flame.png",
+				"id": "c5d53ab0a7143fe60b15619fc681cd2",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/flame.png",
+					"key": "imageSrc"
+				}],
+				"width": 152.5517809618991,
+				"height": 152.5517809618991,
+				"left": 280.2396460534738,
+				"top": 582.9455672464712,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "1",
+				"valueName": "Watch TV",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"id": "StageElement_1306",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"id": "3739a5d64b475ae1cfff8fc74adb708b",
+				"title": "Circle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ff9900",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "250",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 31.385988119434497,
+				"top": 844.6758971249332,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1307",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"id": "3739a5d64b475ae1cfff8fc74adb708b",
+				"title": "Circle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ff9900",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "250",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 484.9707642265468,
+				"top": 843.6758604426577,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1308",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"id": "3739a5d64b475ae1cfff8fc74adb708b",
+				"title": "Circle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ff9900",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "250",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 32.34600413985679,
+				"top": 1057.3036581211938,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1309",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"id": "3739a5d64b475ae1cfff8fc74adb708b",
+				"title": "Circle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ff9900",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "250",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 486.88926070242815,
+				"top": 1059.2998925733366,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1310",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Or create them circular:",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "25",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 321.973782466621,
+				"height": 51.97527502348789,
+				"left": 66.38631227096973,
+				"top": 796.9985244741896,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/User/on-off-icone-4799-128.png",
+			"id": "StageElement_1311",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/on-off-icone-4799-128.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/on-off-icone-4799-128.png",
+				"id": "34ef435562b5d1fc9ff6cd9c1e721411",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/on-off-icone-4799-128.png",
+					"key": "imageSrc"
+				}],
+				"width": 140.06031988441342,
+				"height": 140.06031988441342,
+				"left": 62.8749550642127,
+				"top": 872.4053211757792,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "1",
+				"valueName": "Watch TV",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"imageSrc": "images/User/tv14.png",
+			"id": "StageElement_1312",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/tv14.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/tv14.png",
+				"id": "c5b6411e36bd2e8f670c6898ca3f1b17",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/tv14.png",
+					"key": "imageSrc"
+				}],
+				"width": 105.54009971589953,
+				"height": 105.54009971589953,
+				"left": 533.1395176655101,
+				"top": 893.6575402662835,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "1",
+				"valueName": "Watch TV",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"imageSrc": "images/Heating/Not_home.png",
+			"id": "StageElement_1313",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Heating/Not_home.png",
+				"allowed": ["sensor_motion", "sensor_binary", "switch_binary"],
+				"icon": "/YourHomeDesigner/images/Heating/Not_home.png",
+				"id": "5bfbb0708acc8e67c85a9b34b0c4bf3",
+				"title": "Home/Not Home",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "true",
+					"type": "image_state",
+					"value": "images/Heating/Not_home.png",
+					"key": "On"
+				}, {
+					"description": "false",
+					"type": "image_state",
+					"value": "images/Heating/Home.png",
+					"key": "Off"
+				}],
+				"width": 127.59885031011495,
+				"height": 127.59885031011495,
+				"left": 70.39106569496069,
+				"top": 1088.0053601039083,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "BINARY_1",
+				"valueName": "On Off Switch 1",
+				"valueType": "switch_binary"
+			}
+		}, {
+			"imageSrc": "images/User/plate7.png",
+			"id": "StageElement_1314",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/plate7.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/plate7.png",
+				"id": "70d864c5ba6fdb4f792f706595b6cc17",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/plate7.png",
+					"key": "imageSrc"
+				}],
+				"width": 121.84048169816477,
+				"height": 121.84048169816477,
+				"left": 524.9117686471352,
+				"top": 1101.3263861595528,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "4",
+				"valueName": "Dinner Time",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"id": "StageElement_1315",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "These screens are built with the web-based screen designer. Here here you can drag images from the left to the central stage. You can convert them to buttons/sensors/... by dropping a control from the right onto them.",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "25",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#000000",
+					"key": "color"
+				}],
+				"width": 713.332907556923,
+				"height": 150.66231626110294,
+				"left": 5.479174109799782,
+				"top": 158.2917947738987,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1316",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#daf527",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 460.1877054488151,
+				"top": 360.3136005150491,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1317",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#1ef55b",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "0",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 460.1877054488151,
+				"top": 560.313259145303,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/User/tv14.png",
+			"id": "StageElement_1318",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/tv14.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/tv14.png",
+				"id": "c5b6411e36bd2e8f670c6898ca3f1b17",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/tv14.png",
+					"key": "imageSrc"
+				}],
+				"width": 137.9759104129002,
+				"height": 137.9759104129002,
+				"left": 491.99981284553394,
+				"top": 391.999983530407,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "general",
+				"controllerName": "General",
+				"nodeIdentifier": "Scenes",
+				"nodeName": "Scenes",
+				"valueIdentifier": "1",
+				"valueName": "Watch TV",
+				"valueType": "scene_activation"
+			}
+		}, {
+			"imageSrc": "images/Sensor/PlusMinValue_wide.png",
+			"id": "StageElement_1319",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/PlusMinValue_wide.png",
+				"allowed": ["heating", "dimmer", "sensor_temperature"],
+				"icon": "/YourHomeDesigner/images/Sensor/PlusMinValue.png",
+				"id": "13ea7c5eab19a20cfb711da32e1b169",
+				"title": "Plus/Min Value",
+				"type": "plus_min_value",
+				"properties": [{
+					"description": "Step increase/decrease",
+					"type": "double",
+					"value": "0.5",
+					"key": "step"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#000000",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "65",
+					"key": "size"
+				}],
+				"width": 199.92336024614556,
+				"height": 129.96817906190697,
+				"left": 459.96696798535703,
+				"top": 593.9997155252115,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "TEMPERATURE",
+				"valueName": "Temperature Sensor",
+				"valueType": "sensor_temperature"
+			}
+		}, {
+			"id": "StageElement_1320",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"id": "3739a5d64b475ae1cfff8fc74adb708b",
+				"title": "Circle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ff9900",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "250",
+					"key": "corner_radius"
+				}],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 260.2811404444544,
+				"top": 1060.298009799408,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/Clock/analog_clock_icon.png",
+			"id": "StageElement_1321",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Clock/analog_clock_icon.png",
+				"allowed": [],
+				"icon": "/YourHomeDesigner/images/Clock/analog_clock_icon.png",
+				"id": "3ff7d1daded04a5325204bd9d5ceb90b",
+				"title": "Analog Clock",
+				"type": "clock_analog",
+				"properties": [],
+				"width": 199.92336024614556,
+				"height": 199.92336024614556,
+				"left": 260.37423407034765,
+				"top": 844.6710984844232,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1322",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Clock/digital_clock.png",
+				"allowed": [],
+				"icon": "/YourHomeDesigner/images/Clock/digital_clock_icon.png",
+				"id": "de1ab108792c031d855bc3173f468a51",
+				"title": "Digital Clock",
+				"type": "clock_digital",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#000000",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "50",
+					"key": "size"
+				}, {
+					"description": "AM/PM",
+					"type": "boolean",
+					"value": false,
+					"key": "AMPM"
+				}],
+				"width": 128.97845945672802,
+				"height": 67.99073772547435,
+				"left": 299.6251939856041,
+				"top": 1126.0009956617596,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1323",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "This is a demo project.",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "40",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "center",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#000000",
+					"key": "color"
+				}],
+				"width": 719.9910212644904,
+				"height": 61.97744133643261,
+				"left": 0.9999982931512695,
+				"top": 4.000002769886097,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1324",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "It is meant to show you the possibilities with YourHome. Go to www.yourhomeapp.net to learn more!",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "25",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "center",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#000000",
+					"key": "color"
+				}],
+				"width": 655.9891534629191,
+				"height": 66.65611583364215,
+				"left": 21.000002545300738,
+				"top": 72.99999056741491,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}],
+		"zoomRatio": 1.0419617784711388,
+		"backgroundColor": "#575757",
+		"backgroundImageSrc": "",
+		"pageId": 0,
+		"index": 0
+	}, {
+		"width": "720",
+		"height": "1280",
+		"title": "Floorplan",
+		"objects": [{
+			"id": "StageElement_1244",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/Shapes/circle_icon.png",
+				"id": "3739a5d64b475ae1cfff8fc74adb708b",
+				"title": "Circle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffe30f",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "250",
+					"key": "corner_radius"
+				}],
+				"width": 185.97916666666666,
+				"height": 185.97916666666666,
+				"left": 422.968,
+				"top": 853,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/User/floorplan.png",
+			"id": "StageElement_1245",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/floorplan.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/floorplan.png",
+				"id": "a33440bb48728628f09cd5fd9fa88a9",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/floorplan.png",
+					"key": "imageSrc"
+				}],
+				"width": 684.25,
+				"height": 684.25,
+				"left": 11.625,
+				"top": 87.12506666666667,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1246",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Or even add your own floorplan!",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "35",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 611.3125,
+				"height": 45.0625,
+				"left": 48.2928,
+				"top": 6.5904,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/Light/light_dim2.png",
+			"id": "StageElement_1247",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/light_dim2.png",
+				"allowed": ["dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/light_dim2.png",
+				"id": "8273a2e6f10c2ae7eb0a63ab3c48f230",
+				"title": "Light Button (Dimmer)",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "99",
+					"type": "image_state",
+					"value": "images/Light/light_on.png",
+					"key": "On"
+				}, {
+					"description": "40",
+					"type": "image_state",
+					"value": "images/Light/light_dim2.png",
+					"key": "Dim"
+				}, {
+					"description": "0",
+					"type": "image_state",
+					"value": "images/Light/light_off.png",
+					"key": "Off"
+				}],
+				"width": 80.5625,
+				"height": 80.5625,
+				"left": 198.768,
+				"top": 257.96666666666664,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "DIMMER_1",
+				"valueName": "Dimmer 1",
+				"valueType": "dimmer"
+			}
+		}, {
+			"imageSrc": "images/Light/light_dim2.png",
+			"id": "StageElement_1248",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/light_dim2.png",
+				"allowed": ["dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/light_dim2.png",
+				"id": "8273a2e6f10c2ae7eb0a63ab3c48f230",
+				"title": "Light Button (Dimmer)",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "99",
+					"type": "image_state",
+					"value": "images/Light/light_on.png",
+					"key": "On"
+				}, {
+					"description": "40",
+					"type": "image_state",
+					"value": "images/Light/light_dim2.png",
+					"key": "Dim"
+				}, {
+					"description": "0",
+					"type": "image_state",
+					"value": "images/Light/light_off.png",
+					"key": "Off"
+				}],
+				"width": 80.5625,
+				"height": 80.5625,
+				"left": 417.3906666666667,
+				"top": 259.884,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "DIMMER_2",
+				"valueName": "Dimmer 2",
+				"valueType": "dimmer"
+			}
+		}, {
+			"imageSrc": "images/Light/light_on.png",
+			"id": "StageElement_1249",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/light_on.png",
+				"allowed": ["switch_binary", "dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/light_on.png",
+				"id": "aa804be647c92750d45a99f6469cfb3b",
+				"title": "Light Button (Binary switch)",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "true",
+					"type": "image_state",
+					"value": "images/Light/light_on.png",
+					"key": "On"
+				}, {
+					"description": "false",
+					"type": "image_state",
+					"value": "images/Light/light_off.png",
+					"key": "Off"
+				}],
+				"width": 80.5625,
+				"height": 80.5625,
+				"left": 167.09733333333332,
+				"top": 513.2533333333333,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "BINARY_3",
+				"valueName": "On Off Switch 3",
+				"valueType": "switch_binary"
+			}
+		}, {
+			"imageSrc": "images/Light/light_on.png",
+			"id": "StageElement_1250",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/light_on.png",
+				"allowed": ["switch_binary", "dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/light_on.png",
+				"id": "aa804be647c92750d45a99f6469cfb3b",
+				"title": "Light Button (Binary switch)",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "true",
+					"type": "image_state",
+					"value": "images/Light/light_on.png",
+					"key": "On"
+				}, {
+					"description": "false",
+					"type": "image_state",
+					"value": "images/Light/light_off.png",
+					"key": "Off"
+				}],
+				"width": 80.5625,
+				"height": 80.5625,
+				"left": 533.7133333333334,
+				"top": 521.8906666666667,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "BINARY_1",
+				"valueName": "On Off Switch 1",
+				"valueType": "switch_binary"
+			}
+		}, {
+			"imageSrc": "images/Light/light_on.png",
+			"id": "StageElement_1251",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/light_on.png",
+				"allowed": ["switch_binary", "dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/light_on.png",
+				"id": "aa804be647c92750d45a99f6469cfb3b",
+				"title": "Light Button (Binary switch)",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "true",
+					"type": "image_state",
+					"value": "images/Light/light_on.png",
+					"key": "On"
+				}, {
+					"description": "false",
+					"type": "image_state",
+					"value": "images/Light/light_off.png",
+					"key": "Off"
+				}],
+				"width": 80.5625,
+				"height": 80.5625,
+				"left": 307.856,
+				"top": 519.0120000000001,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "BINARY_2",
+				"valueName": "On Off Switch 2",
+				"valueType": "switch_binary"
+			}
+		}, {
+			"imageSrc": "images/Light/light_dim2.png",
+			"id": "StageElement_1252",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/light_dim2.png",
+				"allowed": ["dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/light_dim2.png",
+				"id": "8273a2e6f10c2ae7eb0a63ab3c48f230",
+				"title": "Light Button (Dimmer)",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "99",
+					"type": "image_state",
+					"value": "images/Light/light_on.png",
+					"key": "On"
+				}, {
+					"description": "40",
+					"type": "image_state",
+					"value": "images/Light/light_dim2.png",
+					"key": "Dim"
+				}, {
+					"description": "0",
+					"type": "image_state",
+					"value": "images/Light/light_off.png",
+					"key": "Off"
+				}],
+				"width": 80.5625,
+				"height": 80.5625,
+				"left": 322.6666666666667,
+				"top": 141.45866666666666,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "DIMMER_3",
+				"valueName": "Dimmer 3",
+				"valueType": "dimmer"
+			}
+		}, {
+			"imageSrc": "images/Sensor/humidity_example.png",
+			"id": "StageElement_1253",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/humidity_example.png",
+				"allowed": ["sensor_general", "sensor_humidity"],
+				"icon": "/YourHomeDesigner/images/Sensor/humidity_icon.png",
+				"id": "3e9d4ca47f40eed4c0a56cac31db0787",
+				"title": "Sensor Images",
+				"type": "sensor",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "40",
+					"key": "size"
+				}, {
+					"description": "Up image",
+					"type": "image",
+					"value": "images/Sensor/humidity_more.png",
+					"key": "upImageSrc"
+				}, {
+					"description": "Neutral image",
+					"type": "image",
+					"value": "images/Sensor/humidity_neutral.png",
+					"key": "neutralImageSrc"
+				}, {
+					"description": "Down image",
+					"type": "image",
+					"value": "images/Sensor/humidity_less.png",
+					"key": "downImageSrc"
+				}],
+				"width": 254.66666666666666,
+				"height": 57.541666666666664,
+				"left": 76.72213333333333,
+				"top": 854.1973333333334,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "HUMIDITY",
+				"valueName": "Humidity Sensor",
+				"valueType": "sensor_humidity"
+			}
+		}, {
+			"imageSrc": "images/Sensor/temperature_example.png",
+			"id": "StageElement_1254",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/temperature_example.png",
+				"allowed": ["sensor_general", "sensor_temperature", "heating"],
+				"icon": "/YourHomeDesigner/images/Sensor/temperature_icon.png",
+				"id": "86829b5e6c9fabc0780ee4174289b36b",
+				"title": "Sensor Images",
+				"type": "sensor",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "40",
+					"key": "size"
+				}, {
+					"description": "Up image",
+					"type": "image",
+					"value": "images/Sensor/temperature_more.png",
+					"key": "upImageSrc"
+				}, {
+					"description": "Neutral image",
+					"type": "image",
+					"value": "images/Sensor/temperature_neutral.png",
+					"key": "neutralImageSrc"
+				}, {
+					"description": "Down image",
+					"type": "image",
+					"value": "images/Sensor/temperature_less.png",
+					"key": "downImageSrc"
+				}],
+				"width": 228,
+				"height": 57.541666666666664,
+				"left": 80.72213333333333,
+				"top": 969.3653333333333,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "TEMPERATURE",
+				"valueName": "Temperature Sensor",
+				"valueType": "sensor_temperature"
+			}
+		}, {
+			"imageSrc": "images/Sensor/motion_detector-128-light_on.png",
+			"id": "StageElement_1255",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/motion_detector-128-light_on.png",
+				"allowed": ["sensor_motion", "sensor_binary"],
+				"icon": "/YourHomeDesigner/images/Sensor/motion_detector-128-light_icon.png",
+				"id": "7e0ce9e8b9b8b12b06b428e21722651e",
+				"title": "Motion",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "true",
+					"type": "image_state",
+					"value": "images/Sensor/motion_detector-128-light_on.png",
+					"key": "Motion"
+				}, {
+					"description": "false",
+					"type": "image_state",
+					"value": "images/Sensor/motion_detector-128-light_off.png",
+					"key": "No Motion"
+				}],
+				"width": 56.5625,
+				"height": 56.5625,
+				"left": 523.1426666666667,
+				"top": 695.6013333333334,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "MOTION",
+				"valueName": "Motion Sensor",
+				"valueType": "sensor_motion"
+			}
+		}, {
+			"id": "StageElement_1256",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "You can show readings of sensors:",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "35",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 585.9791666666666,
+				"height": 59.979166666666664,
+				"left": 52.395199999999996,
+				"top": 786.4200000000001,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/Sensor/luminosity_example.png",
+			"id": "StageElement_1257",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/luminosity_example.png",
+				"allowed": ["sensor_general", "sensor_luminosity"],
+				"icon": "/YourHomeDesigner/images/Sensor/luminosity_icon.png",
+				"id": "928887788328983c77866c350666d239",
+				"title": "Sensor Images",
+				"type": "sensor",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "40",
+					"key": "size"
+				}, {
+					"description": "Up image",
+					"type": "image",
+					"value": "images/Sensor/luminosity_more.png",
+					"key": "upImageSrc"
+				}, {
+					"description": "Neutral image",
+					"type": "image",
+					"value": "images/Sensor/luminosity_neutral.png",
+					"key": "neutralImageSrc"
+				}, {
+					"description": "Down image",
+					"type": "image",
+					"value": "images/Sensor/luminosity_less.png",
+					"key": "downImageSrc"
+				}],
+				"width": 265.3333333333333,
+				"height": 57.541666666666664,
+				"left": 77.72213333333333,
+				"top": 911.7813333333334,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "LUMINOSITY",
+				"valueName": "Luminosity Sensor",
+				"valueType": "sensor_luminosity"
+			}
+		}, {
+			"imageSrc": "images/Sensor/PlusMinValue_wide.png",
+			"id": "StageElement_1258",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/PlusMinValue_wide.png",
+				"allowed": ["heating", "dimmer", "sensor_temperature"],
+				"icon": "/YourHomeDesigner/images/Sensor/PlusMinValue.png",
+				"id": "13ea7c5eab19a20cfb711da32e1b169",
+				"title": "Plus/Min Value",
+				"type": "plus_min_value",
+				"properties": [{
+					"description": "Step increase/decrease",
+					"type": "double",
+					"value": "0.5",
+					"key": "step"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#3b3b3b",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "80",
+					"key": "size"
+				}],
+				"width": 183.97916666666666,
+				"height": 103.97916666666667,
+				"left": 422.968,
+				"top": 888.468,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "TEMPERATURE",
+				"valueName": "Temperature Sensor",
+				"valueType": "sensor_temperature"
+			}
+		}, {
+			"imageSrc": "images/Sensor/PlusMinValue_wide.png",
+			"id": "StageElement_1259",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Sensor/PlusMinValue_wide.png",
+				"allowed": ["heating", "dimmer", "sensor_temperature"],
+				"icon": "/YourHomeDesigner/images/Sensor/PlusMinValue.png",
+				"id": "13ea7c5eab19a20cfb711da32e1b169",
+				"title": "Plus/Min Value",
+				"type": "plus_min_value",
+				"properties": [{
+					"description": "Step increase/decrease",
+					"type": "double",
+					"value": "0.5",
+					"key": "step"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "120",
+					"key": "size"
+				}],
+				"width": 365.7916666666667,
+				"height": 169.97916666666666,
+				"left": 61.718799999999995,
+				"top": 1105.94,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Sensors",
+				"nodeName": "Sensors",
+				"valueIdentifier": "HEATING",
+				"valueName": "Setpoint Thermostat",
+				"valueType": "heating"
+			}
+		}, {
+			"id": "StageElement_1260",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Control your thermostat setpoint:",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "35",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 549.9791666666666,
+				"height": 47.979166666666664,
+				"left": 54.968799999999995,
+				"top": 1054,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1261",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Click on the lights to control them",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "20",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 327,
+				"height": 28,
+				"left": 47.62506666666667,
+				"top": 64,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/Light/slider.png",
+			"id": "StageElement_1262",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/slider.png",
+				"allowed": ["dimmer"],
+				"icon": "/YourHomeDesigner/images/Light/slider_icon.png",
+				"id": "19289536b0c68211d74f8cd61a9137e0",
+				"title": "",
+				"type": "slider",
+				"properties": [{
+					"description": "Maximum",
+					"type": "double",
+					"value": "99",
+					"key": "maximum"
+				}, {
+					"description": "Minimum",
+					"type": "double",
+					"value": "0",
+					"key": "minimum"
+				}],
+				"width": 360,
+				"height": 58,
+				"left": 472.62533333333334,
+				"top": 296,
+				"rotation": 90
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Lights",
+				"nodeName": "Lights",
+				"valueIdentifier": "DIMMER_1",
+				"valueName": "Dimmer 1",
+				"valueType": "dimmer"
+			}
+		}],
+		"zoomRatio": 0.75,
+		"backgroundColor": "#575757",
+		"backgroundImageSrc": "",
+		"pageId": 3,
+		"index": 1
+	}, {
+		"width": "720",
+		"height": "1280",
+		"title": "Camera",
+		"objects": [{
+			"imageSrc": "images/Camera/camera.png",
+			"id": "StageElement_1041",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Camera/camera.png",
+				"allowed": ["ip_camera"],
+				"icon": "/YourHomeDesigner/images/Camera/camera.png",
+				"id": "17beae996ed67a88eee85a286f358301",
+				"title": "",
+				"type": "camera",
+				"properties": [],
+				"width": 647.3125,
+				"height": 431.875,
+				"left": 35.1951,
+				"top": 121.03,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "ipcamera",
+				"controllerName": "IP Cameras",
+				"nodeIdentifier": "Cameras",
+				"nodeName": "Cameras",
+				"valueIdentifier": "2",
+				"valueName": "Bunny 2",
+				"valueType": "ip_camera"
+			}
+		}, {
+			"id": "StageElement_1042",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/YourHomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Add your IP cameras - Wherever you like!",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "35",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "left",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 675,
+				"height": 94,
+				"left": 39.2658,
+				"top": 50.2588,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/Camera/camera.png",
+			"id": "StageElement_1043",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Camera/camera.png",
+				"allowed": ["ip_camera"],
+				"icon": "/YourHomeDesigner/images/Camera/camera.png",
+				"id": "17beae996ed67a88eee85a286f358301",
+				"title": "",
+				"type": "camera",
+				"properties": [],
+				"width": 647.796875,
+				"height": 518.234375,
+				"left": 35.2018,
+				"top": 595.005,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "ipcamera",
+				"controllerName": "IP Cameras",
+				"nodeIdentifier": "Cameras",
+				"nodeName": "Cameras",
+				"valueIdentifier": "1",
+				"valueName": "Bunny",
+				"valueType": "ip_camera"
+			}
+		}],
+		"zoomRatio": 1,
+		"backgroundColor": "#575757",
+		"backgroundImageSrc": "",
+		"pageId": 1,
+		"index": 2
+	}, {
+		"width": "720",
+		"height": "1280",
+		"title": "Music",
+		"objects": [{
+			"imageSrc": "images/MusicControls/playlist.png",
+			"id": "StageElement_1226",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/playlist.png",
+				"allowed": ["music_playlist"],
+				"icon": "/YourHomeDesigner/images/MusicControls/playlist.png",
+				"id": "2f43a3e3945dcef689c39d9e93ee5a63",
+				"title": "",
+				"type": "playlist",
+				"properties": [],
+				"width": 701.5208333333334,
+				"height": 741.8333333333334,
+				"left": 11.141906666666666,
+				"top": 4.79864,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "PLAYLIST",
+				"valueName": "Playlist",
+				"valueType": "music_playlist"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/artist_title.png",
+			"id": "StageElement_1227",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/artist_title.png",
+				"allowed": ["music_track_display"],
+				"icon": "/YourHomeDesigner/images/MusicControls/artist_title.png",
+				"id": "ed5ebd71ee3158dbf0f7fa7e5431d9a4",
+				"title": "",
+				"type": "track_display",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "40",
+					"key": "size"
+				}],
+				"width": 701.5208333333334,
+				"height": 52.75,
+				"left": 11.141906666666666,
+				"top": 790.6146666666667,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "TITLE_ARTIST",
+				"valueName": "Title / Artist",
+				"valueType": "music_track_display"
+			}
+		}, {
+			"imageSrc": "images/Light/slider.png",
+			"id": "StageElement_1228",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/Light/slider.png",
+				"allowed": ["music_progress"],
+				"icon": "/YourHomeDesigner/images/Light/slider_icon.png",
+				"id": "ea7a0225aac58c91c1e04189cc854ac1",
+				"title": "",
+				"type": "track_progress",
+				"properties": [],
+				"width": 698.6458333333334,
+				"height": 23.958333333333332,
+				"left": 14.021066666666668,
+				"top": 758.6426666666666,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "PROGRESS",
+				"valueName": "Song Progress",
+				"valueType": "music_progress"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/play.png",
+			"id": "StageElement_1229",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/play.png",
+				"allowed": ["music_play_pause"],
+				"icon": "/YourHomeDesigner/images/MusicControls/play.png",
+				"id": "c1748b4564691d5276765fc5314b7797",
+				"title": "",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "PAUSE",
+					"type": "image_state",
+					"value": "images/MusicControls/play.png",
+					"key": "Paused"
+				}, {
+					"description": "PLAY",
+					"type": "image_state",
+					"value": "images/MusicControls/pause.png",
+					"key": "Playing"
+				}],
+				"width": 115.125,
+				"height": 115.125,
+				"left": 242.84,
+				"top": 853.44,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "PLAY_PAUSE",
+				"valueName": "Play / Pause",
+				"valueType": "music_play_pause"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/stop.png",
+			"id": "StageElement_1230",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/stop.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station"],
+				"icon": "/YourHomeDesigner/images/MusicControls/stop.png",
+				"id": "66867bee10b0e41f56d0bcf430955e4a",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/MusicControls/stop.png",
+					"key": "imageSrc"
+				}],
+				"width": 115.125,
+				"height": 115.125,
+				"left": 127.67200000000001,
+				"top": 853.44,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/MusicControls/skip_forward.png",
+			"id": "StageElement_1231",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/skip_forward.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station"],
+				"icon": "/YourHomeDesigner/images/MusicControls/skip_forward.png",
+				"id": "5c5089058add07660edd0b0e69995743",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/MusicControls/skip_forward.png",
+					"key": "imageSrc"
+				}],
+				"width": 115.125,
+				"height": 115.125,
+				"left": 475.0933333333333,
+				"top": 853.44,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "NEXT",
+				"valueName": "Next",
+				"valueType": "music_action"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/skip_backward.png",
+			"id": "StageElement_1232",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/skip_backward.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station"],
+				"icon": "/YourHomeDesigner/images/MusicControls/skip_backward.png",
+				"id": "ef886d0ae1ff9c0fa438048068bccbfe",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/MusicControls/skip_backward.png",
+					"key": "imageSrc"
+				}],
+				"width": 115.125,
+				"height": 115.125,
+				"left": 12.504399999999999,
+				"top": 853.4306666666666,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "PREVIOUS",
+				"valueName": "Previous",
+				"valueType": "music_action"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/random_off.png",
+			"id": "StageElement_1233",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/random_off.png",
+				"allowed": ["music_random"],
+				"icon": "/YourHomeDesigner/images/MusicControls/random_off.png",
+				"id": "a0d3547b261aacd48926f25de6dfd24e",
+				"title": "",
+				"type": "multi_state_button",
+				"properties": [{
+					"description": "false",
+					"type": "image_state",
+					"value": "images/MusicControls/random_off.png",
+					"key": "Off"
+				}, {
+					"description": "true",
+					"type": "image_state",
+					"value": "images/MusicControls/random_on.png",
+					"key": "On"
+				}],
+				"width": 115.125,
+				"height": 115.125,
+				"left": 358.00533333333334,
+				"top": 853.44,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "RANDOM",
+				"valueName": "Toggle Random",
+				"valueType": "music_random"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/eject.png",
+			"id": "StageElement_1234",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/eject.png",
+				"allowed": ["music_playlists"],
+				"icon": "/YourHomeDesigner/images/MusicControls/eject.png",
+				"id": "f6b7aa36dcecd44e550b5324f899b917",
+				"title": "",
+				"type": "playlists",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/MusicControls/eject.png",
+					"key": "imageSrc"
+				}],
+				"width": 115.125,
+				"height": 115.125,
+				"left": 590.2466666666667,
+				"top": 853.4306666666666,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "SELECT_PLAYLIST",
+				"valueName": "Select Playlist",
+				"valueType": "music_playlists"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/volume_down.png",
+			"id": "StageElement_1235",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/volume_down.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station"],
+				"icon": "/YourHomeDesigner/images/MusicControls/volume_down.png",
+				"id": "81fe01ce203089eabfeb05cdb0886739",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/MusicControls/volume_down.png",
+					"key": "imageSrc"
+				}],
+				"width": 79.95833333333333,
+				"height": 79.95833333333333,
+				"left": 625.7413333333333,
+				"top": 993.54,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "radio",
+				"controllerName": "Radio",
+				"nodeIdentifier": "RadioCommands",
+				"nodeName": "Radio Commands",
+				"valueIdentifier": "VolumeUp",
+				"valueName": "Volume Up",
+				"valueType": "music_action"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/volume_up.png",
+			"id": "StageElement_1236",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/volume_up.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station"],
+				"icon": "/YourHomeDesigner/images/MusicControls/volume_up.png",
+				"id": "b7c064c75a5e17783f700dfaccc30892",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/MusicControls/volume_up.png",
+					"key": "imageSrc"
+				}],
+				"width": 79.95833333333333,
+				"height": 79.95833333333333,
+				"left": 625.7413333333333,
+				"top": 1073.98,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "radio",
+				"controllerName": "Radio",
+				"nodeIdentifier": "RadioCommands",
+				"nodeName": "Radio Commands",
+				"valueIdentifier": "VolumeDown",
+				"valueName": "Volume Down",
+				"valueType": "music_action"
+			}
+		}, {
+			"imageSrc": "images/MusicControls/album.png",
+			"id": "StageElement_1237",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/MusicControls/album.png",
+				"allowed": ["music_album_image"],
+				"icon": "/YourHomeDesigner/images/MusicControls/album.png",
+				"id": "d2b8d865a681df779fd10e66b3c5f905",
+				"title": "",
+				"type": "album_image",
+				"properties": [],
+				"width": 259.9583333333333,
+				"height": 259.9583333333333,
+				"left": 52.19586666666667,
+				"top": 991.792,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "demo",
+				"controllerName": "Demo",
+				"nodeIdentifier": "Music",
+				"nodeName": "Music Player",
+				"valueIdentifier": "ALBUM_IMAGE",
+				"valueName": "Album Image",
+				"valueType": "music_album_image"
+			}
+		}, {
+			"imageSrc": "images/User/Studio Brussel.png",
+			"id": "StageElement_1238",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/Studio Brussel.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/Studio Brussel.png",
+				"id": "e408002de14de9bc7a37446505a89732",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/Studio Brussel.png",
+					"key": "imageSrc"
+				}],
+				"width": 129.95833333333334,
+				"height": 129.95833333333334,
+				"left": 332.0466666666667,
+				"top": 989.8813333333333,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "radio",
+				"controllerName": "Radio",
+				"nodeIdentifier": "RadioChannels",
+				"nodeName": "Radio Channels",
+				"valueIdentifier": "2",
+				"valueName": "Studio Brussel",
+				"valueType": "radio_station"
+			}
+		}, {
+			"imageSrc": "images/User/mnm.png",
+			"id": "StageElement_1239",
+			"viewProperties": {
+				"draggable": "/YourHomeDesigner/images/User/mnm.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/YourHomeDesigner/images/User/mnm.png",
+				"id": "e5d5ed4b2dccacf3de9a1d924a547d8a",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/mnm.png",
+					"key": "imageSrc"
+				}],
+				"width": 129.95833333333334,
+				"height": 129.95833333333334,
+				"left": 461.6093333333333,
+				"top": 989.8813333333333,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "radio",
+				"controllerName": "Radio",
+				"nodeIdentifier": "RadioChannels",
+				"nodeName": "Radio Channels",
+				"valueIdentifier": "11",
+				"valueName": "MNM",
+				"valueType": "radio_station"
+			}
+		}, {
+			"imageSrc": "images/User/QMusic.png",
+			"id": "StageElement_1240",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/User/QMusic.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/HomeDesigner/images/User/QMusic.png",
+				"id": "8e355fa415e5aca5208fd41f4911ec41",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/QMusic.png",
+					"key": "imageSrc"
+				}],
+				"width": 129.95833333333334,
+				"height": 129.95833333333334,
+				"left": 332.0466666666667,
+				"top": 1119.2,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "radio",
+				"controllerName": "Radio",
+				"nodeIdentifier": "RadioChannels",
+				"nodeName": "Radio Channels",
+				"valueIdentifier": "8",
+				"valueName": "Q-Music",
+				"valueType": "radio_station"
+			}
+		}, {
+			"imageSrc": "images/User/Radio 1.png",
+			"id": "StageElement_1241",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/User/Radio 1.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/HomeDesigner/images/User/Radio 1.png",
+				"id": "28eb162e0501c2e7eb7e2d26889b066d",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/Radio 1.png",
+					"key": "imageSrc"
+				}],
+				"width": 129.95833333333334,
+				"height": 129.95833333333334,
+				"left": 461.6093333333333,
+				"top": 1119.2,
+				"rotation": 0
+			},
+			"bindingProperties": {
+				"type": "VALUE",
+				"controllerIdentifier": "radio",
+				"controllerName": "Radio",
+				"nodeIdentifier": "RadioChannels",
+				"nodeName": "Radio Channels",
+				"valueIdentifier": "1",
+				"valueName": "Radio 1",
+				"valueType": "radio_station"
+			}
+		}, {
+			"id": "StageElement_1242",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Connect to Spotify, Google Music or your own music library ",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "35",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "center",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 354,
+				"height": 150,
+				"left": 327.968,
+				"top": 102,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1243",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Or listen to your favourite radio stations",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "35",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "center",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 242,
+				"height": 150,
+				"left": 53.29173333333333,
+				"top": 1043.3333333333333,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}],
+		"zoomRatio": 0.75,
+		"backgroundColor": "#575757",
+		"backgroundImageSrc": "",
+		"pageId": 2,
+		"index": 3
+	}, {
+		"width": "720",
+		"height": "1280",
+		"title": "Read more",
+		"objects": [{
+			"id": "StageElement_1325",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/Shapes/rounded_rectangle_icon.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/HomeDesigner/images/Shapes/rounded_rectangle_icon.png",
+				"id": "9d82dbce1e28d9bf283c80322e7fcc2c",
+				"title": "Rounded Rectangle",
+				"type": "shape",
+				"properties": [{
+					"description": "Color",
+					"type": "color",
+					"value": "#312e2d",
+					"key": "color"
+				}, {
+					"description": "Corner Radius",
+					"type": "double",
+					"value": "20",
+					"key": "corner_radius"
+				}],
+				"width": 402.6659217918917,
+				"height": 453.32157067514106,
+				"left": 178.66682237918243,
+				"top": 539.9996541385467,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1326",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "Interested in controlling your house like this?",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "55",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "center",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 713.332907556923,
+				"height": 149.32769436927074,
+				"left": 2.2291700597771364,
+				"top": 98.66676698146048,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"id": "StageElement_1327",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"allowed": ["text"],
+				"icon": "/HomeDesigner/images/Shapes/text_content_icon.png",
+				"id": "b82bb9ba333fe8d3f1ee06d017b1ce2c",
+				"title": "Text Content",
+				"type": "text",
+				"properties": [{
+					"description": "Content",
+					"type": "string",
+					"value": "www.yourhomeapp.net",
+					"key": "content"
+				}, {
+					"description": "Size",
+					"type": "double",
+					"value": "55",
+					"key": "size"
+				}, {
+					"description": "Alignment",
+					"type": "alignment",
+					"value": "center",
+					"key": "alignment"
+				}, {
+					"description": "Color",
+					"type": "color",
+					"value": "#ffffff",
+					"key": "color"
+				}],
+				"width": 706.6597980977621,
+				"height": 74.66384718463537,
+				"left": 0,
+				"top": 359.9997694256978,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}, {
+			"imageSrc": "images/User/logos.png",
+			"id": "StageElement_1328",
+			"viewProperties": {
+				"draggable": "/HomeDesigner/images/User/logos.png",
+				"allowed": ["music_action", "general_command", "http_command", "radio_station", "scene_activation"],
+				"icon": "/HomeDesigner/images/User/logos.png",
+				"id": "962e8c57b9facebd81ac6f1fc1e682e8",
+				"title": "",
+				"type": "image_button",
+				"properties": [{
+					"description": "Image",
+					"type": "image",
+					"value": "images/User/logos.png",
+					"key": "imageSrc"
+				}],
+				"width": 384.371104847675,
+				"height": 442.65959129207704,
+				"left": 187.5625421565435,
+				"top": 546.666885263083,
+				"rotation": 0
+			},
+			"bindingProperties": null
+		}],
+		"zoomRatio": 1.0419617784711388,
+		"backgroundColor": "#575757",
+		"backgroundImageSrc": "",
+		"pageId": 4,
+		"index": 4
+	}],
+	"stageItemCounter": 1329
+}
