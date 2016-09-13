@@ -17,11 +17,12 @@ gradlew --version
 git clone https://github.com/JohanCosemans/YourHomeServer.git
 gradlew build
 ```
-This will create two files:
+This will create two files which both contain YourHome Server and YourHome Designer:
+```
 /distributons/yourHome-latest.zip
 /distributons/yourHome-<version number>.zip
-
-To get going with this file, read http://yourhomeapp.net/getting-started.html
+```
+To get started with this file, read http://yourhomeapp.net/getting-started.html
 
 ### Adding your own integrations
 If you want to add your own custom integrations, you can do so by extending the AbstractController class.
