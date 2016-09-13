@@ -25,14 +25,16 @@ This will create two files which both contain YourHome Server and YourHome Desig
 To get started with this file, read http://yourhomeapp.net/getting-started.html
 
 ### Adding your own integrations
-If you want to add your own custom integrations, you can do so by extending the AbstractController class.
-Look at these classes for examples:
+Each integration with an external system (zwave, thermostat, hue, ip cameras, http, ...) is represented in YourHome by a controller. The controller is responsible for the system specific interactions.
+
+If you want to add your own controller, you can do so by extending the AbstractController class. Have a look at these classes to get an idea of the work needed:
+```
 VaillantVSMartController
 IPCameraController
 ZWaveNetController
 HueController
 ...
-
+```
 
 
 ## YourHome Designer
