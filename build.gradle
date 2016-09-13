@@ -6,11 +6,15 @@ buildscript {
     classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
   }
 }
+println "Using JDK version: "+System.getProperty("java.home")
+println "Must be JDK 1.8 !"
 
 apply plugin: "java"
 apply plugin: "eclipse"
 apply plugin: 'de.fuerstenau.buildconfig'
 
+targetCompatibility = '1.8'
+sourceCompatibility = '1.8'
 ext {
 	springVersion = "4.1.5.RELEASE"
 	jettyVersion = "9.3.5.v20151012"
@@ -142,7 +146,7 @@ task copyDependenciesToOutputLib(type: Copy, dependsOn: 'buildJar') {
     }
 }
 task copyResources(type: Copy, dependsOn: 'buildJar') {
-    into "$buildDir/release/"
+	into "$buildDir/release/"
     from ("build/resources/main") {
 	    include('**')
 	    exclude('config/homeserver.cfg')
