@@ -11,12 +11,12 @@ The core system which runs the home automation software. A windows, linux machin
 ### Building the code
 Execute the following steps to build the code from scratch:
 
+```
 gradlew --version
 --> Make sure that JKD 1.8 is used
-
 git clone https://github.com/JohanCosemans/YourHomeServer.git
 gradlew build
-
+```
 This will create two files:
 /distributons/yourHome-latest.zip
 /distributons/yourHome-<version number>.zip
