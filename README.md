@@ -8,6 +8,21 @@ YourHome is a home automation software package that is built to control everythi
 The core system which runs the home automation software. A windows, linux machine or raspberry pi will do.
 * Git: https://github.com/JohanCosemans/YourHomeServer
 
+### Building the code
+Execute the following steps to build the code from scratch:
+
+gradlew --version
+--> Make sure that JKD 1.8 is used
+
+git clone https://github.com/JohanCosemans/YourHomeServer.git
+gradlew build
+
+This will create two files:
+/distributons/yourHome-latest.zip
+/distributons/yourHome-<version number>.zip
+
+To get going with this file, read http://yourhomeapp.net/getting-started.html
+
 ### Adding your own integrations
 If you want to add your own custom integrations, you can do so by extending the AbstractController class.
 Look at these classes for examples:
