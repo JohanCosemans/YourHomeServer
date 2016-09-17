@@ -5,4 +5,11 @@
 /.gradle/
 /.settings/
 /src/main/resources/logs/
+/src/main/resources/web/serverinfo.json
+/src/main/resources/web/YourHomeDesigner/projects/
 /src/main/resources/ipcamerasnapshots/
+/src/main/resources/database/home_history_weekly.db
+/src/main/resources/database/home_history_archive.db
+/api_keys.properties.usethis
+/.classpath
+/.project
