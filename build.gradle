@@ -6,9 +6,7 @@ buildscript {
     classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
   }
 }
-println "Using JDK version: "+System.getProperty("java.home")
-println "Must be JDK 1.8 !"
-
+println "Using JDK version (Must be JDK 1.8): "+System.getProperty("java.home")
 apply plugin: "java"
 apply plugin: "eclipse"
 apply plugin: 'de.fuerstenau.buildconfig'
@@ -27,15 +25,19 @@ project.group = 'net.yourhome.server.base'
 buildConfig {
 	// Set the API keys
 	archivesBaseName = "YourHomeServer" 
-	buildConfigField ('String', 'GCM_API_CODE', 'AIzaSyDHAfFwIgMSwfmuYWvrPM7gLliQBbSL0Es')
-	buildConfigField ('String', 'VAILLANT_CLIENT_SECRET', '929a9f6253babbee1a6e8d4bd51745f0')
+	
+	Properties apiProperties = new Properties() 
+	File apiKeysFile = new File(projectDir,'api_keys.properties')
+	apiProperties.load(apiKeysFile.newDataInputStream()) 
+	buildConfigField ('String', 'GCM_API_CODE', (apiProperties.getProperty('GCM_API_CODE') as String))
+	buildConfigField ('String', 'VAILLANT_CLIENT_SECRET', (apiProperties.getProperty('VAILLANT_CLIENT_SECRET') as String))
 	
 	// Increase the version number.
 	Properties props = new Properties() 
 	File propsFile = new File(projectDir,'gradle.properties')
 	props.load(propsFile.newDataInputStream()) 
 	artifactBuildNumber = ( ((props.getProperty('artifactBuildNumber')) as BigDecimal) + 1 ) 
-	artifactMajorVersion  = ( ((props.getProperty('artifactMajorVersion')) as String))
+	artifactMajorVersion  = (props.getProperty('artifactMajorVersion') as String)
 	props.setProperty('artifactBuildNumber', artifactBuildNumber.toString()) 
 	props.store(propsFile.newWriter(), null) 
 	props.load(propsFile.newDataInputStream()) 
@@ -57,9 +59,14 @@ repositories {
        dirs 'libs'
     }
 }
-
+configurations.all {
+    // Don't cache changing modules at all.
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 dependencies {
-   compile 'com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT'
+   compile ('com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT') { 
+   	changing = true 
+   }
    compile name: "sqlite-jdbc-3.8.7.2"
    compile name: "tritonus_share-0.3.6"
    //compile name: "zwave4j-0.3-SNAPSHOT"
