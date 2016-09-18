@@ -12,7 +12,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * THIS SOFTWARE IS PROVIDED BY COTEQ AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
@@ -101,7 +101,6 @@ public class Nodes {
 		String returnString = "";
 		Node node = this.controller.getNode(nodeId);
 		if (node != null) {
-			// Node textNode = controller.getNodeInformation(node, true);
 			JSONObject jsonObject = new JSONObject(node);
 			returnString = jsonObject.toString();
 		}
@@ -112,7 +111,8 @@ public class Nodes {
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/{homeId}/{nodeId}")
-	public String delete(@Context final UriInfo uriInfo, @PathParam("homeId") final long homeId, @PathParam("nodeId") final short nodeId) {
+	public String delete(@Context final UriInfo uriInfo, @PathParam("homeId") final long homeId,
+			@PathParam("nodeId") final short nodeId) {
 
 		if (this.controller == null) {
 			this.initialize();
@@ -136,7 +136,8 @@ public class Nodes {
 		Node node = this.controller.getNode(nodeId);
 		if (node != null) {
 			List<Association> associations = this.controller.getAssociations(node.getHomeId(), node.getId());
-			List<AssociationGroup> associationGroups = this.controller.getAssociationGroups(node.getHomeId(), node.getId());
+			List<AssociationGroup> associationGroups = this.controller.getAssociationGroups(node.getHomeId(),
+					node.getId());
 
 			JSONObject jsonObject = new JSONObject();
 			try {
@@ -155,7 +156,9 @@ public class Nodes {
 
 	@DELETE
 	@Path("/{homeId}/{fromNodeId}/Associations/{targetNodeId}/{associationClass}")
-	public Response deleteAssociation(@Context final UriInfo uriInfo, @PathParam("homeId") final long homeId, @PathParam("fromNodeId") final short fromNodeId, @PathParam("targetNodeId") final short targetNodeId, @PathParam("associationClass") final int associationClass, String bodyContent) {
+	public Response deleteAssociation(@Context final UriInfo uriInfo, @PathParam("homeId") final long homeId,
+			@PathParam("fromNodeId") final short fromNodeId, @PathParam("targetNodeId") final short targetNodeId,
+			@PathParam("associationClass") final int associationClass, String bodyContent) {
 		if (this.controller == null) {
 			this.initialize();
 		}
@@ -168,7 +171,8 @@ public class Nodes {
 
 	@PUT
 	@Path("/{nodeId}/{function}/")
-	public Response put(@Context final UriInfo uriInfo, @PathParam("nodeId") final int nodeId, @PathParam("function") final String function, String bodyContent) {
+	public Response put(@Context final UriInfo uriInfo, @PathParam("nodeId") final int nodeId,
+			@PathParam("function") final String function, String bodyContent) {
 		if (this.controller == null) {
 			this.initialize();
 		}
@@ -323,7 +327,8 @@ public class Nodes {
 				// + "," + subscribedflag + "," + nodeId + "," + nodeInstance +
 				// ")"; // TODO: Add polled in db
 				// this.dbController.executeQuery(updateString);
-				DatabaseConnector.ValueSettings valueSettings = this.dbController.getZWaveValueSettings(homeId, nodeId, valueId, nodeInstance);
+				DatabaseConnector.ValueSettings valueSettings = this.dbController.getZWaveValueSettings(homeId, nodeId,
+						valueId, nodeInstance);
 				valueSettings.polled = polledValue;
 				valueSettings.subscribed = subscribedValue;
 				this.dbController.insertOrUpdateZWaveValueSettings(valueSettings);
@@ -387,10 +392,12 @@ public class Nodes {
 				// Update value settings
 				String valueIdentifier = bodyContent.getString("valueIdentifier");
 				// Update value alias
-				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(), ZWaveController.getNodeIdentifier(nodeId, homeId), valueIdentifier, alias);
+				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(),
+						ZWaveController.getNodeIdentifier(nodeId, homeId), valueIdentifier, alias);
 			} catch (Exception e) {
 				// Update node alias
-				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(), ZWaveController.getNodeIdentifier(nodeId, homeId), alias);
+				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(),
+						ZWaveController.getNodeIdentifier(nodeId, homeId), alias);
 			}
 
 		} catch (Exception e) {

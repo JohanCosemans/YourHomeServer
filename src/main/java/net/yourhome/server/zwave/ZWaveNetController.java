@@ -12,7 +12,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * THIS SOFTWARE IS PROVIDED BY COTEQ AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
@@ -59,7 +59,11 @@ import net.yourhome.server.net.Server;
 
 public class ZWaveNetController extends AbstractController {
 	public enum Settings {
-		ZWAVE_COM(new Setting("ZWAVE_COM", "USB port for Z-Wave USB key", "COM3 or /dev/ttyACM0"));
+		ZWAVE_COM(
+				new Setting("ZWAVE_COM", "USB port for Z-Wave USB key", "COM3 or /dev/ttyACM0")
+		), ZWAVE_KEY(
+				new Setting("ZWAVE_KEY", "ZWave Network Key", "1234567890123456")
+		);
 		private Setting setting;
 
 		private Settings(Setting setting) {
@@ -107,7 +111,8 @@ public class ZWaveNetController extends AbstractController {
 		if (message instanceof SetValueMessage) {
 			SetValueMessage message3 = (SetValueMessage) message;
 			if (message3.controlIdentifiers.getValueIdentifier().startsWith(this.VIRTUAL_VALUE_PREFIX)) {
-				this.getVirtualValues(this.zwaveController.getNodeFromIdentifier(message3.controlIdentifiers.getNodeIdentifier()));
+				this.getVirtualValues(
+						this.zwaveController.getNodeFromIdentifier(message3.controlIdentifiers.getNodeIdentifier()));
 				ControllerValue cachedValue = this.virtualValuesCache.get(message.controlIdentifiers.getKey());
 				if (cachedValue != null) {
 					if (cachedValue instanceof VirtualRGBWValue) {
@@ -116,7 +121,8 @@ public class ZWaveNetController extends AbstractController {
 				}
 			} else {
 				ZWaveValue zwaveValue = new ZWaveValue(message3.controlIdentifiers.getValueIdentifier());
-				ValueId valueIdToBeChanged = this.zwaveController.setValue(zwaveValue.getHomeId(), zwaveValue.getNodeId(), zwaveValue.getInstance(), zwaveValue.getValueId(), message3.value);
+				ValueId valueIdToBeChanged = this.zwaveController.setValue(zwaveValue.getHomeId(),
+						zwaveValue.getNodeId(), zwaveValue.getInstance(), zwaveValue.getValueId(), message3.value);
 
 				if (valueIdToBeChanged == null) {
 					this.log.error("Value ID not found: " + message3.controlIdentifiers);
@@ -138,11 +144,13 @@ public class ZWaveNetController extends AbstractController {
 				}
 				return returnMessage;
 			} else if (activationMessage.controlIdentifiers.getNodeIdentifier().equals("General")) {
-				if (activationMessage.controlIdentifiers.getValueIdentifier().equals(GeneralCommands.ALL_OFF.convert())) {
+				if (activationMessage.controlIdentifiers.getValueIdentifier()
+						.equals(GeneralCommands.ALL_OFF.convert())) {
 					for (long homeId : this.getAllHomeIds()) {
 						this.zwaveController.allOff(homeId);
 					}
-				} else if (activationMessage.controlIdentifiers.getValueIdentifier().equals(GeneralCommands.ALL_ON.convert())) {
+				} else if (activationMessage.controlIdentifiers.getValueIdentifier()
+						.equals(GeneralCommands.ALL_ON.convert())) {
 					for (long homeId : this.getAllHomeIds()) {
 						this.zwaveController.allOn(homeId);
 					}
@@ -150,7 +158,8 @@ public class ZWaveNetController extends AbstractController {
 			}
 		} else if (message instanceof ValueHistoryRequest) {
 			// Let the general controller handle this one
-			IController generalController = Server.getInstance().getControllers().get(ControllerTypes.GENERAL.convert());
+			IController generalController = Server.getInstance().getControllers()
+					.get(ControllerTypes.GENERAL.convert());
 			if (generalController != null) {
 				return generalController.parseNetMessage(message);
 			}
@@ -290,7 +299,8 @@ public class ZWaveNetController extends AbstractController {
 				// valueId.getInstance()).toControlId()),
 				// this.zwaveController.getValueUnits(valueId),
 				// value.toString(), valueDouble);
-				this.dbconnector.insertValueChange(message.controlIdentifiers, this.zwaveController.getValueUnits(valueId), value.toString(), valueDouble);
+				this.dbconnector.insertValueChange(message.controlIdentifiers,
+						this.zwaveController.getValueUnits(valueId), value.toString(), valueDouble);
 			}
 		}
 	}
@@ -328,7 +338,8 @@ public class ZWaveNetController extends AbstractController {
 						ControlIdentifiers identifiers = new ControlIdentifiers();
 						identifiers.setControllerIdentifier(ControllerTypes.ZWAVE);
 						identifiers.setValueIdentifier(valueDetails.getControlId());
-						identifiers.setNodeIdentifier(ZWaveController.getNodeIdentifier(valueDetails.getNodeId(), valueDetails.getHomeId()));
+						identifiers.setNodeIdentifier(
+								ZWaveController.getNodeIdentifier(valueDetails.getNodeId(), valueDetails.getHomeId()));
 						valueChangedMessage.controlIdentifiers = identifiers;
 						valueChangedMessage.unit = valueDetails.getValueUnit();
 						valueChangedMessage.value = valueDetails.getValue();
@@ -404,18 +415,25 @@ public class ZWaveNetController extends AbstractController {
 		List<ControllerNode> returnList = new ArrayList<ControllerNode>();
 
 		try {
-			ControllerNode generalCommandsNode = new ControllerNode(this, GeneralCommands.getNodeIdentifier(), "General Commands", "");
-			generalCommandsNode.addValue(new ControllerValue(GeneralCommands.ALL_OFF.convert(), "All off", ValueTypes.GENERAL_COMMAND));
-			generalCommandsNode.addValue(new ControllerValue(GeneralCommands.ALL_ON.convert(), "All on", ValueTypes.GENERAL_COMMAND));
+			ControllerNode generalCommandsNode = new ControllerNode(this, GeneralCommands.getNodeIdentifier(),
+					"General Commands", "");
+			generalCommandsNode.addValue(
+					new ControllerValue(GeneralCommands.ALL_OFF.convert(), "All off", ValueTypes.GENERAL_COMMAND));
+			generalCommandsNode.addValue(
+					new ControllerValue(GeneralCommands.ALL_ON.convert(), "All on", ValueTypes.GENERAL_COMMAND));
 			returnList.add(generalCommandsNode);
 
 			for (Node node : this.zwaveController.getNodeList()) {
 				node.readProperties();
-				ControllerNode commandsNode = new ControllerNode(this, node.getControlId(), node.getLabel().startsWith(node.getId() + ". ") ? node.getLabel() : node.getId() + ". " + node.getLabel(), this.getNodeType(node));
+				ControllerNode commandsNode = new ControllerNode(this, node.getControlId(),
+						node.getLabel().startsWith(node.getId() + ". ") ? node.getLabel()
+								: node.getId() + ". " + node.getLabel(),
+						this.getNodeType(node));
 				for (Value value : node.getValues()) {
 					value.readProperties();
 					if (value.getOriginalValueId().getGenre() != ValueGenre.CONFIG && value.getSubscribed()) {
-						commandsNode.addValue(new ControllerValue(value.getControlId(), value.getValueLabel(), value.getValueTypeOfValue()));
+						commandsNode.addValue(new ControllerValue(value.getControlId(), value.getValueLabel(),
+								value.getValueTypeOfValue()));
 					}
 				}
 				List<ControllerValue> virtualValues = this.getVirtualValues(node);
@@ -497,15 +515,16 @@ public class ZWaveNetController extends AbstractController {
 
 	private List<ControllerValue> getVirtualValues(Node node) {
 		List<ControllerValue> values = null;
-		if ((node.getManufacturerId() != null && node.getManufacturerId().equals("010f") // FIBARO
+		if ((node.getManufacturerId() != null && node.getManufacturerId().equals("0x010f") // FIBARO
 																							// System
-				&& node.getProductType() != null && node.getProductType().equals("0900") // FGRGBWM441
+				&& node.getProductType() != null && node.getProductType().equals("0x0900") // FGRGBWM441
 																							// RGBW
 																							// Controller
-				&& node.getProductId() != null && node.getProductId().equals("1000"))) {
+				&& node.getProductId() != null && node.getProductId().equals("0x1000"))) {
 
 			VirtualRGBWValue value = new VirtualRGBWValue("rgbw_color", "RGBW Color", ValueTypes.COLOR_BULB);
-			ControlIdentifiers identifiers = new ControlIdentifiers(this.getIdentifier(), node.getControlId(), value.getIdentifier());
+			ControlIdentifiers identifiers = new ControlIdentifiers(this.getIdentifier(), node.getControlId(),
+					value.getIdentifier());
 			VirtualRGBWValue cachedValue = (VirtualRGBWValue) this.virtualValuesCache.get(identifiers.getKey());
 			if (values == null) {
 				values = new ArrayList<>();
@@ -548,11 +567,14 @@ public class ZWaveNetController extends AbstractController {
 
 		public void setColor(Color color) {
 			int redValue = (int) Math.round(color.getRed() / 255.00 * 99.00);
-			ZWaveNetController.this.zwaveController.setValue(this.red.getHomeId(), this.red.getNodeId(), this.red.getInstance(), this.red.getValueId(), redValue + "");
+			ZWaveNetController.this.zwaveController.setValue(this.red.getHomeId(), this.red.getNodeId(),
+					this.red.getInstance(), this.red.getValueId(), redValue + "");
 			int greenValue = (int) Math.round(color.getGreen() / 255.00 * 99.00);
-			ZWaveNetController.this.zwaveController.setValue(this.green.getHomeId(), this.green.getNodeId(), this.green.getInstance(), this.green.getValueId(), greenValue + "");
+			ZWaveNetController.this.zwaveController.setValue(this.green.getHomeId(), this.green.getNodeId(),
+					this.green.getInstance(), this.green.getValueId(), greenValue + "");
 			int blueValue = (int) Math.round(color.getBlue() / 255.00 * 99.00);
-			ZWaveNetController.this.zwaveController.setValue(this.blue.getHomeId(), this.blue.getNodeId(), this.blue.getInstance(), this.blue.getValueId(), blueValue + "");
+			ZWaveNetController.this.zwaveController.setValue(this.blue.getHomeId(), this.blue.getNodeId(),
+					this.blue.getInstance(), this.blue.getValueId(), blueValue + "");
 			this.setBrightness(color);
 		}
 
@@ -560,7 +582,9 @@ public class ZWaveNetController extends AbstractController {
 			float brightnessValue = this.brightness(color.getRGB());
 			ZWaveNetController.this.log.debug("brightness: " + brightnessValue);
 			int blueValue = (int) Math.round(color.getBlue() * 99.00);
-			ZWaveNetController.this.zwaveController.setValue(this.generalLevel.getHomeId(), this.generalLevel.getNodeId(), this.generalLevel.getInstance(), this.generalLevel.getValueId(), blueValue + "");
+			ZWaveNetController.this.zwaveController.setValue(this.generalLevel.getHomeId(),
+					this.generalLevel.getNodeId(), this.generalLevel.getInstance(), this.generalLevel.getValueId(),
+					blueValue + "");
 		}
 
 		private float brightness(int color) {
