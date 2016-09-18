@@ -12,7 +12,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * THIS SOFTWARE IS PROVIDED BY COTEQ AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
@@ -118,6 +118,7 @@ public class ZWaveController {
 	public void initialize() {
 
 		String usbConnection = SettingsManager.getStringValue(this.zwaveNetController.getIdentifier(), ZWaveNetController.Settings.ZWAVE_COM.get());
+		String networkKey = SettingsManager.getStringValue(this.zwaveNetController.getIdentifier(), ZWaveNetController.Settings.ZWAVE_KEY.get(), "1234567890123456");
 
 		if (usbConnection != null && !usbConnection.equals("")) {
 
@@ -182,8 +183,8 @@ public class ZWaveController {
 																	// console
 			this.m_options.addOptionString("LogFileName", "../logs/OZW_Log.txt", true);
 			this.m_options.addOptionBool("AppendLogFile", false);
-			// m_options.addOptionString("NetworkKey",Settings.getStringValue(Settings.ZWAVE_KEY,
-			// "1234567890123456"), false);
+
+			this.m_options.addOptionString("NetworkKey", networkKey, false);
 
 			// Lock the options
 			this.m_options.lock();

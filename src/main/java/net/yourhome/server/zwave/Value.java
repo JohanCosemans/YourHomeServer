@@ -12,7 +12,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * THIS SOFTWARE IS PROVIDED BY COTEQ AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
@@ -97,10 +97,12 @@ public class Value {
 		this.setReadOnly(this.controller.getValueReadOnly(this.originalValueId));
 
 		// Read details from DB and overwrite // complete settings
-		DatabaseConnector.ValueSettings valueSettings = DatabaseConnector.getInstance().getZWaveValueSettings(this.getHomeId(), this.getNodeId(), this.getValueId(), this.getInstance());
+		DatabaseConnector.ValueSettings valueSettings = DatabaseConnector.getInstance()
+				.getZWaveValueSettings(this.getHomeId(), this.getNodeId(), this.getValueId(), this.getInstance());
 		this.setSubscribed(valueSettings.subscribed);
 
-		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(), ZWaveController.getNodeIdentifier(this.getNodeId(), this.getHomeId()), this.getControlId());
+		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(),
+				ZWaveController.getNodeIdentifier(this.getNodeId(), this.getHomeId()), this.getControlId());
 		if (alias != null) {
 			this.setValueLabel(alias);
 		}
@@ -243,6 +245,7 @@ public class Value {
 			break;
 		case SensorBinary:
 			valueType = ValueTypes.SENSOR_BINARY;// "zwave-binary-sensor";
+			break;
 		case SensorMultiLevel:
 			valueType = ValueTypes.SENSOR_GENERAL;// "zwave-sensor";
 			break;
@@ -257,6 +260,7 @@ public class Value {
 			break;
 		default:
 			valueType = ValueTypes.UNKNOWN;
+			break;
 		}
 		return valueType;
 	}

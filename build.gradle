@@ -23,9 +23,9 @@ ext {
 }
 project.group = 'net.yourhome.server.base'
 buildConfig {
-	// Set the API keys
 	archivesBaseName = "YourHomeServer" 
 	
+	// Set the API keys
 	Properties apiProperties = new Properties() 
 	File apiKeysFile = new File(projectDir,'api_keys.properties')
 	apiProperties.load(apiKeysFile.newDataInputStream()) 
@@ -165,6 +165,7 @@ task copyResources(type: Copy, dependsOn: 'buildJar') {
 	    exclude("web/YourHomeDesigner/projects/**")
 	    exclude("web/YourHomeDesigner/images/User/**")
 	    exclude("web/YourHomeDesigner/images/psd")
+	    exclude("web/albumImages/**")
 	    exclude("web/serverinfo.json")
 	    exclude("resourceFiles")
 	    exclude("ipcamerasnapshots/*")
