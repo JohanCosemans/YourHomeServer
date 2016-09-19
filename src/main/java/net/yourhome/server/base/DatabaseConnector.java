@@ -35,10 +35,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimerTask;
 
@@ -55,7 +58,8 @@ public class DatabaseConnector {
 	private final String PATH_ARCHIVE = this.DBPATH + "home_history_archive.db";
 	private final String PATH_WEEKLY = this.DBPATH + "home_history_weekly.db";
 	private final String PATH_DEFAULT = this.DBPATH + "home_history_weekly_default.db";
-	private final String INSERT_VALUE_CHANGE = "insert into main.Home_History ('controller_identifier', 'node_identifier', 'value_identifier','unit','value','value_d') VALUES (?,?,?,?,?,?)";
+	private final String INSERT_VALUE_CHANGE = "insert into main.Home_History ('controller_identifier', 'node_identifier', 'value_identifier', 'time', 'unit','value','value_d') VALUES (?,?,?,?,?,?,?)";
+	private final SimpleDateFormat sqliteTimestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
 	private Connection allHistoryConnection;
 	private volatile int currentHistoryBatchSize = 0;
@@ -438,14 +442,15 @@ public class DatabaseConnector {
 	}
 
 	public void insertValueChange(ControlIdentifiers controlIdentifiers, String unit, String valueString, Double valueDouble) {
-
+		String currentTime = getTimestamp();
 		try {
 			this.historyBatchStm.setString(1, controlIdentifiers.getControllerIdentifier().convert());
 			this.historyBatchStm.setString(2, controlIdentifiers.getNodeIdentifier());
 			this.historyBatchStm.setString(3, controlIdentifiers.getValueIdentifier());
-			this.historyBatchStm.setString(4, unit);
-			this.historyBatchStm.setString(5, valueString);
-			this.historyBatchStm.setDouble(6, valueDouble);
+			this.historyBatchStm.setString(4, currentTime);
+			this.historyBatchStm.setString(5, unit);
+			this.historyBatchStm.setString(6, valueString);
+			this.historyBatchStm.setDouble(7, valueDouble);
 			this.historyBatchStm.addBatch();
 			this.currentHistoryBatchSize++;
 			if (this.currentHistoryBatchSize >= this.HISTORY_BATCH_SIZE) {
@@ -453,14 +458,16 @@ public class DatabaseConnector {
 			}
 		} catch (SQLException e) {
 			DatabaseConnector.log.error("Exception occured: ", e);
+			e.printStackTrace();
 		}
 		try {
 			this.weeklyHistoryStm.setString(1, controlIdentifiers.getControllerIdentifier().convert());
 			this.weeklyHistoryStm.setString(2, controlIdentifiers.getNodeIdentifier());
 			this.weeklyHistoryStm.setString(3, controlIdentifiers.getValueIdentifier());
-			this.weeklyHistoryStm.setString(4, unit);
-			this.weeklyHistoryStm.setString(5, valueString);
-			this.weeklyHistoryStm.setDouble(6, valueDouble);
+			this.weeklyHistoryStm.setString(4, currentTime);
+			this.weeklyHistoryStm.setString(5, unit);
+			this.weeklyHistoryStm.setString(6, valueString);
+			this.weeklyHistoryStm.setDouble(7, valueDouble);
 			this.weeklyHistoryStm.addBatch();
 			this.currentWeeklyBatchSize++;
 
@@ -469,8 +476,14 @@ public class DatabaseConnector {
 			}
 		} catch (SQLException e) {
 			DatabaseConnector.log.error("Exception occured: ", e);
+			e.printStackTrace();
 		}
 
+	}
+
+	private String getTimestamp() {
+		Date date = new Date();
+		return sqliteTimestampFormat.format(date);
 	}
 
 	private Map<String, ValueSettings> valueSettingsCache = new HashMap<String, ValueSettings>();
