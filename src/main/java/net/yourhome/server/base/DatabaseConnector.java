@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.TimerTask;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -59,8 +60,8 @@ public class DatabaseConnector {
 	private final String PATH_WEEKLY = this.DBPATH + "home_history_weekly.db";
 	private final String PATH_DEFAULT = this.DBPATH + "home_history_weekly_default.db";
 	private final String INSERT_VALUE_CHANGE = "insert into main.Home_History ('controller_identifier', 'node_identifier', 'value_identifier', 'time', 'unit','value','value_d') VALUES (?,?,?,?,?,?,?)";
-	private final SimpleDateFormat sqliteTimestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
+	private SimpleDateFormat sqliteTimestampFormat;
 	private Connection allHistoryConnection;
 	private volatile int currentHistoryBatchSize = 0;
 	private final int HISTORY_BATCH_SIZE = 1000;
@@ -483,6 +484,10 @@ public class DatabaseConnector {
 
 	private String getTimestamp() {
 		Date date = new Date();
+		if (sqliteTimestampFormat == null) {
+			sqliteTimestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+			sqliteTimestampFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		}
 		return sqliteTimestampFormat.format(date);
 	}
 

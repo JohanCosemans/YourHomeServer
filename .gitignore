@@ -10,6 +10,7 @@
 /src/main/resources/ipcamerasnapshots/
 /src/main/resources/database/home_history_weekly.db
 /src/main/resources/database/home_history_archive.db
+/src/main/resources/config/homeserver.cfg
 api_keys.properties
 .classpath
 .project

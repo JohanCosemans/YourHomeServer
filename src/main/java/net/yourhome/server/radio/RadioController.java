@@ -123,6 +123,7 @@ public class RadioController extends AbstractController implements IMusicPlayer 
 
 	@Override
 	public JSONMessage parseNetMessage(JSONMessage message) {
+
 		if (message instanceof RadioOnOffMessage) {
 			RadioOnOffMessage radioOnOffMessage = (RadioOnOffMessage) message;
 			this.currentRadioChannel = this.getRadioChannel(Integer.parseInt(radioOnOffMessage.controlIdentifiers.getValueIdentifier()));

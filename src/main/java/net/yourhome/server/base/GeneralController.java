@@ -72,8 +72,36 @@ import net.yourhome.server.radio.BasicPlayer;
 public class GeneralController extends AbstractController {
 
 	public enum Settings {
-		SERVER_NAME(new Setting("SERVER_NAME", "Server name")), NET_HTTP_PORT(new Setting("NET_HTTP_PORT", "Server Port")), NET_USERNAME(new Setting("NET_USERNAME", "Username of UI Designer", "Leave empty if none")), NET_PASSWORD(new Setting("NET_PASSWORD", "Password of UI Designer", "Leave empty if none")), SMTP_ADDRESS(new Setting("SMTP_ADDRESS", "SMTP Address (get one free at eg app.mailjet.com/signup)", "in-v3.mailjet.com")), SMTP_PORT(new Setting("SMTP_PORT", "SMTP Port")), SMTP_USER(new Setting("SMTP_USER", "SMTP User")), SMTP_PASSWORD(new Setting("SMTP_PASSWORD", "SMTP Password")), SMTP_SENDER(new Setting("SMTP_SENDER", "SMTP Sender Email")), SMS_KEY(new Setting("SMS_KEY", "SMS API Key (get one at nexmo.com)", "c164e41d")), SMS_PASSWORD(
-				new Setting("SMS_PASSWORD", "SMS API Secret key", "9448240b")), SUNSET_LAT(new Setting("SUNSET_LAT", "Server Latitude (see www.latlong.net)", "50.8503")), SUNSET_LONG(new Setting("SUNSET_LONG", "Server Longitude", "4.3517"));
+
+		SERVER_NAME(
+				new Setting("SERVER_NAME", "Server name")
+		), NET_HTTP_PORT(
+				new Setting("NET_HTTP_PORT", "Server Port")
+		), NET_USERNAME(
+				new Setting("NET_USERNAME", "Username of UI Designer", "Leave empty if none")
+		), NET_PASSWORD(
+				new Setting("NET_PASSWORD", "Password of UI Designer", "Leave empty if none")
+		), PROTECTED_PASSCODE(
+				new Setting("PROTECTED_PASSCODE", "" + "Passcode for protected buttons (numeric)", "1234")
+		), SMTP_ADDRESS(
+				new Setting("SMTP_ADDRESS", "SMTP Address (get one free at eg app.mailjet.com/signup)", "in-v3.mailjet.com")
+		), SMTP_PORT(
+				new Setting("SMTP_PORT", "SMTP Port")
+		), SMTP_USER(
+				new Setting("SMTP_USER", "SMTP User")
+		), SMTP_PASSWORD(
+				new Setting("SMTP_PASSWORD", "SMTP Password")
+		), SMTP_SENDER(
+				new Setting("SMTP_SENDER", "SMTP Sender Email")
+		), SMS_KEY(
+				new Setting("SMS_KEY", "SMS API Key (get one at nexmo.com)", "c164e41d")
+		), SMS_PASSWORD(
+				new Setting("SMS_PASSWORD", "SMS API Secret key", "9448240b")
+		), SUNSET_LAT(
+				new Setting("SUNSET_LAT", "Server Latitude (see www.latlong.net)", "50.8503")
+		), SUNSET_LONG(
+				new Setting("SUNSET_LONG", "Server Longitude", "4.3517")
+		);
 		private Setting setting;
 
 		private Settings(Setting setting) {

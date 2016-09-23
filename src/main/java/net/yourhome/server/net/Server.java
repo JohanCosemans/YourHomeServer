@@ -62,8 +62,11 @@ import org.reflections.Reflections;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import net.yourhome.common.base.enums.MessageLevels;
 import net.yourhome.common.base.enums.MessageTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
+import net.yourhome.common.net.messagestructures.general.ProtectedJSONMessage;
 import net.yourhome.common.net.model.ServerInfo;
 import net.yourhome.server.IController;
 import net.yourhome.server.base.BuildConfig;
@@ -284,20 +287,21 @@ public class Server {
 		return this.controllers;
 	}
 
-	public JSONMessage processIncomingMessage(String json) {
-		try {
-			JSONObject jsonObject = new JSONObject(json);
-			JSONMessage message = MessageTypes.getMessage(jsonObject);
-			return this.processMessage(message);
-		} catch (Exception e) {
-			Server.log.error("Exception occured: ", e);
-			Server.log.error("Incorrect json received: " + json);
-		}
-		return null;
-	}
-
 	public JSONMessage processMessage(JSONMessage message) {
-
+		if (message instanceof ProtectedJSONMessage) {
+			ProtectedJSONMessage protectedJsonMessage = (ProtectedJSONMessage) message;
+			if (protectedJsonMessage.isProtected) {
+				String targetPasscode = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.PROTECTED_PASSCODE.get());
+				if (!targetPasscode.equals(protectedJsonMessage.protectionCode)) {
+					ClientMessageMessage wrongPasscodeMessage = new ClientMessageMessage();
+					wrongPasscodeMessage.broadcast = false;
+					wrongPasscodeMessage.messageContent = "Wrong passcode! Please try again";
+					wrongPasscodeMessage.messageLevel = MessageLevels.ERROR;
+					return wrongPasscodeMessage;
+				}
+			}
+		}
+		// Let controller process the message
 		JSONMessage returningMessage = null;
 		try {
 			IController controller = this.controllers.get(message.controlIdentifiers.getControllerIdentifier().convert());
@@ -316,6 +320,18 @@ public class Server {
 		}
 		return returningMessage;
 
+	}
+
+	public JSONMessage processIncomingMessage(String json) {
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+			JSONMessage message = MessageTypes.getMessage(jsonObject);
+			return this.processMessage(message);
+		} catch (Exception e) {
+			Server.log.error("Exception occured: ", e);
+			Server.log.error("Incorrect json received: " + json);
+		}
+		return null;
 	}
 
 	public void addClient(WebSocketAdapter socketHandler) {

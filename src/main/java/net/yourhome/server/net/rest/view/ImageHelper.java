@@ -161,13 +161,19 @@ public class ImageHelper {
 		motionDetector.addState("No Motion", "false", ImageHelper.IMAGE_FOLDER + "/Sensor/motion_detector-128-light_off.png");
 		motionDetector.addAllowed(new ValueTypes[] { ValueTypes.SENSOR_MOTION, ValueTypes.SENSOR_BINARY });
 		sensorGroup.addView(motionDetector);
-		/*
-		 * sensorGroup.addView(new
-		 * LineGraph(IMAGE_FOLDER+"/Sensor/linegraph_icon.png",
-		 * IMAGE_FOLDER+"/Sensor/linegraph.png", "Line Graph", "Graph Title",
-		 * 30.0, 0.0) .addAllowed(new ValueTypes[] { ValueTypes.SENSOR_HUMIDITY,
-		 * ValueTypes.SENSOR_LUMINOSITY, ValueTypes.SENSOR_TEMPERATURE}));
-		 */
+
+		MultiStateButton doorSensorLeft = new MultiStateButton("doorSensorLeft", ImageHelper.IMAGE_FOLDER + "/Sensor/door_left_open.png", ImageHelper.IMAGE_FOLDER + "/Sensor/door_left_open.png", "Door Sensor (left)");
+		doorSensorLeft.addState("Open", "true", ImageHelper.IMAGE_FOLDER + "/Sensor/door_left_open.png");
+		doorSensorLeft.addState("Closed", "false", ImageHelper.IMAGE_FOLDER + "/Sensor/door_closed.png");
+		doorSensorLeft.addAllowed(new ValueTypes[] { ValueTypes.SENSOR_MOTION, ValueTypes.SENSOR_BINARY });
+		sensorGroup.addView(doorSensorLeft);
+
+		MultiStateButton doorSensorRight = new MultiStateButton("doorSensorRight", ImageHelper.IMAGE_FOLDER + "/Sensor/door_right_open.png", ImageHelper.IMAGE_FOLDER + "/Sensor/door_right_open.png", "Door Sensor (right)");
+		doorSensorRight.addState("Open", "true", ImageHelper.IMAGE_FOLDER + "/Sensor/door_right_open.png");
+		doorSensorRight.addState("Closed", "false", ImageHelper.IMAGE_FOLDER + "/Sensor/door_closed.png");
+		doorSensorRight.addAllowed(new ValueTypes[] { ValueTypes.SENSOR_MOTION, ValueTypes.SENSOR_BINARY });
+		sensorGroup.addView(doorSensorRight);
+
 		returnList.add(sensorGroup);
 
 		/* Heating */
@@ -193,7 +199,7 @@ public class ImageHelper {
 		/* Camera */
 		ViewGroup cameraGroup = new ViewGroup();
 		cameraGroup.setTitle("Camera");
-		cameraGroup.addView(new Camera("cameraPlaceholder", ImageHelper.IMAGE_FOLDER + "/Camera/camera.png", ImageHelper.IMAGE_FOLDER + "/Camera/camera.png", "").addAllowed(new ValueTypes[] { ValueTypes.IP_CAMERA }));
+		cameraGroup.addView(new Camera("cameraPlaceholder", ImageHelper.IMAGE_FOLDER + "/Camera/camera.png", ImageHelper.IMAGE_FOLDER + "/Camera/camera.png", "", 600, false, false).addAllowed(new ValueTypes[] { ValueTypes.IP_CAMERA }));
 		returnList.add(cameraGroup);
 
 		/* Clocks */
@@ -207,9 +213,9 @@ public class ImageHelper {
 		/* Shapes & text */
 		ViewGroup shapesGroup = new ViewGroup();
 		shapesGroup.setTitle("Shapes");
-		shapesGroup.addView(new Shape("rectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", "Rectangle", "#c1d4a5", 0.0).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
-		shapesGroup.addView(new Shape("roundedRectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", "Rounded Rectangle", "#7dabff", 20.0).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
-		shapesGroup.addView(new Shape("circleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", "Circle", "#ff5757", 250.0).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
+		shapesGroup.addView(new Shape("rectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", "Rectangle", "#c1d4a5", 0.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
+		shapesGroup.addView(new Shape("roundedRectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", "Rounded Rectangle", "#7dabff", 20.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
+		shapesGroup.addView(new Shape("circleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", "Circle", "#ff5757", 250.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
 		returnList.add(shapesGroup);
 
 		/* Text */
