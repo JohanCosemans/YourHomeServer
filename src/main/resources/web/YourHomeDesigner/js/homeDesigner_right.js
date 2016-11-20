@@ -949,10 +949,65 @@
 				$("#binding-selector-tree > ul").append(controllerLi);
 			}
 			initJSTree();
+			alignNavigationNode();
 			$("#sidebar-loader").hide();
 		});	
 		
 	}
+
+	function alignNavigationNode() {
+		console.log("Aligning navigation node");
+
+		var tree = $.jstree.reference("#binding-selector-tree")
+		if(tree != null) {
+			var startNode = tree.get_node("general-Navigation");
+
+			// Recreate all children
+			for(var i=0;i<window.currentProject.pages.length;i++) {
+				var currentPage = window.currentProject.pages[i];
+				var newNodeId ="general-Navigation-"+currentPage.pageId+"-";
+				var existingChildNode = tree.get_node(newNodeId);
+				if(!existingChildNode) {
+					var node = tree.create_node(startNode,  { 	
+						"id" : newNodeId,
+						"text" : currentPage.title, 
+						"type" : "page_navigation",
+						"rel"  : currentPage.pageId,
+						"li_attr" : {
+									"type" : "page_navigation",
+									"identifier" : currentPage.pageId,
+									"rel" : "page_navigation"
+								 }
+					  }, "first"); 
+				  }else {
+				  	tree.rename_node(existingChildNode,currentPage.title)
+				  }
+			  }
+
+			  // Remove nodes that should not be in the tree anymore
+			  for(var i=0;i<startNode.children.length;i++){
+			  	var currentNode = tree.get_node(startNode.children[i]);
+			  	if(!projectHasPage(window.currentProject,currentNode.li_attr.identifier)) {
+			  		tree.delete_node(tree.get_node(startNode.children[i]));
+			  	}
+			  }
+		}
+
+		console.log("Aligning navigation node finished");
+	}
+	function nodeHasChild(node, nodeId) {
+		return node.children.indexOf(nodeId)>=0
+	}
+	function projectHasPage(project,pageId) {
+		var returnBoolean = false;
+		 for(var i=0;i<project.pages.length;i++){
+			 if(project.pages[i].pageId==pageId){
+			 	returnBoolean=true;
+			 }
+		  }
+		 return returnBoolean;
+	}
+
 	function cacheZwaveObjects() {	
 	
 			$.getJSON(rootUrl+apiBase + '/ZWave/Nodes'+json, function(data) {	

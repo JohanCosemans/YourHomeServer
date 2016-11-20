@@ -213,9 +213,9 @@ public class ImageHelper {
 		/* Shapes & text */
 		ViewGroup shapesGroup = new ViewGroup();
 		shapesGroup.setTitle("Shapes");
-		shapesGroup.addView(new Shape("rectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", "Rectangle", "#c1d4a5", 0.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
-		shapesGroup.addView(new Shape("roundedRectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", "Rounded Rectangle", "#7dabff", 20.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
-		shapesGroup.addView(new Shape("circleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", "Circle", "#ff5757", 250.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION }));
+		shapesGroup.addView(new Shape("rectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rectangle_icon.png", "Rectangle", "#c1d4a5", 0.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION, ValueTypes.PAGE_NAVIGATION }));
+		shapesGroup.addView(new Shape("roundedRectangleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/rounded_rectangle_icon.png", "Rounded Rectangle", "#7dabff", 20.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION, ValueTypes.PAGE_NAVIGATION }));
+		shapesGroup.addView(new Shape("circleShape", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", ImageHelper.IMAGE_FOLDER + "/Shapes/circle_icon.png", "Circle", "#ff5757", 250.0, false).addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION, ValueTypes.PAGE_NAVIGATION }));
 		returnList.add(shapesGroup);
 
 		/* Text */
@@ -362,7 +362,7 @@ public class ImageHelper {
 					String icon = ImageHelper.IMAGE_FOLDER + "/" + imageFolder.getName() + "/" + filePath.getName();
 					String id = Util.MD5(type + icon + icon + "");
 					ImageButton imageButton = new ImageButton(id, icon, "");
-					imageButton.addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION });
+					imageButton.addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION, ValueTypes.PAGE_NAVIGATION });
 					resultGroup.addView(imageButton);
 				}
 			}

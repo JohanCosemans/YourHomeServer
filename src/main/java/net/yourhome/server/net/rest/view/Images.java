@@ -116,7 +116,7 @@ public class Images {
 		String type = ViewTypes.IMAGE_BUTTON.convert();
 		String id = Util.MD5(type + path + path + "");
 		ImageButton imageButton = new ImageButton(id, path, "");
-		imageButton.addAllowed(new ValueTypes[] { ValueTypes.SCENE_ACTIVATION, ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION });
+		imageButton.addAllowed(new ValueTypes[] { ValueTypes.MUSIC_ACTION, ValueTypes.GENERAL_COMMAND, ValueTypes.HTTP_COMMAND, ValueTypes.RADIO_STATION, ValueTypes.SCENE_ACTIVATION, ValueTypes.PAGE_NAVIGATION });
 		return imageButton;
 	}
 

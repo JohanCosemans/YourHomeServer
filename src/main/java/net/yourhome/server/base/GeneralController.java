@@ -49,6 +49,7 @@ import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
 import net.yourhome.common.base.enums.ControllerTypes;
+import net.yourhome.common.base.enums.MessageLevels;
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
 import net.yourhome.common.net.messagestructures.general.ActivationMessage;
@@ -328,6 +329,9 @@ public class GeneralController extends AbstractController {
 					}
 				}
 			}
+		} else if (message.controlIdentifiers.getNodeIdentifier().equals("Navigation")) {
+			ClientMessageMessage succesMessage = new ClientMessageMessage("Correct PIN Entered", MessageLevels.INFORMATION);
+			return succesMessage;
 		}
 		return null;
 	}
@@ -378,9 +382,10 @@ public class GeneralController extends AbstractController {
 		commandsNode.addValue(new ControllerValue(ValueTypes.SOUND_NOTIFICATION.convert(), "Play Notification", ValueTypes.SOUND_NOTIFICATION));
 		commandsNode.addValue(new ControllerValue(ValueTypes.WAIT.convert(), "Wait", ValueTypes.WAIT));
 		commandsNode.addValue(new ControllerValue(ValueTypes.SYSTEM_COMMAND.convert(), "System Command", ValueTypes.SYSTEM_COMMAND));
+		returnList.add(commandsNode);
 
+		/* Scenes */
 		ControllerNode scenesNode = new ControllerNode(this, "Scenes", "Scenes", "scenes");
-
 		List<Scene> allScenes;
 		try {
 			allScenes = SceneManager.getAllScenes();
@@ -390,9 +395,12 @@ public class GeneralController extends AbstractController {
 		} catch (SQLException e) {
 			GeneralController.log.error("Exception occured: ", e);
 		}
-
 		returnList.add(scenesNode);
-		returnList.add(commandsNode);
+
+		/* Page navigation */
+		ControllerNode navigationNode = new ControllerNode(this, "Navigation", "Navigation", "navigation_node");
+		returnList.add(navigationNode);
+
 		return returnList;
 	}
 

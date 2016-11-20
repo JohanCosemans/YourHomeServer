@@ -1,0 +1,2 @@
+include ':YourHomeCommon'
+project(':YourHomeCommon').projectDir = new File(settingsDir, '../YourHomeCommon')

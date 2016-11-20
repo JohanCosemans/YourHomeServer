@@ -1009,7 +1009,8 @@
 													if(projectPage != null) {
 														projectPage.title = newText;
 													}
-
+	
+													alignNavigationNode();
 													event.stopImmediatePropagation();
 												})
 										.hide();
@@ -1085,6 +1086,7 @@
 		if(hideMenu) {
 			hideSubMenus();
 		}
+		alignNavigationNode();
 		return newPage.pageId;
 	}
 	function renameScreen(screenID) {

@@ -44,6 +44,9 @@
 			"scenes" : {
 				"icon" : " ic icon-clapperboard ic-fw ic-tree ic-color"
 			},
+			"navigation_node" : {
+				"icon" : " ic icon-external-link-square ic-fw ic-tree ic-color"	
+			},
 			// End nodes
 			
 			// ValueTypes
@@ -155,6 +158,9 @@
 			},"scene_activation" : {
 				"icon" : "ic icon-clapperboard ic-fw ic-color",
 				"description" : "Scene Activation"
+			},"page_navigation" : {
+				"icon" : "ic icon-chain ic-fw ic-color",
+				"description" : "Navigation"
 			}
 			// End ValueTypes
 		  };
@@ -683,6 +689,8 @@
 			}
 			i++;
 		}
+
+		alignNavigationNode();
 	}
 	function openImageValueHelp(setFunction, selector, url) {
 		$('<div></div>').dialog( 
