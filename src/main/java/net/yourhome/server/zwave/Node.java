@@ -54,9 +54,9 @@ public class Node {
 	private boolean isAlive;
 	private short[] neighbours;
 
-	private ZWaveController controller;
+	private ZWaveManager controller;
 
-	public Node(ZWaveController controller) {
+	public Node(ZWaveManager controller) {
 		this.controller = controller;
 	}
 
@@ -110,7 +110,7 @@ public class Node {
 	}
 
 	public String getControlId() {
-		return ZWaveController.getNodeIdentifier(this.id, this.homeId);
+		return ZWaveManager.getNodeIdentifier(this.id, this.homeId);
 	}
 
 	/**
@@ -346,7 +346,7 @@ public class Node {
 	public Value getValue(BigInteger valueId, short instance) {
 		for (Value value : this.values) {
 			ValueId valueIdObj = value.getOriginalValueId();
-			BigInteger currentValueId = ZWaveController.getInstance().getValueId(valueIdObj);
+			BigInteger currentValueId = ZWaveManager.getInstance().getValueId(valueIdObj);
 			if (currentValueId.equals(valueId) && instance == valueIdObj.getInstance()) {
 				return value;
 			}
@@ -367,7 +367,7 @@ public class Node {
 	public Event getEvent(BigInteger valueId) {
 		for (Event event : this.events) {
 			ValueId valueIdObj = event.getOriginalValueId();
-			BigInteger currentValueId = ZWaveController.getInstance().getValueId(valueIdObj);
+			BigInteger currentValueId = ZWaveManager.getInstance().getValueId(valueIdObj);
 			if (currentValueId.equals(valueId)) {
 				return event;
 			}

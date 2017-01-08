@@ -61,9 +61,9 @@ public class Value {
 	private String valueListSelection; // For list values
 	private int maxValue;
 
-	private ZWaveController controller;
+	private ZWaveManager controller;
 
-	public Value(ZWaveController controller, ValueId valueId) {
+	public Value(ZWaveManager controller, ValueId valueId) {
 		this.controller = controller;
 		this.originalValueId = valueId;
 		this.setNodeId(this.originalValueId.getNodeId());
@@ -92,7 +92,7 @@ public class Value {
 	}
 
 	public void readProperties() {
-		this.setValue(String.valueOf(ZWaveController.getValueOfValue(this.originalValueId)));
+		this.setValue(String.valueOf(ZWaveManager.getValueOfValue(this.originalValueId)));
 		this.setPolled(this.controller.getValuePolled(this.originalValueId));
 		this.setReadOnly(this.controller.getValueReadOnly(this.originalValueId));
 
@@ -102,7 +102,7 @@ public class Value {
 		this.setSubscribed(valueSettings.subscribed);
 
 		String alias = DatabaseConnector.getInstance().getAlias(ZWaveNetController.getInstance().getIdentifier(),
-				ZWaveController.getNodeIdentifier(this.getNodeId(), this.getHomeId()), this.getControlId());
+				ZWaveManager.getNodeIdentifier(this.getNodeId(), this.getHomeId()), this.getControlId());
 		if (alias != null) {
 			this.setValueLabel(alias);
 		}

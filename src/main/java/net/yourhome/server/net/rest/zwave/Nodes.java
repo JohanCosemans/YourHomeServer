@@ -52,12 +52,12 @@ import net.yourhome.server.zwave.Association;
 import net.yourhome.server.zwave.AssociationGroup;
 import net.yourhome.server.zwave.ControllerTransaction;
 import net.yourhome.server.zwave.Node;
-import net.yourhome.server.zwave.ZWaveController;
+import net.yourhome.server.zwave.ZWaveManager;
 
 @Path("/ZWave/Nodes")
 public class Nodes {
 
-	private ZWaveController controller;
+	private ZWaveManager controller;
 	private DatabaseConnector dbController;
 	private static Logger log = Logger.getLogger(Nodes.class);
 
@@ -65,7 +65,7 @@ public class Nodes {
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	public void initialize() {
-		this.controller = ZWaveController.getInstance();
+		this.controller = ZWaveManager.getInstance();
 		this.dbController = DatabaseConnector.getInstance();
 	}
 
@@ -393,11 +393,11 @@ public class Nodes {
 				String valueIdentifier = bodyContent.getString("valueIdentifier");
 				// Update value alias
 				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(),
-						ZWaveController.getNodeIdentifier(nodeId, homeId), valueIdentifier, alias);
+						ZWaveManager.getNodeIdentifier(nodeId, homeId), valueIdentifier, alias);
 			} catch (Exception e) {
 				// Update node alias
 				this.dbController.setAlias(ControllerTypes.ZWAVE.convert(),
-						ZWaveController.getNodeIdentifier(nodeId, homeId), alias);
+						ZWaveManager.getNodeIdentifier(nodeId, homeId), alias);
 			}
 
 		} catch (Exception e) {

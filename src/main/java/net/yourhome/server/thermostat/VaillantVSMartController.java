@@ -75,7 +75,13 @@ import net.yourhome.server.net.Server;
 public class VaillantVSMartController extends AbstractController {
 	public enum Settings {
 
-		THERMOSTAT_USERNAME(new Setting("THERMOSTAT_USERNAME", "VSMart Thermostat Username", "my@email.address")), THERMOSTAT_PASSWORD(new Setting("THERMOSTAT_PASSWORD", "VSMart Thermostat Password"));
+		THERMOSTAT_USERNAME(
+				new Setting("THERMOSTAT_USERNAME", "VSMart Thermostat Username", "my@email.address")
+		), THERMOSTAT_PASSWORD(
+				new Setting("THERMOSTAT_PASSWORD", "VSMart Thermostat Password")
+		), HOURS_AWAY(
+				new Setting("HOURS_AWAY", "Hours away when away mode is activated (0 = no end)")
+		);
 
 		private Setting setting;
 
@@ -308,15 +314,21 @@ public class VaillantVSMartController extends AbstractController {
 	/*
 	 * Set away without parameters will send a mobile notification to confirm
 	 * until when the away mode has to remain active It will default the away
-	 * time on 3 hours if no mobile action is taken.
+	 * time on X hours if no mobile action is taken.
 	 */
 	private boolean setAway(boolean on) throws Exception {
 
-		Calendar endTime = Calendar.getInstance();
-		endTime.setTime(new Date());
-		endTime.add(Calendar.HOUR_OF_DAY, 3);
-
-		boolean returnBoolean = this.setAway(on, endTime.getTime());
+		Integer hoursAway = Integer.parseInt(SettingsManager.getStringValue(this.getIdentifier(), Settings.HOURS_AWAY.get()));
+		boolean returnBoolean;
+		Calendar endTime = null;
+		if (hoursAway > 0) {
+			endTime = Calendar.getInstance();
+			endTime.setTime(new Date());
+			endTime.add(Calendar.HOUR_OF_DAY, hoursAway);
+			returnBoolean = this.setAway(on, endTime.getTime());
+		} else {
+			returnBoolean = this.setAway(on, null);
+		}
 
 		if (returnBoolean && on) {
 			ClientNotificationMessage notificationMessage = new ClientNotificationMessage();
@@ -324,8 +336,10 @@ public class VaillantVSMartController extends AbstractController {
 			notificationMessage.notificationType = MobileNotificationTypes.DATE_TIME_PICKER;
 			notificationMessage.subtitle = "When will you be back home?";
 			notificationMessage.title = "Away mode activated";
-			notificationMessage.message = "Until " + new SimpleDateFormat("HH:mm, dd/MM").format(endTime.getTime()) + ". Click to change";
-			notificationMessage.startDate = endTime.getTime().getTime();
+			if (endTime != null) {
+				notificationMessage.message = "Until " + new SimpleDateFormat("HH:mm, dd/MM").format(endTime.getTime()) + ". Click to change";
+				notificationMessage.startDate = endTime.getTime().getTime();
+			}
 			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
 		} else if (returnBoolean && !on) {
 			ClientNotificationMessage notificationMessage = new ClientNotificationMessage();
@@ -347,8 +361,9 @@ public class VaillantVSMartController extends AbstractController {
 		messageBodyMap.put("setpoint_mode", URLEncoder.encode("away", "UTF-8"));
 		messageBodyMap.put("module_id", URLEncoder.encode(this.moduleId, "UTF-8"));
 		messageBodyMap.put("device_id", URLEncoder.encode(this.deviceId, "UTF-8"));
-		messageBodyMap.put("setpoint_endtime", endTime.getTime() / 1000L + "");
-
+		if (endTime != null) {
+			messageBodyMap.put("setpoint_endtime", endTime.getTime() / 1000L + "");
+		}
 		String messageBody = "";
 		for (Map.Entry<String, String> param : messageBodyMap.entrySet()) {
 			messageBody += param.getKey() + "=" + param.getValue() + "&";

@@ -56,6 +56,7 @@ import net.yourhome.server.IController;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.net.Server;
+import net.yourhome.server.zwave.enums.TimeFrame;
 
 public class ZWaveNetController extends AbstractController {
 	public enum Settings {
@@ -76,7 +77,7 @@ public class ZWaveNetController extends AbstractController {
 	}
 
 	private final String VIRTUAL_VALUE_PREFIX = "virt_";
-	private ZWaveController zwaveController;
+	private ZWaveManager zwaveController;
 	private Server netWebSocketServer;
 	private DatabaseConnector dbconnector;
 	private static volatile ZWaveNetController instance;
@@ -84,7 +85,7 @@ public class ZWaveNetController extends AbstractController {
 
 	private ZWaveNetController() {
 		this.log = Logger.getLogger("net.yourhome.server.zwave.ZWave");
-		this.zwaveController = ZWaveController.getInstance();
+		this.zwaveController = ZWaveManager.getInstance();
 		this.zwaveController.setZWaveNetController(this);
 		this.dbconnector = DatabaseConnector.getInstance();
 	}
@@ -174,7 +175,7 @@ public class ZWaveNetController extends AbstractController {
 				this.triggerValueChanged(message.controlIdentifiers);
 
 				// Save value change in db
-				Object value = ZWaveController.getValueOfValue(valueId);
+				Object value = ZWaveManager.getValueOfValue(valueId);
 				Double valueDouble;
 				switch (valueId.getType()) {
 				case BOOL:
@@ -222,7 +223,7 @@ public class ZWaveNetController extends AbstractController {
 						ControlIdentifiers identifiers = new ControlIdentifiers();
 						identifiers.setControllerIdentifier(ControllerTypes.ZWAVE);
 						identifiers.setValueIdentifier(valueDetails.getControlId());
-						identifiers.setNodeIdentifier(ZWaveController.getNodeIdentifier(valueDetails.getNodeId(), valueDetails.getHomeId()));
+						identifiers.setNodeIdentifier(ZWaveManager.getNodeIdentifier(valueDetails.getNodeId(), valueDetails.getHomeId()));
 						valueChangedMessage.controlIdentifiers = identifiers;
 						valueChangedMessage.unit = valueDetails.getValueUnit();
 						valueChangedMessage.value = valueDetails.getValue();
@@ -364,7 +365,7 @@ public class ZWaveNetController extends AbstractController {
 	@Override
 	public String getValue(ControlIdentifiers valueIdentifiers) {
 		Value value = this.zwaveController.getValue(valueIdentifiers.getValueIdentifier());
-		return ZWaveController.getValueOfValue(value.getOriginalValueId()).toString();
+		return ZWaveManager.getValueOfValue(value.getOriginalValueId()).toString();
 	}
 
 	@Override
@@ -389,21 +390,18 @@ public class ZWaveNetController extends AbstractController {
 
 	private Map<String, ControllerValue> virtualValuesCache = new HashMap<String, ControllerValue>();
 
-	private List<ControllerValue> getVirtualValues(Node node) {
-		List<ControllerValue> values = null;
-		if ((node.getManufacturerId() != null && node.getManufacturerId().equals("0x010f") // FIBARO
-																							// System
-				&& node.getProductType() != null && node.getProductType().equals("0x0900") // FGRGBWM441
-																							// RGBW
-																							// Controller
-				&& node.getProductId() != null && node.getProductId().equals("0x1000"))) {
+	// TODO; The idea is for this is to have static values defined in a config
+	// file, and have the user define them in
+	// the UI as well.
 
+	private List<ControllerValue> getVirtualValues(Node node) {
+		List<ControllerValue> values = new ArrayList<>();
+
+		if ((node.getManufacturerId() != null && node.getManufacturerId().equals("0x010f") && node.getProductType() != null && node.getProductType().equals("0x0900") && node.getProductId() != null && node.getProductId().equals("0x1000"))) {
+			// FIBARO System FGRGBWM441 RGBW Controller
 			VirtualRGBWValue value = new VirtualRGBWValue("rgbw_color", "RGBW Color", ValueTypes.COLOR_BULB);
 			ControlIdentifiers identifiers = new ControlIdentifiers(this.getIdentifier(), node.getControlId(), value.getIdentifier());
 			VirtualRGBWValue cachedValue = (VirtualRGBWValue) this.virtualValuesCache.get(identifiers.getKey());
-			if (values == null) {
-				values = new ArrayList<>();
-			}
 			if (cachedValue == null) {
 				// Add color bulb
 				Value generalLevel = node.getValue(ValueType.BYTE, ValueGenre.USER, (short) 1, (short) 0);
@@ -424,21 +422,71 @@ public class ZWaveNetController extends AbstractController {
 			} else {
 				values.add(cachedValue);
 			}
+
+		} else if ((node.getManufacturerId() != null && node.getManufacturerId().equals("0x86") && node.getProductType() != null && node.getProductType().equals("0x2") && node.getProductId() != null && node.getProductId().equals("0x1c"))) {
+			// Aeotec DSB28 Home Energy Meter (2nd Edition)
+			VirtualIncrementingMeasureValue kwhToday = new VirtualIncrementingMeasureValue("kwh_today", "Kwh Total Today", ValueTypes.METER);
+
+			ControlIdentifiers identifiers = new ControlIdentifiers(this.getIdentifier(), node.getControlId(), kwhToday.getIdentifier());
+			VirtualRGBWValue cachedValue = (VirtualRGBWValue) this.virtualValuesCache.get(identifiers.getKey());
+
+			if (cachedValue == null) {
+				// kwh total
+				Value incrementingValue = node.getValue(ValueType.DECIMAL, ValueGenre.USER, (short) 1, (short) 0);
+				kwhToday.setIncrementingValue(incrementingValue);
+				if (incrementingValue != null) {
+					values.add(kwhToday);
+				}
+			} else {
+				values.add(cachedValue);
+			}
 		}
 		return values;
 	}
 
-	class VirtualRGBWValue extends ControllerValue {
+	abstract class VirtualControllerValue extends ControllerValue {
+		public VirtualControllerValue(String identifier, String name, ValueTypes valueType) {
+			super(ZWaveNetController.this.VIRTUAL_VALUE_PREFIX + identifier, name, valueType);
+			this.setVirtual(true);
+		}
+	}
+
+	class VirtualIncrementingMeasureValue extends VirtualControllerValue {
+		private TimeFrame timeFrame;
+		private Value incrementingValue;
+
+		public VirtualIncrementingMeasureValue(String identifier, String name, ValueTypes valueType) {
+			super(identifier, name, valueType);
+		}
+
+		public TimeFrame getTimeFrame() {
+			return timeFrame;
+		}
+
+		public void setTimeFrame(TimeFrame timeFrame) {
+			this.timeFrame = timeFrame;
+		}
+
+		public Value getIncrementingValue() {
+			return incrementingValue;
+		}
+
+		public void setIncrementingValue(Value incrementingValue) {
+			this.incrementingValue = incrementingValue;
+		}
+
+	}
+
+	class VirtualRGBWValue extends VirtualControllerValue {
+		public VirtualRGBWValue(String identifier, String name, ValueTypes valueType) {
+			super(identifier, name, valueType);
+		}
+
 		private Value red;
 		private Value green;
 		private Value blue;
 		private Value white;
 		private Value generalLevel;
-
-		public VirtualRGBWValue(String identifier, String name, ValueTypes valueType) {
-			super(ZWaveNetController.this.VIRTUAL_VALUE_PREFIX + identifier, name, valueType);
-			this.setVirtual(true);
-		}
 
 		public void setColor(Color color) {
 			int redValue = (int) Math.round(color.getRed() / 255.00 * 99.00);

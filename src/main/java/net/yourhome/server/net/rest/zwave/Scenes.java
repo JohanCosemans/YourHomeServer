@@ -47,19 +47,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import net.yourhome.server.zwave.Value;
-import net.yourhome.server.zwave.ZWaveController;
-import net.yourhome.server.zwave.ZWaveController.ZWaveScene;
+import net.yourhome.server.zwave.ZWaveManager;
+import net.yourhome.server.zwave.ZWaveManager.ZWaveScene;
 
 @Path("/ZWave/Scenes")
 public class Scenes {
-	private ZWaveController controller;
+	private ZWaveManager controller;
 	private static Logger log = Logger.getLogger(Scenes.class);
 
 	// The initialize method will only be called when the controllers are needed
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-		this.controller = ZWaveController.getInstance();
+		this.controller = ZWaveManager.getInstance();
 	}
 
 	@Produces({ MediaType.APPLICATION_JSON })

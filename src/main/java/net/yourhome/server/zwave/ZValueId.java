@@ -36,7 +36,7 @@ public class ZValueId extends ValueId {
 
 	public ZValueId(ValueId v) {
 		super(v.getHomeId(), v.getNodeId(), v.getGenre(), v.getCommandClassId(), v.getInstance(), v.getIndex(), v.getType());
-		this.valueId = ZWaveController.getInstance().getValueId(v);
+		this.valueId = ZWaveManager.getInstance().getValueId(v);
 	}
 
 	/**

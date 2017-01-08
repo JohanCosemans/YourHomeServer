@@ -36,19 +36,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.yourhome.server.zwave.ZWaveController;
+import net.yourhome.server.zwave.ZWaveManager;
 
 @Path("/ZWave/Commands")
 public class Commands {
 
-	private ZWaveController controller;
+	private ZWaveManager controller;
 	private static Logger log = Logger.getLogger(Commands.class);
 
 	// The initialize method will only be called when the controllers are needed
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-		this.controller = ZWaveController.getInstance();
+		this.controller = ZWaveManager.getInstance();
 	}
 
 	@Produces({ MediaType.APPLICATION_JSON })
