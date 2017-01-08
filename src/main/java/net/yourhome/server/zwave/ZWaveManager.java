@@ -26,31 +26,6 @@
  */
 package net.yourhome.server.zwave;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.log4j.Logger;
-import org.zwave4j.ControllerCallback;
-import org.zwave4j.ControllerCommand;
-import org.zwave4j.ControllerError;
-import org.zwave4j.ControllerState;
-import org.zwave4j.Manager;
-import org.zwave4j.NativeLibraryLoader;
-import org.zwave4j.Notification;
-import org.zwave4j.NotificationWatcher;
-import org.zwave4j.Options;
-import org.zwave4j.ValueGenre;
-import org.zwave4j.ValueId;
-import org.zwave4j.ValueType;
-import org.zwave4j.ZWave4j;
-
 import net.yourhome.common.base.enums.GeneralCommands;
 import net.yourhome.common.base.enums.zwave.ZWaveCommandClassTypes;
 import net.yourhome.common.net.messagestructures.zwave.ZWaveValue;
@@ -59,6 +34,14 @@ import net.yourhome.server.base.Scheduler;
 import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.net.rest.zwave.Commands;
 import net.yourhome.server.zwave.enums.LogLevel;
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.log4j.Logger;
+import org.zwave4j.*;
+
+import java.io.File;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ZWaveManager {
 	private static Logger log = Logger.getLogger("net.yourhome.server.zwave.ZWave");

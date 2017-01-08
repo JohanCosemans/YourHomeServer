@@ -26,15 +26,14 @@
  */
 package net.yourhome.server.zwave;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
+import net.yourhome.server.base.DatabaseConnector;
 import org.zwave4j.ValueGenre;
 import org.zwave4j.ValueId;
 import org.zwave4j.ValueType;
 
-import net.yourhome.server.base.DatabaseConnector;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Node {
 	private short id;

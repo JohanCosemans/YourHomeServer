@@ -26,42 +26,21 @@
  */
 package net.yourhome.server.net.rest.view;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import net.yourhome.common.base.enums.Alignments;
+import net.yourhome.common.base.enums.ValueTypes;
+import net.yourhome.common.base.enums.ViewTypes;
+import net.yourhome.common.net.model.viewproperties.*;
+import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.base.Util;
+import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.yourhome.common.base.enums.Alignments;
-import net.yourhome.common.base.enums.ValueTypes;
-import net.yourhome.common.base.enums.ViewTypes;
-import net.yourhome.common.net.model.viewproperties.AlbumImage;
-import net.yourhome.common.net.model.viewproperties.Camera;
-import net.yourhome.common.net.model.viewproperties.ClockAnalog;
-import net.yourhome.common.net.model.viewproperties.ClockDigital;
-import net.yourhome.common.net.model.viewproperties.ColorPicker;
-import net.yourhome.common.net.model.viewproperties.ImageButton;
-import net.yourhome.common.net.model.viewproperties.MultiStateButton;
-import net.yourhome.common.net.model.viewproperties.Playlist;
-import net.yourhome.common.net.model.viewproperties.Playlists;
-import net.yourhome.common.net.model.viewproperties.PlusMinValue;
-import net.yourhome.common.net.model.viewproperties.Sensor;
-import net.yourhome.common.net.model.viewproperties.SensorWithIndicator;
-import net.yourhome.common.net.model.viewproperties.Shape;
-import net.yourhome.common.net.model.viewproperties.Slider;
-import net.yourhome.common.net.model.viewproperties.Text;
-import net.yourhome.common.net.model.viewproperties.TrackDisplay;
-import net.yourhome.common.net.model.viewproperties.TrackProgress;
-import net.yourhome.common.net.model.viewproperties.ViewGroup;
-import net.yourhome.common.net.model.viewproperties.WebLink;
-import net.yourhome.common.net.model.viewproperties.WebRSS;
-import net.yourhome.common.net.model.viewproperties.WebStaticHtml;
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.Util;
-import net.yourhome.server.net.Server;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageHelper {
 

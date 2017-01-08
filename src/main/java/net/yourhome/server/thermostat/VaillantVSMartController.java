@@ -26,35 +26,14 @@
  */
 package net.yourhome.server.thermostat;
 
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimerTask;
-
-import org.apache.log4j.Logger;
-import org.json.JSONObject;
-
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.base.enums.MobileNotificationTypes;
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
-import net.yourhome.common.net.messagestructures.general.ClientNotificationMessage;
-import net.yourhome.common.net.messagestructures.general.SetValueMessage;
-import net.yourhome.common.net.messagestructures.general.ValueChangedMessage;
-import net.yourhome.common.net.messagestructures.general.ValueHistoryRequest;
+import net.yourhome.common.net.messagestructures.general.*;
 import net.yourhome.common.net.messagestructures.http.HttpCommand;
 import net.yourhome.common.net.messagestructures.http.HttpCommandMessage;
 import net.yourhome.common.net.messagestructures.thermostat.SetAwayMessage;
@@ -63,14 +42,16 @@ import net.yourhome.server.AbstractController;
 import net.yourhome.server.ControllerNode;
 import net.yourhome.server.ControllerValue;
 import net.yourhome.server.IController;
-import net.yourhome.server.base.BuildConfig;
-import net.yourhome.server.base.DatabaseConnector;
-import net.yourhome.server.base.Scheduler;
-import net.yourhome.server.base.Setting;
-import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.base.*;
 import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
 import net.yourhome.server.http.HttpCommandController;
 import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class VaillantVSMartController extends AbstractController {
 	public enum Settings {
@@ -403,7 +384,7 @@ public class VaillantVSMartController extends AbstractController {
 			valueChanged = new ValueChangedMessage();
 			valueChanged.broadcast = true;
 			valueChanged.controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), "Measurements", valueIdentifier);
-			valueChanged.unit = "°C";
+			valueChanged.unit = "ï¿½C";
 			valueChanged.value = formattedValue;
 			valueChanged.valueType = ValueTypes.SENSOR_TEMPERATURE;
 			this.values.put(valueIdentifier, valueChanged);
@@ -585,7 +566,7 @@ public class VaillantVSMartController extends AbstractController {
 					message.broadcast = true;
 					message.controlIdentifiers = new ControlIdentifiers(ControllerTypes.GENERAL.convert());
 					if (this.setManualSetpoint(value, c.getTime(), true)) {
-						returnMessage.messageContent = "Manual temperature set to " + value + "° until " + new SimpleDateFormat("HH:mm").format(c.getTime());
+						returnMessage.messageContent = "Manual temperature set to " + value + "ï¿½ until " + new SimpleDateFormat("HH:mm").format(c.getTime());
 						return returnMessage;
 					} else {
 						returnMessage.messageContent = "Failed to change temperature";

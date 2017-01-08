@@ -26,12 +26,11 @@
  */
 package net.yourhome.server.base.rules.triggers;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.server.IController;
 import net.yourhome.server.base.rules.Rule;
 import net.yourhome.server.net.Server;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ValueTrigger extends Trigger {
 	public enum States {

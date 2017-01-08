@@ -26,28 +26,6 @@
  */
 package net.yourhome.server.net.rest;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.minidev.json.JSONArray;
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.net.model.ServerInfo;
@@ -57,6 +35,21 @@ import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.base.Util;
 import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
 import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Path("/Info")
 public class Info {

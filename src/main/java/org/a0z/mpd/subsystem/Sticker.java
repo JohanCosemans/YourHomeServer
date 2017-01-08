@@ -37,11 +37,7 @@ import org.a0z.mpd.item.FilesystemTreeEntry;
 import org.a0z.mpd.item.Music;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;

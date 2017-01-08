@@ -26,13 +26,12 @@
  */
 package net.yourhome.server.net;
 
-import java.io.IOException;
-
+import net.yourhome.common.net.messagestructures.JSONMessage;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 
-import net.yourhome.common.net.messagestructures.JSONMessage;
+import java.io.IOException;
 
 public class NetSocket extends WebSocketAdapter {
 

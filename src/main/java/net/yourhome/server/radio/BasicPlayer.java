@@ -45,27 +45,15 @@ package net.yourhome.server.radio;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *----------------------------------------------------------------------
  */
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import org.apache.log4j.Logger;
+
+import javax.sound.sampled.*;
+import java.io.*;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Control;
 //import javazoom.Util.Debug;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.apache.log4j.Logger;
 
 /**
  * BasicPlayer implements basics features of a player. The playback is done with

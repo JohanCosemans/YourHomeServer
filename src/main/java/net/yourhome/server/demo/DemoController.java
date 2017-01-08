@@ -26,12 +26,6 @@
  */
 package net.yourhome.server.demo;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
 import net.yourhome.common.net.messagestructures.general.SetValueMessage;
@@ -44,6 +38,11 @@ import net.yourhome.server.ControllerNode;
 import net.yourhome.server.ControllerValue;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.base.SettingsManager;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class DemoController extends AbstractController {
 	public enum Settings {
@@ -181,7 +180,7 @@ public class DemoController extends AbstractController {
 			break;
 		case HEATING:
 			valueChanged.value = "" + String.format("%.2f", (float) Math.abs(Math.round(this.generateNewValue(30.0, 1.0, previousValue)))).replace(",", ".");
-			valueChanged.unit = "°C";
+			valueChanged.unit = "ï¿½C";
 			break;
 		case METER:
 			valueChanged.value = "" + String.format("%.2f", (float) Math.abs(this.generateNewValue(1500.0, 150.0, previousValue))).replace(",", ".");
@@ -212,7 +211,7 @@ public class DemoController extends AbstractController {
 			break;
 		case SENSOR_TEMPERATURE:
 			valueChanged.value = "" + String.format("%.1f", this.generateNewValue(30.0, 1.0, previousValue)).replace(",", ".");
-			valueChanged.unit = "°C";
+			valueChanged.unit = "ï¿½C";
 			break;
 		case SWITCH_BINARY:
 			valueChanged.value = "true";

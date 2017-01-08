@@ -26,8 +26,15 @@
  */
 package net.yourhome.server.net.rest;
 
-import java.util.Collection;
-import java.util.Map.Entry;
+import net.yourhome.common.base.enums.ControllerTypes;
+import net.yourhome.common.base.enums.ValueTypes;
+import net.yourhome.server.ControllerNode;
+import net.yourhome.server.IController;
+import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,17 +42,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import net.yourhome.common.base.enums.ControllerTypes;
-import net.yourhome.common.base.enums.ValueTypes;
-import net.yourhome.server.ControllerNode;
-import net.yourhome.server.IController;
-import net.yourhome.server.net.Server;
+import java.util.Collection;
+import java.util.Map.Entry;
 
 @Path("/Controllers")
 public class Controllers {

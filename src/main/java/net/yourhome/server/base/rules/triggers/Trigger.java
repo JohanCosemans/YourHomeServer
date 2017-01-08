@@ -26,16 +26,15 @@
  */
 package net.yourhome.server.base.rules.triggers;
 
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.IController;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.rules.Rule;
 import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Trigger implements ITrigger {
 

@@ -31,25 +31,12 @@ import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.connection.MPDConnectionMonoSocket;
 import org.a0z.mpd.connection.MPDConnectionMultiSocket;
 import org.a0z.mpd.exception.MPDException;
-import org.a0z.mpd.item.Album;
-import org.a0z.mpd.item.Artist;
-import org.a0z.mpd.item.Directory;
-import org.a0z.mpd.item.FilesystemTreeEntry;
-import org.a0z.mpd.item.Genre;
-import org.a0z.mpd.item.Item;
-import org.a0z.mpd.item.Music;
-import org.a0z.mpd.item.PlaylistFile;
-import org.a0z.mpd.item.Stream;
+import org.a0z.mpd.item.*;
 import org.a0z.mpd.subsystem.Sticker;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;

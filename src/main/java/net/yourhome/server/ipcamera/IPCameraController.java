@@ -26,17 +26,6 @@
  */
 package net.yourhome.server.ipcamera;
 
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
@@ -50,6 +39,16 @@ import net.yourhome.server.ControllerValue;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.net.rest.IPCameras;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IPCameraController extends AbstractController {
 	private static volatile IPCameraController ipCameraController;

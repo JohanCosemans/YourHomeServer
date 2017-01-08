@@ -26,13 +26,12 @@
  */
 package net.yourhome.server;
 
-import java.io.File;
-
+import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.net.Server;
+import java.io.File;
 
 /**
  * @author johan

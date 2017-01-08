@@ -26,17 +26,16 @@
  */
 package net.yourhome.server.zwave;
 
-import java.math.BigInteger;
-import java.util.List;
-
-import org.zwave4j.ValueGenre;
-import org.zwave4j.ValueId;
-import org.zwave4j.ValueType;
-
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.base.enums.zwave.ZWaveCommandClassTypes;
 import net.yourhome.common.net.messagestructures.zwave.ZWaveValue;
 import net.yourhome.server.base.DatabaseConnector;
+import org.zwave4j.ValueGenre;
+import org.zwave4j.ValueId;
+import org.zwave4j.ValueType;
+
+import java.math.BigInteger;
+import java.util.List;
 
 public class Value {
 

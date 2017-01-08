@@ -26,33 +26,7 @@
  */
 package net.yourhome.server.net.rest;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.jayway.jsonpath.JsonPath;
-
 import net.yourhome.common.base.enums.PropertyTypes;
 import net.yourhome.common.net.model.Configuration;
 import net.yourhome.common.net.model.ServerInfo;
@@ -61,6 +35,20 @@ import net.yourhome.server.base.Util;
 import net.yourhome.server.base.ZipFile;
 import net.yourhome.server.net.Server;
 import net.yourhome.server.net.rest.view.ImageHelper;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Path("/Project")
 public class Project {

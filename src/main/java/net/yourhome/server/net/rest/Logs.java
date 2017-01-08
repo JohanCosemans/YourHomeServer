@@ -26,7 +26,9 @@
  */
 package net.yourhome.server.net.rest;
 
-import java.io.File;
+import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.base.Util;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,11 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
-import org.apache.log4j.Logger;
-
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.Util;
+import java.io.File;
 
 @Path("/Logs")
 public class Logs {

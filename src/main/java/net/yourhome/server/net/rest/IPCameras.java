@@ -26,29 +26,21 @@
  */
 package net.yourhome.server.net.rest;
 
-import java.io.File;
-import java.sql.SQLException;
+import net.yourhome.common.net.messagestructures.ipcamera.IPCameraMessage;
+import net.yourhome.server.ipcamera.IPCamera;
+import net.yourhome.server.ipcamera.IPCameraController;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
-
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import net.yourhome.common.net.messagestructures.ipcamera.IPCameraMessage;
-import net.yourhome.server.ipcamera.IPCamera;
-import net.yourhome.server.ipcamera.IPCameraController;
+import java.io.File;
+import java.sql.SQLException;
 
 @Path("/IPCameras")
 public class IPCameras {

@@ -26,25 +26,15 @@
  */
 package net.yourhome.server.base;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-
 import net.yourhome.server.IController;
 import net.yourhome.server.Main;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingsManager {
 	// Initialize preferences

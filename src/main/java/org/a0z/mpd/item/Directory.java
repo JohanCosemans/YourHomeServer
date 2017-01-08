@@ -33,13 +33,7 @@ import org.a0z.mpd.connection.MPDConnection;
 import org.a0z.mpd.exception.MPDException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.a0z.mpd.Tools.KEY;
 import static org.a0z.mpd.Tools.VALUE;

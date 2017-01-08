@@ -26,16 +26,15 @@
  */
 package net.yourhome.server.base.rules.triggers;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.yourhome.common.base.enums.ValueTypes;
+import net.yourhome.common.net.model.binding.ControlIdentifiers;
+import net.yourhome.server.base.rules.Rule;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.yourhome.common.base.enums.ValueTypes;
-import net.yourhome.common.net.model.binding.ControlIdentifiers;
-import net.yourhome.server.base.rules.Rule;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TriggerGroup implements ITrigger {
 	public enum Conditions {

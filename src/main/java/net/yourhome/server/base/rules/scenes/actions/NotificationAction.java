@@ -26,15 +26,6 @@
  */
 package net.yourhome.server.base.rules.scenes.actions;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.mail.MessagingException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.base.enums.MobileNotificationTypes;
 import net.yourhome.common.net.messagestructures.general.ClientNotificationMessage;
 import net.yourhome.server.base.rules.scenes.Scene;
@@ -44,6 +35,13 @@ import net.yourhome.server.base.rules.scenes.actions.notifications.NexmoSMSServi
 import net.yourhome.server.ipcamera.IPCamera;
 import net.yourhome.server.ipcamera.IPCameraController;
 import net.yourhome.server.net.rest.IPCameras;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.mail.MessagingException;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 //Corresponds to Scene_Actions_Notification
 public class NotificationAction extends Action {

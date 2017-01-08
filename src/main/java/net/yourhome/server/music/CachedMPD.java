@@ -16,17 +16,13 @@
 
 package net.yourhome.server.music;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.exception.MPDException;
 import org.a0z.mpd.item.Album;
 import org.a0z.mpd.item.Artist;
+
+import java.io.IOException;
+import java.util.*;
 
 /*
  * Cached Version of org.a0z.mpd.MPD

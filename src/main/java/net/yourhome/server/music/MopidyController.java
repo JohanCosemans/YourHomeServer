@@ -26,16 +26,20 @@
  */
 package net.yourhome.server.music;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import net.yourhome.common.base.enums.ControllerTypes;
+import net.yourhome.common.base.enums.ValueTypes;
+import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.common.net.messagestructures.general.ActivationMessage;
+import net.yourhome.common.net.messagestructures.general.SetValueMessage;
+import net.yourhome.common.net.messagestructures.musicplayer.*;
+import net.yourhome.common.net.model.binding.ControlIdentifiers;
+import net.yourhome.server.AbstractController;
+import net.yourhome.server.ControllerNode;
+import net.yourhome.server.ControllerValue;
+import net.yourhome.server.base.Setting;
+import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.base.Util;
+import net.yourhome.server.net.Server;
 import org.a0z.mpd.MPD;
 import org.a0z.mpd.MPDPlaylist;
 import org.a0z.mpd.MPDStatus;
@@ -50,24 +54,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.yourhome.common.base.enums.ControllerTypes;
-import net.yourhome.common.base.enums.ValueTypes;
-import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ActivationMessage;
-import net.yourhome.common.net.messagestructures.general.SetValueMessage;
-import net.yourhome.common.net.messagestructures.musicplayer.MusicPlayerStatusMessage;
-import net.yourhome.common.net.messagestructures.musicplayer.PlaylistMessage;
-import net.yourhome.common.net.messagestructures.musicplayer.PlaylistsMessage;
-import net.yourhome.common.net.messagestructures.musicplayer.PlaylistsRequestMessage;
-import net.yourhome.common.net.messagestructures.musicplayer.TrackProgressMessage;
-import net.yourhome.common.net.model.binding.ControlIdentifiers;
-import net.yourhome.server.AbstractController;
-import net.yourhome.server.ControllerNode;
-import net.yourhome.server.ControllerValue;
-import net.yourhome.server.base.Setting;
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.Util;
-import net.yourhome.server.net.Server;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MopidyController extends AbstractController implements IMusicPlayer {
 	public enum Settings {

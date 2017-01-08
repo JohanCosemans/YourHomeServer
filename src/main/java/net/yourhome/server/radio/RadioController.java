@@ -26,20 +26,6 @@
  */
 package net.yourhome.server.radio;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.apache.log4j.Logger;
-
 import javazoom.jl.decoder.JavaLayerException;
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.base.enums.ValueTypes;
@@ -56,6 +42,18 @@ import net.yourhome.server.base.Setting;
 import net.yourhome.server.music.IMusicPlayer;
 import net.yourhome.server.music.MusicPlayer;
 import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RadioController extends AbstractController implements IMusicPlayer {
 

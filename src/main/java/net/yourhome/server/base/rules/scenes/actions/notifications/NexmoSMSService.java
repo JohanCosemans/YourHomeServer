@@ -26,15 +26,13 @@
  */
 package net.yourhome.server.base.rules.scenes.actions.notifications;
 
-import org.apache.log4j.Logger;
-
 import com.nexmo.messaging.sdk.NexmoSmsClient;
 import com.nexmo.messaging.sdk.SmsSubmissionResult;
 import com.nexmo.messaging.sdk.messages.TextMessage;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.server.base.GeneralController;
 import net.yourhome.server.base.SettingsManager;
+import org.apache.log4j.Logger;
 
 public class NexmoSMSService {
 	// SMS

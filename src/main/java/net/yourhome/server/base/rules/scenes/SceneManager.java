@@ -26,6 +26,11 @@
  */
 package net.yourhome.server.base.rules.scenes;
 
+import net.yourhome.server.base.DatabaseConnector;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,12 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import net.yourhome.server.base.DatabaseConnector;
 
 public class SceneManager {
 	private static DatabaseConnector db = DatabaseConnector.getInstance();

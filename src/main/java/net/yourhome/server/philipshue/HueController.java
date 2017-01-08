@@ -26,24 +26,12 @@
  */
 package net.yourhome.server.philipshue;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
-import com.philips.lighting.hue.sdk.PHAccessPoint;
-import com.philips.lighting.hue.sdk.PHBridgeSearchManager;
-import com.philips.lighting.hue.sdk.PHHueSDK;
-import com.philips.lighting.hue.sdk.PHMessageType;
-import com.philips.lighting.hue.sdk.PHSDKListener;
+import com.philips.lighting.hue.sdk.*;
 import com.philips.lighting.hue.sdk.utilities.PHUtilities;
 import com.philips.lighting.hue.sdk.utilities.impl.Color;
 import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.base.enums.GeneralCommands;
 import net.yourhome.common.base.enums.ValueTypes;
@@ -60,6 +48,12 @@ import net.yourhome.server.base.GeneralController;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HueController extends AbstractController {
 	public enum Settings {

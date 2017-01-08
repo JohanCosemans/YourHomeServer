@@ -26,18 +26,17 @@
  */
 package net.yourhome.server.base.rules;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.base.enums.EnumConverter;
 import net.yourhome.common.base.enums.ReverseEnumMap;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.base.rules.triggers.ITrigger;
 import net.yourhome.server.base.rules.triggers.TriggerGroup;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class Rule {
 	public enum LimitationPeriods implements EnumConverter<String, LimitationPeriods> {

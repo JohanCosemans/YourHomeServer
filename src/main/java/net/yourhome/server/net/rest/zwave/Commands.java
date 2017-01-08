@@ -26,17 +26,16 @@
  */
 package net.yourhome.server.net.rest.zwave;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
+import net.yourhome.server.zwave.ZWaveManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.yourhome.server.zwave.ZWaveManager;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Path("/ZWave/Commands")
 public class Commands {

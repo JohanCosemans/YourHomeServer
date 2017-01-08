@@ -26,15 +26,14 @@
  */
 package net.yourhome.server.net;
 
-import java.io.IOException;
+import org.apache.log4j.Logger;
+import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import java.io.IOException;
 
 public class NetServer extends WebSocketServlet {
 

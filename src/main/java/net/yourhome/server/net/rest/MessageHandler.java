@@ -26,15 +26,15 @@
  */
 package net.yourhome.server.net.rest;
 
+import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.server.net.Server;
+
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
-import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.server.net.Server;
 
 @Path("/messagehandler")
 public class MessageHandler {

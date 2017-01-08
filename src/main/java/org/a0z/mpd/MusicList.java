@@ -29,11 +29,7 @@ package org.a0z.mpd;
 
 import org.a0z.mpd.item.Music;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Felipe Gustavo de Almeida, Stefan Agner

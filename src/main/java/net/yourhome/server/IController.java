@@ -26,12 +26,12 @@
  */
 package net.yourhome.server;
 
-import java.util.Collection;
-
 import net.yourhome.common.net.messagestructures.JSONMessage;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.base.rules.triggers.Trigger;
+
+import java.util.Collection;
 
 public interface IController {
 

@@ -30,12 +30,7 @@ package org.a0z.mpd.item;
 import org.a0z.mpd.Log;
 import org.a0z.mpd.Tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

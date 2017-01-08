@@ -26,12 +26,12 @@
  */
 package net.yourhome.server.net.rest;
 
-import java.util.Arrays;
-
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.ext.RuntimeDelegate;
-
+import net.yourhome.server.net.rest.rules.Rules;
+import net.yourhome.server.net.rest.rules.Scenes;
+import net.yourhome.server.net.rest.view.Images;
+import net.yourhome.server.net.rest.view.Views;
+import net.yourhome.server.net.rest.zwave.Commands;
+import net.yourhome.server.net.rest.zwave.Nodes;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -39,12 +39,10 @@ import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import net.yourhome.server.net.rest.rules.Rules;
-import net.yourhome.server.net.rest.rules.Scenes;
-import net.yourhome.server.net.rest.view.Images;
-import net.yourhome.server.net.rest.view.Views;
-import net.yourhome.server.net.rest.zwave.Commands;
-import net.yourhome.server.net.rest.zwave.Nodes;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.ext.RuntimeDelegate;
+import java.util.Arrays;
 
 @Configuration
 public class AppConfig {

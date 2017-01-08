@@ -26,6 +26,31 @@
  */
 package net.yourhome.server.http;
 
+import net.yourhome.common.base.enums.ValueTypes;
+import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.common.net.messagestructures.general.ActivationMessage;
+import net.yourhome.common.net.messagestructures.http.HttpCommand;
+import net.yourhome.common.net.messagestructures.http.HttpCommandMessage;
+import net.yourhome.common.net.messagestructures.http.HttpNode;
+import net.yourhome.common.net.messagestructures.http.HttpNodeMessage;
+import net.yourhome.common.net.model.binding.ControlIdentifiers;
+import net.yourhome.server.AbstractController;
+import net.yourhome.server.ControllerNode;
+import net.yourhome.server.ControllerValue;
+import net.yourhome.server.base.DatabaseConnector;
+import net.yourhome.server.base.Setting;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.*;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,37 +65,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.log4j.Logger;
-import org.json.JSONObject;
-
-import net.yourhome.common.base.enums.ValueTypes;
-import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ActivationMessage;
-import net.yourhome.common.net.messagestructures.http.HttpCommand;
-import net.yourhome.common.net.messagestructures.http.HttpCommandMessage;
-import net.yourhome.common.net.messagestructures.http.HttpNode;
-import net.yourhome.common.net.messagestructures.http.HttpNodeMessage;
-import net.yourhome.common.net.model.binding.ControlIdentifiers;
-import net.yourhome.server.AbstractController;
-import net.yourhome.server.ControllerNode;
-import net.yourhome.server.ControllerValue;
-import net.yourhome.server.base.DatabaseConnector;
-import net.yourhome.server.base.Setting;
 
 public class HttpCommandController extends AbstractController {
 	private static volatile HttpCommandController httpCommandController;

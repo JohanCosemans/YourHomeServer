@@ -26,38 +26,13 @@
  */
 package net.yourhome.server.base;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.TimerTask;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.base.enums.MessageLevels;
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ActivationMessage;
-import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
-import net.yourhome.common.net.messagestructures.general.GCMRegistrationMessage;
-import net.yourhome.common.net.messagestructures.general.SetValueMessage;
-import net.yourhome.common.net.messagestructures.general.ValueHistoryMessage;
-import net.yourhome.common.net.messagestructures.general.ValueHistoryRequest;
+import net.yourhome.common.net.messagestructures.general.*;
 import net.yourhome.common.net.model.Device;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.AbstractController;
@@ -69,6 +44,19 @@ import net.yourhome.server.base.rules.scenes.SceneManager;
 import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
 import net.yourhome.server.net.Server;
 import net.yourhome.server.radio.BasicPlayer;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class GeneralController extends AbstractController {
 

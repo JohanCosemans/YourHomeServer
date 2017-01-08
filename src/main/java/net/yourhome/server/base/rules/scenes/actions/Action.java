@@ -26,19 +26,18 @@
  */
 package net.yourhome.server.base.rules.scenes.actions;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.general.ActivationMessage;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.net.Server;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Action {
 	protected Scene parentScene;

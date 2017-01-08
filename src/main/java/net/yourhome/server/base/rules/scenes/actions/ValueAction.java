@@ -26,15 +26,14 @@
  */
 package net.yourhome.server.base.rules.scenes.actions;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.net.messagestructures.general.SetValueMessage;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.net.Server;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ValueAction extends Action {
 

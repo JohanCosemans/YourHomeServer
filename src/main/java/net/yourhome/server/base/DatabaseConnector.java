@@ -26,33 +26,19 @@
  */
 package net.yourhome.server.base;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.TimerTask;
-
+import com.google.common.io.Files;
+import net.yourhome.common.net.messagestructures.zwave.ZWaveValue;
+import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 
-import com.google.common.io.Files;
-
-import net.yourhome.common.net.messagestructures.zwave.ZWaveValue;
-import net.yourhome.common.net.model.binding.ControlIdentifiers;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 
 public class DatabaseConnector {
 	private final String DBPATH = SettingsManager.getBasePath() + "/database/";

@@ -26,15 +26,15 @@
  */
 package net.yourhome.server.music;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
 import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.base.GeneralController;
 import net.yourhome.server.net.Server;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MusicPlayer {
 

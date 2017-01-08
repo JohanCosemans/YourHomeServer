@@ -26,26 +26,6 @@
  */
 package net.yourhome.server.net.rest.view;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.base.enums.ViewTypes;
 import net.yourhome.common.net.model.viewproperties.ImageButton;
@@ -53,6 +33,19 @@ import net.yourhome.common.net.model.viewproperties.ViewGroup;
 import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.base.Util;
 import net.yourhome.server.net.Server;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Path("/Images")
 public class Images {

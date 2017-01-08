@@ -26,27 +26,12 @@
  */
 package net.yourhome.server.zwave;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.zwave4j.ValueGenre;
-import org.zwave4j.ValueId;
-import org.zwave4j.ValueType;
-
 import net.yourhome.common.base.enums.ControllerTypes;
 import net.yourhome.common.base.enums.GeneralCommands;
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.base.enums.zwave.ZWaveCommandClassTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ActivationMessage;
-import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
-import net.yourhome.common.net.messagestructures.general.SetValueMessage;
-import net.yourhome.common.net.messagestructures.general.ValueChangedMessage;
-import net.yourhome.common.net.messagestructures.general.ValueHistoryRequest;
+import net.yourhome.common.net.messagestructures.general.*;
 import net.yourhome.common.net.messagestructures.zwave.ZWaveValue;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.AbstractController;
@@ -57,6 +42,16 @@ import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.net.Server;
 import net.yourhome.server.zwave.enums.TimeFrame;
+import org.apache.log4j.Logger;
+import org.zwave4j.ValueGenre;
+import org.zwave4j.ValueId;
+import org.zwave4j.ValueType;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ZWaveNetController extends AbstractController {
 	public enum Settings {

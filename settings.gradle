@@ -1,2 +1,4 @@
 include ':YourHomeCommon'
 project(':YourHomeCommon').projectDir = new File(settingsDir, '../YourHomeCommon')
+include 'amazon-alexa'
+

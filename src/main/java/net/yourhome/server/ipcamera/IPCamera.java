@@ -26,6 +26,11 @@
  */
 package net.yourhome.server.ipcamera;
 
+import net.yourhome.server.base.SettingsManager;
+import net.yourhome.server.base.Util;
+import net.yourhome.server.net.rest.view.ImageHelper;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -34,12 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.Util;
-import net.yourhome.server.net.rest.view.ImageHelper;
 
 public class IPCamera {
 

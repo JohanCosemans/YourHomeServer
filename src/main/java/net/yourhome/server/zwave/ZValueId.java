@@ -26,9 +26,9 @@
  */
 package net.yourhome.server.zwave;
 
-import java.math.BigInteger;
-
 import org.zwave4j.ValueId;
+
+import java.math.BigInteger;
 
 public class ZValueId extends ValueId {
 

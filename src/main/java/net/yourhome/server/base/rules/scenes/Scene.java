@@ -26,21 +26,20 @@
  */
 package net.yourhome.server.base.rules.scenes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.server.base.GeneralController;
 import net.yourhome.server.base.rules.scenes.actions.Action;
 import net.yourhome.server.base.rules.scenes.actions.NotificationAction;
 import net.yourhome.server.base.rules.scenes.actions.ValueAction;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Scene {
 

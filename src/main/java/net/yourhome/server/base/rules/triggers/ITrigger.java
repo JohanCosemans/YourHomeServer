@@ -26,10 +26,9 @@
  */
 package net.yourhome.server.base.rules.triggers;
 
+import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import net.yourhome.common.net.model.binding.ControlIdentifiers;
 
 public interface ITrigger {
 

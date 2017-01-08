@@ -26,24 +26,23 @@
  */
 package net.yourhome.server.base.rules.scenes.actions.notifications;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import net.yourhome.common.net.messagestructures.general.ClientNotificationMessage;
 import net.yourhome.common.net.messagestructures.http.HttpCommand;
 import net.yourhome.common.net.model.Device;
 import net.yourhome.server.base.BuildConfig;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.http.HttpCommandController;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class GoogleCloudMessagingService {
 	public static final String GOOGLE_CLOUD_MESSAGING = "https://android.googleapis.com/gcm/send";

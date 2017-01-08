@@ -26,20 +26,18 @@
  */
 package net.yourhome.server.net;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.BindException;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import net.yourhome.common.base.enums.MessageLevels;
+import net.yourhome.common.base.enums.MessageTypes;
+import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
+import net.yourhome.common.net.messagestructures.general.ProtectedJSONMessage;
+import net.yourhome.common.net.model.ServerInfo;
+import net.yourhome.server.IController;
+import net.yourhome.server.base.*;
+import net.yourhome.server.base.rules.RuleManager;
+import net.yourhome.server.net.rest.AppConfig;
+import net.yourhome.server.net.rest.Info;
+import net.yourhome.server.net.rest.view.ImageHelper;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -62,22 +60,14 @@ import org.reflections.Reflections;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import net.yourhome.common.base.enums.MessageLevels;
-import net.yourhome.common.base.enums.MessageTypes;
-import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
-import net.yourhome.common.net.messagestructures.general.ProtectedJSONMessage;
-import net.yourhome.common.net.model.ServerInfo;
-import net.yourhome.server.IController;
-import net.yourhome.server.base.BuildConfig;
-import net.yourhome.server.base.DatabaseConnector;
-import net.yourhome.server.base.GeneralController;
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.UncaughtExceptionHandler;
-import net.yourhome.server.base.rules.RuleManager;
-import net.yourhome.server.net.rest.AppConfig;
-import net.yourhome.server.net.rest.Info;
-import net.yourhome.server.net.rest.view.ImageHelper;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /*
  * This class is the link between the NET (websocket, http) and all the controllers (general, zwave, mopidy, radio, http, ...)

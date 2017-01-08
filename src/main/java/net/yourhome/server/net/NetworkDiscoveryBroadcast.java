@@ -26,21 +26,15 @@
  */
 package net.yourhome.server.net;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.nio.charset.StandardCharsets;
-
+import net.yourhome.common.net.Discovery;
+import net.yourhome.server.net.rest.Info;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
-import net.yourhome.common.net.Discovery;
-import net.yourhome.server.net.rest.Info;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 public class NetworkDiscoveryBroadcast {
 
