@@ -303,7 +303,7 @@ public class Server {
 
 			if (returningMessage != null && returningMessage.broadcast) {
 				this.broadcast(returningMessage);
-				returningMessage = null;
+				//returningMessage = null;
 			}
 		} catch (Exception e) {
 			Server.log.error("Exception occured: ", e);

@@ -130,193 +130,14 @@ public class GeneralController extends AbstractController {
 	@Override
 	public JSONMessage parseNetMessage(JSONMessage message) {
 		if (message instanceof GCMRegistrationMessage) {
-			// Google cloud registration
-			GCMRegistrationMessage GCMMessage = (GCMRegistrationMessage) message;
-			GoogleCloudMessagingService GCMService = GoogleCloudMessagingService.getInstance();
-			try {
-				GCMService.registerClient(new Device(GCMMessage.registrationId, GCMMessage.name, GCMMessage.screenWidth, GCMMessage.screenHeight));
-			} catch (SQLException e) {
-				GeneralController.log.error("Exception occured: ", e);
-			}
+			return processGCMRegistrationMessage((GCMRegistrationMessage) message);
 		} else if (message instanceof ValueHistoryRequest) {
-			// Build original message
-			ValueHistoryRequest message2 = (ValueHistoryRequest) message;
-
-			// Prepare answer message
-			ValueHistoryMessage historyMessage = new ValueHistoryMessage();
-			historyMessage.controlIdentifiers = message2.controlIdentifiers;
-			historyMessage.offset = message2.offset;
-
-			try {
-				String operation = "value as value";
-				switch (message2.operation) {
-				case AVERAGE:
-					operation = "avg(value_d) as value_d";
-					break;
-				case DELTA:
-					operation = "max(value_d)-min(value_d) as value_d";
-					break;
-				case MAX:
-					operation = "max(value_d) as value_d";
-					break;
-				case MIN:
-					operation = "min(value_d) as value_d";
-					break;
-				}
-				String select = null;
-				ResultSet dataTable = null;
-				switch (message2.periodType) {
-				case REALTIME:
-					// Select data from database (no operation possible)
-					select = "SELECT time as datetime,strftime('%s', time) as time,value_d, unit " + "  FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + " controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + "GROUP BY datetime " + "ORDER BY datetime DESC LIMIT " + message2.offset + "," + message2.historyAmount;
-					dataTable = this.dbConnector.executeSelect(select, true);
-					break;
-				case DAILY:
-					select = "SELECT strftime('%s',date(day)) as time,unit," + operation + " from ( SELECT time,strftime('%Y-%m-%d', time) as day,value_d, unit" + " 		FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + "controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + " 		GROUP BY time) as deltaPerDay" + " GROUP BY day" + " ORDER BY time DESC LIMIT " + message2.offset + "," + message2.historyAmount;
-
-					if (message2.historyAmount > 31 && message2.offset == 0) {
-						dataTable = this.dbConnector.executeSelectArchiving(select, true);
-					} else {
-						dataTable = this.dbConnector.executeSelect(select, true);
-					}
-					break;
-				case WEEKLY:
-					select = "SELECT strftime('%s',date(time,'weekday 0','-6 days')) as time,unit," + operation + " from ( SELECT time,strftime('%Y-%W', time) as week,value_d, unit" + " 		FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + "controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + " 		GROUP BY time) as deltaPerWeek" + " GROUP BY week" + " ORDER BY time DESC LIMIT " + message2.offset + "," + message2.historyAmount;
-
-					if (message2.historyAmount > 4 && message2.offset == 0) {
-						dataTable = this.dbConnector.executeSelectArchiving(select, true);
-					} else {
-						dataTable = this.dbConnector.executeSelect(select, true);
-					}
-					/*
-					 * SELECT strftime('%s',date(time,'weekday 0','-6 days')) as
-					 * time,max(value)-min(value) as value from ( SELECT time,
-					 * strftime('%Y-%W', time) as week, value FROM home_history
-					 * WHERE nodeid='39' AND valueid = '659324930' AND homeId =
-					 * '3239454784' AND instance = '1' GROUP BY time) as
-					 * deltaPerWeek group by week
-					 */
-					break;
-				case MONTHLY:
-					/*
-					 * SELECT strftime('%s',date(month)) as
-					 * time,max(value)-min(value) as value from ( SELECT
-					 * strftime('%Y-%m-01', time) as month,value FROM
-					 * home_history WHERE nodeid='39' AND valueid = '659324930'
-					 * AND homeId = '3239454784' AND instance = '1' GROUP BY
-					 * time) as deltaPerMonth group by month
-					 */
-					select = "SELECT strftime('%s',date(month)) as time,unit," + operation + " from ( SELECT time,strftime('%Y-%m-01', time) as month,value_d,unit" + " 		FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + "controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + " 		GROUP BY time) as deltaPerMonth" + " GROUP BY month" + " ORDER BY time DESC LIMIT " + message2.offset + "," + message2.historyAmount;
-					dataTable = this.dbConnector.executeSelectArchiving(select, true);
-
-					break;
-				}
-				if (dataTable != null) {
-					while (dataTable.next()) {
-						historyMessage.sensorValues.time.add(dataTable.getInt("time"));
-						if (historyMessage.sensorValues.valueUnit == null || historyMessage.sensorValues.valueUnit == "") {
-							historyMessage.sensorValues.valueUnit = dataTable.getString("unit");
-						}
-						Double value = dataTable.getDouble("value_d");
-						if (value != null) {
-							historyMessage.sensorValues.value.add(value);
-						}
-					}
-					dataTable.close();
-				}
-
-				// Get name of value and use as graph title
-				IController sourceController = Server.getInstance().getControllers().get(message2.controlIdentifiers.getControllerIdentifier().convert());
-				String title = "";
-				if (sourceController != null) {
-					title = sourceController.getValueName(message2.controlIdentifiers);
-					if (title == null) {
-						title = "";
-					}
-				}
-				historyMessage.title = title;
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				GeneralController.log.error("Exception occured: ", e);
-			}
-			return historyMessage;
-		} else if (message instanceof ActivationMessage) {
-			// Scenes
-			if (message.controlIdentifiers.getNodeIdentifier().equals("Scenes")) {
-				try {
-					Scene sceneToActivate = SceneManager.getScene(Integer.parseInt(message.controlIdentifiers.getValueIdentifier()));
-					if (sceneToActivate != null && sceneToActivate.activate()) {
-						ClientMessageMessage informClientsMessage = new ClientMessageMessage();
-						informClientsMessage.broadcast = true;
-						informClientsMessage.messageContent = "Scene " + sceneToActivate.getName() + " activated";
-						return informClientsMessage;
-					} else {
-						ClientMessageMessage informClientsMessage = new ClientMessageMessage();
-						informClientsMessage.broadcast = false;
-						informClientsMessage.messageContent = "Could not activate scene " + sceneToActivate.getName();
-						return informClientsMessage;
-					}
-				} catch (NumberFormatException | SQLException | JSONException e) {
-					GeneralController.log.error("Exception occured: ", e);
-				}
-			} else if (message.controlIdentifiers.getNodeIdentifier().equals("Commands")) {
-				if (message.controlIdentifiers.getValueIdentifier().equals(ValueTypes.SOUND_NOTIFICATION.convert())) {
-					BasicPlayer notificationPlayer = new BasicPlayer();
-					try {
-						notificationPlayer.setDataSource(new File(SettingsManager.getBasePath(), "sounds/doorbell-1.mp3"));
-						notificationPlayer.setVolume(100);
-						notificationPlayer.startPlayback();
-					} catch (UnsupportedAudioFileException e) {
-						GeneralController.log.error("Exception occured: ", e);
-					} catch (LineUnavailableException e) {
-						GeneralController.log.error("Exception occured: ", e);
-					} catch (IOException e) {
-						GeneralController.log.error("Exception occured: ", e);
-					}
-				}
-			}
+			return processHistoryValuesRequest((ValueHistoryRequest)message);
+		} else if (message instanceof ActivationMessage
+                || message instanceof VoiceActivationMessage) {
+			return processActivationRequest((ActivationMessage)message);
 		} else if (message instanceof SetValueMessage) {
-			SetValueMessage setValueMessage = (SetValueMessage) message;
-			if (setValueMessage.controlIdentifiers.getNodeIdentifier().equals("Commands")) {
-
-				if (setValueMessage.controlIdentifiers.getValueIdentifier().equals(ValueTypes.SYSTEM_COMMAND.convert())) {
-					Runtime r = Runtime.getRuntime();
-					Process p;
-					BufferedReader b = null;
-					String result = null;
-
-					try {
-						String[] command = new String[] { "bash", "-c", setValueMessage.value };
-						p = r.exec(command);
-
-						p.waitFor();
-						b = new BufferedReader(new InputStreamReader(p.getInputStream()));
-						String line = "";
-						while ((line = b.readLine()) != null) {
-							result += line;
-						}
-						b.close();
-					} catch (IOException e) {
-						GeneralController.log.error("Error on performing action", e);
-					} catch (InterruptedException e) {
-						GeneralController.log.error("Error on performing action", e);
-					} finally {
-						if (b != null) {
-							try {
-								b.close();
-							} catch (IOException e) {
-							}
-						}
-					}
-				} else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals(ValueTypes.WAIT.convert())) {
-					int seconds = Integer.parseInt(setValueMessage.value);
-					try {
-						Thread.sleep(seconds * 1000);
-					} catch (InterruptedException e) {
-						GeneralController.log.error("Exception occured: ", e);
-					}
-				}
-			}
+			return processSetValueRequest((SetValueMessage)message);
 		} else if (message.controlIdentifiers.getNodeIdentifier().equals("Navigation")) {
 			ClientMessageMessage succesMessage = new ClientMessageMessage("Correct PIN Entered", MessageLevels.INFORMATION);
 			return succesMessage;
@@ -330,11 +151,11 @@ public class GeneralController extends AbstractController {
 		try {
 			this.enableSunsetSunriseEvents();
 		} catch (Exception e) {
-			GeneralController.log.error("Error on scheduling sunrise/sunset events", e);
+			log.error("Error on scheduling sunrise/sunset events", e);
 		}
 		Server.getInstance().init();
 
-		GeneralController.log.info("Initialized");
+		log.info("Initialized");
 	}
 
 	@Override
@@ -344,7 +165,6 @@ public class GeneralController extends AbstractController {
 
 	@Override
 	public List<JSONMessage> initClient() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -381,7 +201,7 @@ public class GeneralController extends AbstractController {
 				scenesNode.addValue(new ControllerValue(scene.getId() + "", scene.getName(), ValueTypes.SCENE_ACTIVATION));
 			}
 		} catch (SQLException e) {
-			GeneralController.log.error("Exception occured: ", e);
+			log.error("Exception occured: ", e);
 		}
 		returnList.add(scenesNode);
 
@@ -422,7 +242,7 @@ public class GeneralController extends AbstractController {
 				scenesNode.addValue(new ControllerValue(scene.getId() + "", scene.getName(), ValueTypes.SCENE_ACTIVATION));
 			}
 		} catch (SQLException e) {
-			GeneralController.log.error("Exception occured: ", e);
+			log.error("Exception occured: ", e);
 		}
 
 		returnList.add(timeNode);
@@ -442,7 +262,7 @@ public class GeneralController extends AbstractController {
 		Calendar now = Calendar.getInstance();
 		Calendar sunrise = calculator.getOfficialSunriseCalendarForDate(now);
 		if (!sunrise.before(now)) {
-			GeneralController.log.debug("Scheduling sunrise at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
+			log.debug("Scheduling sunrise at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
 			this.sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -452,7 +272,7 @@ public class GeneralController extends AbstractController {
 		} else {
 			Calendar sunset = calculator.getOfficialSunsetCalendarForDate(now);
 			if (!sunset.before(now)) {
-				GeneralController.log.debug("Scheduling sunset at " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
+				log.debug("Scheduling sunset at " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
 				this.sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
 					@Override
 					public void run() {
@@ -463,7 +283,7 @@ public class GeneralController extends AbstractController {
 				// Schedule the sunrise of tomorrow
 				now.add(Calendar.DAY_OF_MONTH, 1);
 				Calendar sunriseOfTomorrow = calculator.getOfficialSunriseCalendarForDate(now);
-				GeneralController.log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunriseOfTomorrow.getTime()));
+				log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunriseOfTomorrow.getTime()));
 				this.sunsetTask = Scheduler.getInstance().schedule(new TimerTask() {
 					@Override
 					public void run() {
@@ -475,7 +295,7 @@ public class GeneralController extends AbstractController {
 	}
 
 	private void triggerSunset() {
-		GeneralController.log.debug("Sunset! Good night!");
+		log.debug("Sunset! Good night!");
 		this.triggerEvent("Time", "Sunset");
 		// Schedule sunrise event
 		Location location = new Location("50.8503", "4.3517"); // Brussels
@@ -484,7 +304,7 @@ public class GeneralController extends AbstractController {
 		tomorrow.add(Calendar.DAY_OF_WEEK, 1);
 		Calendar sunrise = calculator.getOfficialSunriseCalendarForDate(tomorrow);
 		try {
-			GeneralController.log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
+			log.debug("Scheduling sunrise tomorrow at " + new SimpleDateFormat("HH:mm:ss").format(sunrise.getTime()));
 			Scheduler.getInstance().schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -492,12 +312,12 @@ public class GeneralController extends AbstractController {
 				}
 			}, sunrise.getTime(), 0);
 		} catch (Exception e) {
-			GeneralController.log.error("Exception occured: ", e);
+			log.error("Exception occured: ", e);
 		}
 	}
 
 	private void triggerSunrise() {
-		GeneralController.log.debug("Sunrise! Good morning!");
+		log.debug("Sunrise! Good morning!");
 		this.triggerEvent("Time", "Sunrise");
 
 		// Schedule sunset event
@@ -505,7 +325,7 @@ public class GeneralController extends AbstractController {
 		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, TimeZone.getDefault());
 		Calendar sunset = calculator.getOfficialSunsetCalendarForDate(Calendar.getInstance());
 		try {
-			GeneralController.log.debug("Scheduling sunset " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
+			log.debug("Scheduling sunset " + new SimpleDateFormat("HH:mm:ss").format(sunset.getTime()));
 			Scheduler.getInstance().schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -513,7 +333,7 @@ public class GeneralController extends AbstractController {
 				}
 			}, sunset.getTime(), 0);
 		} catch (Exception e) {
-			GeneralController.log.error("Exception occured: ", e);
+			log.error("Exception occured: ", e);
 		}
 	}
 
@@ -556,4 +376,219 @@ public class GeneralController extends AbstractController {
 		}
 		GeneralController.generalControllerInstance = null;
 	}
+
+
+    private JSONMessage processGCMRegistrationMessage(GCMRegistrationMessage message) {
+        // Google cloud registration
+        GCMRegistrationMessage GCMMessage = (GCMRegistrationMessage) message;
+        GoogleCloudMessagingService GCMService = GoogleCloudMessagingService.getInstance();
+        try {
+            GCMService.registerClient(new Device(GCMMessage.registrationId, GCMMessage.name, GCMMessage.screenWidth, GCMMessage.screenHeight));
+        } catch (SQLException e) {
+            log.error("Exception occured: ", e);
+        }
+        return null;
+    }
+
+    private JSONMessage processHistoryValuesRequest(ValueHistoryRequest message2) {
+        // Prepare answer message
+        ValueHistoryMessage historyMessage = new ValueHistoryMessage();
+        historyMessage.controlIdentifiers = message2.controlIdentifiers;
+        historyMessage.offset = message2.offset;
+
+        try {
+            String operation = "value as value";
+            switch (message2.operation) {
+                case AVERAGE:
+                    operation = "avg(value_d) as value_d";
+                    break;
+                case DELTA:
+                    operation = "max(value_d)-min(value_d) as value_d";
+                    break;
+                case MAX:
+                    operation = "max(value_d) as value_d";
+                    break;
+                case MIN:
+                    operation = "min(value_d) as value_d";
+                    break;
+            }
+            String select = null;
+            ResultSet dataTable = null;
+            switch (message2.periodType) {
+                case REALTIME:
+                    // Select data from database (no operation possible)
+                    select = "SELECT time as datetime,strftime('%s', time) as time,value_d, unit " + "  FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + " controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + "GROUP BY datetime " + "ORDER BY datetime DESC LIMIT " + message2.offset + "," + message2.historyAmount;
+                    dataTable = this.dbConnector.executeSelect(select, true);
+                    break;
+                case DAILY:
+                    select = "SELECT strftime('%s',date(day)) as time,unit," + operation + " from ( SELECT time,strftime('%Y-%m-%d', time) as day,value_d, unit" + " 		FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + "controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + " 		GROUP BY time) as deltaPerDay" + " GROUP BY day" + " ORDER BY time DESC LIMIT " + message2.offset + "," + message2.historyAmount;
+
+                    if (message2.historyAmount > 31 && message2.offset == 0) {
+                        dataTable = this.dbConnector.executeSelectArchiving(select, true);
+                    } else {
+                        dataTable = this.dbConnector.executeSelect(select, true);
+                    }
+                    break;
+                case WEEKLY:
+                    select = "SELECT strftime('%s',date(time,'weekday 0','-6 days')) as time,unit," + operation + " from ( SELECT time,strftime('%Y-%W', time) as week,value_d, unit" + " 		FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + "controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + " 		GROUP BY time) as deltaPerWeek" + " GROUP BY week" + " ORDER BY time DESC LIMIT " + message2.offset + "," + message2.historyAmount;
+
+                    if (message2.historyAmount > 4 && message2.offset == 0) {
+                        dataTable = this.dbConnector.executeSelectArchiving(select, true);
+                    } else {
+                        dataTable = this.dbConnector.executeSelect(select, true);
+                    }
+					/*
+					 * SELECT strftime('%s',date(time,'weekday 0','-6 days')) as
+					 * time,max(value)-min(value) as value from ( SELECT time,
+					 * strftime('%Y-%W', time) as week, value FROM home_history
+					 * WHERE nodeid='39' AND valueid = '659324930' AND homeId =
+					 * '3239454784' AND instance = '1' GROUP BY time) as
+					 * deltaPerWeek group by week
+					 */
+                    break;
+                case MONTHLY:
+					/*
+					 * SELECT strftime('%s',date(month)) as
+					 * time,max(value)-min(value) as value from ( SELECT
+					 * strftime('%Y-%m-01', time) as month,value FROM
+					 * home_history WHERE nodeid='39' AND valueid = '659324930'
+					 * AND homeId = '3239454784' AND instance = '1' GROUP BY
+					 * time) as deltaPerMonth group by month
+					 */
+                    select = "SELECT strftime('%s',date(month)) as time,unit," + operation + " from ( SELECT time,strftime('%Y-%m-01', time) as month,value_d,unit" + " 		FROM home_history" + " WHERE value_identifier='" + message2.controlIdentifiers.getValueIdentifier() + "' " + "   AND " + " node_identifier = '" + message2.controlIdentifiers.getNodeIdentifier() + "' " + "   AND " + "controller_identifier = '" + message2.controlIdentifiers.getControllerIdentifier().convert() + "' " + " 		GROUP BY time) as deltaPerMonth" + " GROUP BY month" + " ORDER BY time DESC LIMIT " + message2.offset + "," + message2.historyAmount;
+                    dataTable = this.dbConnector.executeSelectArchiving(select, true);
+
+                    break;
+            }
+            if (dataTable != null) {
+                while (dataTable.next()) {
+                    historyMessage.sensorValues.time.add(dataTable.getInt("time"));
+                    if (historyMessage.sensorValues.valueUnit == null || historyMessage.sensorValues.valueUnit == "") {
+                        historyMessage.sensorValues.valueUnit = dataTable.getString("unit");
+                    }
+                    Double value = dataTable.getDouble("value_d");
+                    if (value != null) {
+                        historyMessage.sensorValues.value.add(value);
+                    }
+                }
+                dataTable.close();
+            }
+
+            // Get name of value and use as graph title
+            IController sourceController = Server.getInstance().getControllers().get(message2.controlIdentifiers.getControllerIdentifier().convert());
+            String title = "";
+            if (sourceController != null) {
+                title = sourceController.getValueName(message2.controlIdentifiers);
+                if (title == null) {
+                    title = "";
+                }
+            }
+            historyMessage.title = title;
+        } catch (SQLException e) {
+            log.error("Exception occured: ", e);
+        }
+        return historyMessage;
+    }
+
+    private JSONMessage processActivationRequest(ActivationMessage message) {
+        // Scenes
+        if (message.controlIdentifiers.getNodeIdentifier().equals("Scenes")) {
+            ClientMessageMessage informClientsMessage = new ClientMessageMessage();
+            try {
+                Scene sceneToActivate = null;
+
+                if(message instanceof VoiceActivationMessage) {
+                    // voice scene activation
+                    VoiceActivationMessage voiceMessage = (VoiceActivationMessage)message;
+                    List<Scene> matchingScenes = SceneManager.getScenesByName(voiceMessage.voiceParameters.get("sceneName"));
+                    if(matchingScenes.size()==1) {
+                        sceneToActivate = matchingScenes.get(0);
+                    }else {
+                        informClientsMessage.broadcast = false;
+						informClientsMessage.messageLevel = MessageLevels.ERROR;
+                        informClientsMessage.messageContent = matchingScenes.size()+" scenes found with the name "+voiceMessage.voiceParameters.get("sceneName");
+                        return informClientsMessage;
+                    }
+                }else {
+                    // normal scene activation
+                    sceneToActivate = SceneManager.getScene(Integer.parseInt(message.controlIdentifiers.getValueIdentifier()));
+                }
+
+                 if (sceneToActivate != null && sceneToActivate.activate()) {
+                    informClientsMessage.broadcast = true;
+                    informClientsMessage.messageContent = "Scene " + sceneToActivate.getName() + " activated";
+                    return informClientsMessage;
+                } else {
+                    informClientsMessage.broadcast = false;
+                    if(sceneToActivate == null) {
+                        informClientsMessage.messageContent = "Scene "+ message.controlIdentifiers.getValueIdentifier()+ " does not exist";
+                    }else {
+                        informClientsMessage.messageContent = "Failed to activate scene " + sceneToActivate.getName();
+                    }
+                    return informClientsMessage;
+                }
+            } catch (NumberFormatException | SQLException | JSONException e) {
+                log.error("Exception occured: ", e);
+                informClientsMessage.broadcast = false;
+                informClientsMessage.messageContent = "Could not activate scene";
+                return informClientsMessage;
+            }
+        } else if (message.controlIdentifiers.getNodeIdentifier().equals("Commands")) {
+            if (message.controlIdentifiers.getValueIdentifier().equals(ValueTypes.SOUND_NOTIFICATION.convert())) {
+                BasicPlayer notificationPlayer = new BasicPlayer();
+                try {
+                    notificationPlayer.setDataSource(new File(SettingsManager.getBasePath(), "sounds/doorbell-1.mp3"));
+                    notificationPlayer.setVolume(100);
+                    notificationPlayer.startPlayback();
+                } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+                    log.error("Exception occured: ", e);
+                }
+            }
+        }
+        return null;
+    }
+
+    private JSONMessage processSetValueRequest(SetValueMessage setValueMessage) {
+        if (setValueMessage.controlIdentifiers.getNodeIdentifier().equals("Commands")) {
+
+            if (setValueMessage.controlIdentifiers.getValueIdentifier().equals(ValueTypes.SYSTEM_COMMAND.convert())) {
+                Runtime r = Runtime.getRuntime();
+                Process p;
+                BufferedReader b = null;
+                String result = null;
+
+                try {
+                    String[] command = new String[] { "bash", "-c", setValueMessage.value };
+                    p = r.exec(command);
+
+                    p.waitFor();
+                    b = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String line = "";
+                    while ((line = b.readLine()) != null) {
+                        result += line;
+                    }
+                    b.close();
+                } catch (IOException e) {
+                    log.error("Error on performing action", e);
+                } catch (InterruptedException e) {
+                    log.error("Error on performing action", e);
+                } finally {
+                    if (b != null) {
+                        try {
+                            b.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+            } else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals(ValueTypes.WAIT.convert())) {
+                int seconds = Integer.parseInt(setValueMessage.value);
+                try {
+                    Thread.sleep(seconds * 1000);
+                } catch (InterruptedException e) {
+                    log.error("Exception occured: ", e);
+                }
+            }
+        }
+        return null;
+    }
 }

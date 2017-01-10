@@ -124,4 +124,16 @@ public class SceneManager {
 		}
 		return resultScene;
 	}
+	public static List<Scene> getScenesByName(String sceneName) throws SQLException, JSONException {
+		List<Scene> sceneMatches = new ArrayList<>();
+		log.debug("Looking for scenes that match "+sceneName);
+		for(Scene scene : getAllScenes()) {
+			if(scene.getName().toLowerCase().contains(sceneName.toLowerCase())) {
+				sceneMatches.add(scene);
+                log.debug("Match found: "+scene.getName());
+			}
+		}
+        log.info(sceneMatches.size() + " scenes found that match the name "+sceneName);
+		return sceneMatches;
+	}
 }

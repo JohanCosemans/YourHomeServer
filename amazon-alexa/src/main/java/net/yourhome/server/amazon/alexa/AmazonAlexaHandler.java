@@ -1,27 +1,18 @@
 package net.yourhome.server.amazon.alexa;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import net.yourhome.common.base.enums.ControllerTypes;
-import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.ActivationMessage;
-import org.json.JSONObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazon.speech.slu.Intent;
-import com.amazon.speech.speechlet.IntentRequest;
-import com.amazon.speech.speechlet.LaunchRequest;
-import com.amazon.speech.speechlet.Session;
-import com.amazon.speech.speechlet.SessionEndedRequest;
-import com.amazon.speech.speechlet.SessionStartedRequest;
-import com.amazon.speech.speechlet.Speechlet;
-import com.amazon.speech.speechlet.SpeechletException;
-import com.amazon.speech.speechlet.SpeechletResponse;
+import com.amazon.speech.slu.Slot;
+import com.amazon.speech.speechlet.*;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SimpleCard;
+import net.yourhome.common.base.enums.ControllerTypes;
+import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.common.net.messagestructures.general.ActivationMessage;
+import net.yourhome.common.net.messagestructures.general.ClientMessageMessage;
+import net.yourhome.common.net.messagestructures.general.VoiceActivationMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,25 +21,32 @@ import com.amazon.speech.ui.SimpleCard;
 public class AmazonAlexaHandler implements Speechlet {
 
     private static final Logger log = LoggerFactory.getLogger(AmazonAlexaHandler.class);
+    private ApiCaller apiCaller = new ApiCaller();
 
     private SpeechletResponse sceneActivation(Intent intent) {
-        log.info("received : " + intent);
+        Slot sceneName = intent.getSlot("sceneName");
 
-        //JSONObject requestObject = new JSONObject(request.getRequestString());
+        log.info("sceneName: " + sceneName.getValue());
 
-        ActivationMessage message = new ActivationMessage();
+        VoiceActivationMessage message = new VoiceActivationMessage();
         message.controlIdentifiers.setControllerIdentifier(ControllerTypes.GENERAL);
-        message.controlIdentifiers.setNodeIdentifier("scene");
+        message.controlIdentifiers.setNodeIdentifier("Scenes");
+
         // Read scene id from request
-        message.controlIdentifiers.setValueIdentifier(12+"");
+        message.voiceParameters.put(sceneName.getName(),sceneName.getValue());
 
-        log.info("will send: " + message.serialize().toString());
+        // Call API
+        JSONMessage returnMessage = apiCaller.callApi(message);
 
+        // Prepare response
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
-        speech.setText("Scene activated");
+        if(returnMessage instanceof ClientMessageMessage) {
+            speech.setText(((ClientMessageMessage) returnMessage).messageContent);
+        }else {
+            speech.setText("Something strange happened.");
+        }
 
         return SpeechletResponse.newTellResponse(speech);
-        //return String.valueOf(message.serialize().toString());
     }
 
     @Override

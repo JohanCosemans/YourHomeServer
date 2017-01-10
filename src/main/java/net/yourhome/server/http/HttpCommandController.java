@@ -45,6 +45,7 @@ import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -184,31 +185,9 @@ public class HttpCommandController extends AbstractController {
 		}
 		this.log.debug("Out: " + request.toString());
 		HttpResponse response = client.execute(request);
-
-		InputStream ips = response.getEntity().getContent();
-		BufferedReader buf = new BufferedReader(new InputStreamReader(ips, "UTF-8"));
-
-		StringBuilder sb = new StringBuilder();
-		String s;
-		while (true) {
-			s = buf.readLine();
-			if (s == null || s.length() == 0) {
-				break;
-			}
-			sb.append(s);
-
-		}
-		buf.close();
-		ips.close();
+		String responseBody = EntityUtils.toString(response.getEntity());
 		HttpCommandMessage responseMessage = new HttpCommandMessage();
-		responseMessage.response = sb.toString();
-
-		/*
-		 * if(response.getStatusLine().getStatusCode()!=HttpStatus.SC_OK) {
-		 * throw new Exception(response.getStatusLine().getStatusCode() + " - "
-		 * + response.getStatusLine().getReasonPhrase() + " - " +
-		 * responseMessage.response); }
-		 */
+		responseMessage.response = responseBody;
 
 		return responseMessage;
 	}

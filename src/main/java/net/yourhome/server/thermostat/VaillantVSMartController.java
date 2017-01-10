@@ -298,8 +298,14 @@ public class VaillantVSMartController extends AbstractController {
 	 * time on X hours if no mobile action is taken.
 	 */
 	private boolean setAway(boolean on) throws Exception {
+		Integer hoursAway;
 
-		Integer hoursAway = Integer.parseInt(SettingsManager.getStringValue(this.getIdentifier(), Settings.HOURS_AWAY.get()));
+		try {
+			hoursAway = Integer.parseInt(SettingsManager.getStringValue(this.getIdentifier(), Settings.HOURS_AWAY.get()));
+		}catch (Exception e) {
+			hoursAway = 0;
+		}
+
 		boolean returnBoolean;
 		Calendar endTime = null;
 		if (hoursAway > 0) {
@@ -384,7 +390,7 @@ public class VaillantVSMartController extends AbstractController {
 			valueChanged = new ValueChangedMessage();
 			valueChanged.broadcast = true;
 			valueChanged.controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), "Measurements", valueIdentifier);
-			valueChanged.unit = "�C";
+			valueChanged.unit = "°C";
 			valueChanged.value = formattedValue;
 			valueChanged.valueType = ValueTypes.SENSOR_TEMPERATURE;
 			this.values.put(valueIdentifier, valueChanged);
