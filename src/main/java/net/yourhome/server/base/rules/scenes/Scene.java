@@ -152,9 +152,9 @@ public class Scene {
 					if (continueProcessing) {
 						Scene.log.info("[" + Thread.currentThread().getId() + "] " + action.toString());
 						action.perform();
-						GeneralController.getInstance().triggerSceneActivated(Scene.this.me);
 					}
 				}
+                GeneralController.getInstance().triggerSceneActivated(Scene.this.me);
 				Scene.this.activeActions.remove(Thread.currentThread());
 			}
 		});

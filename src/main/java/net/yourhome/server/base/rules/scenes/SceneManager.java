@@ -128,7 +128,12 @@ public class SceneManager {
 		List<Scene> sceneMatches = new ArrayList<>();
 		log.debug("Looking for scenes that match "+sceneName);
 		for(Scene scene : getAllScenes()) {
-			if(scene.getName().toLowerCase().contains(sceneName.toLowerCase())) {
+		    if(scene.getName().toLowerCase().equals(sceneName.toLowerCase())) {
+		        sceneMatches.clear();
+                log.debug("Exact match found: "+scene.getName());
+                log.debug("Match found: "+scene.getName());
+		        return sceneMatches;
+            }if(scene.getName().toLowerCase().contains(sceneName.toLowerCase())) {
 				sceneMatches.add(scene);
                 log.debug("Match found: "+scene.getName());
 			}

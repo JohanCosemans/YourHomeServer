@@ -246,6 +246,7 @@ public class Value {
 			valueType = ValueTypes.SENSOR_BINARY;// "zwave-binary-sensor";
 			break;
 		case SensorMultiLevel:
+        case CentralScene:
 			valueType = ValueTypes.SENSOR_GENERAL;// "zwave-sensor";
 			break;
 		case ThermostatSetpoint:

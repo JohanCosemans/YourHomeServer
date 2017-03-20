@@ -210,6 +210,7 @@ public class ZWaveNetController extends AbstractController {
 			case SwitchToggleMultilevel:
 			case Alarm:
 			case Battery:
+			case CentralScene:
 				Value valueDetails = this.zwaveController.getValue(valueId);
 				if (valueDetails != null) {
 					valueDetails.readProperties();

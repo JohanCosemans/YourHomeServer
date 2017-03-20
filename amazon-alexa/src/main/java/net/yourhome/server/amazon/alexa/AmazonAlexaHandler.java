@@ -98,11 +98,11 @@ public class AmazonAlexaHandler implements Speechlet {
      * @return SpeechletResponse spoken and visual response for the given intent
      */
     private SpeechletResponse getWelcomeResponse() {
-        String speechText = "Welcome to the Alexa Skills Kit, you can say hello";
+        String speechText = "Welcome to Your Home. Say 'Ask my home to start' with a scene name to get started.";
 
         // Create the Simple card content.
         SimpleCard card = new SimpleCard();
-        card.setTitle("HelloWorld");
+        card.setTitle("Hello from Your Home");
         card.setContent(speechText);
 
         // Create the plain text output.
