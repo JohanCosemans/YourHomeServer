@@ -131,7 +131,7 @@ public class SceneManager {
 		    if(scene.getName().toLowerCase().equals(sceneName.toLowerCase())) {
 		        sceneMatches.clear();
                 log.debug("Exact match found: "+scene.getName());
-                log.debug("Match found: "+scene.getName());
+                sceneMatches.add(scene);
 		        return sceneMatches;
             }if(scene.getName().toLowerCase().contains(sceneName.toLowerCase())) {
 				sceneMatches.add(scene);

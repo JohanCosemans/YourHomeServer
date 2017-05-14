@@ -28,9 +28,13 @@ package net.yourhome.server.base.rules.scenes.actions.notifications;
 
 import net.yourhome.common.net.messagestructures.general.ClientNotificationMessage;
 import net.yourhome.common.net.messagestructures.http.HttpCommand;
+import net.yourhome.common.net.messagestructures.http.HttpCommandMessage;
 import net.yourhome.common.net.model.Device;
 import net.yourhome.server.base.BuildConfig;
 import net.yourhome.server.base.DatabaseConnector;
+import net.yourhome.server.base.rules.scenes.actions.notifications.fcm.FcmResponse;
+import net.yourhome.server.base.rules.scenes.actions.notifications.fcm.Notification;
+import net.yourhome.server.base.rules.scenes.actions.notifications.fcm.Pushraven;
 import net.yourhome.server.http.HttpCommandController;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -44,15 +48,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class GoogleCloudMessagingService {
-	public static final String GOOGLE_CLOUD_MESSAGING = "https://android.googleapis.com/gcm/send";
+public class PushNotificationService {
 
 	private Map<String, Device> registeredDevices = new HashMap<String, Device>();
-	private static Logger log = Logger.getLogger(GoogleCloudMessagingService.class);
-	private static volatile GoogleCloudMessagingService instance;
+	private static Logger log = Logger.getLogger(PushNotificationService.class);
+	private static volatile PushNotificationService instance;
 	private static Object lock = new Object();
 
-	private GoogleCloudMessagingService() {
+	private PushNotificationService() {
 
 		// Read registration ID's from database
 		String dbSelect = "SELECT * from main.Notification_GCM";
@@ -64,7 +67,7 @@ public class GoogleCloudMessagingService {
 				this.registeredDevices.put(newDevice.getRegistrationId(), newDevice);
 			}
 		} catch (SQLException e) {
-			GoogleCloudMessagingService.log.error("Exception occured: ", e);
+			PushNotificationService.log.error("Exception occured: ", e);
 		} finally {
 			try {
 				if (result != null) {
@@ -72,29 +75,29 @@ public class GoogleCloudMessagingService {
 					result.close();
 				}
 			} catch (SQLException e) {
-				GoogleCloudMessagingService.log.error("Exception occured: ", e);
+				PushNotificationService.log.error("Exception occured: ", e);
 			}
 		}
 
 	}
 
-	public static GoogleCloudMessagingService getInstance() {
-		GoogleCloudMessagingService r = GoogleCloudMessagingService.instance;
+	public static PushNotificationService getInstance() {
+		PushNotificationService r = PushNotificationService.instance;
 		if (r == null) {
-			synchronized (GoogleCloudMessagingService.lock) { // while we were
+			synchronized (PushNotificationService.lock) { // while we were
 																// waiting for
 																// the lock,
 																// another
-				r = GoogleCloudMessagingService.instance; // thread may have
+				r = PushNotificationService.instance; // thread may have
 															// instantiated the
 															// object
 				if (r == null) {
-					r = new GoogleCloudMessagingService();
-					GoogleCloudMessagingService.instance = r;
+					r = new PushNotificationService();
+					PushNotificationService.instance = r;
 				}
 			}
 		}
-		return GoogleCloudMessagingService.instance;
+		return PushNotificationService.instance;
 	}
 
 	public void registerClient(Device device) throws SQLException {
@@ -103,7 +106,7 @@ public class GoogleCloudMessagingService {
 			String dbSaveQuery = "INSERT into main.Notification_GCM ('registration_id', 'name', 'width', 'height') VALUES ('" + device.getRegistrationId() + "', '" + device.getName() + "', '" + device.getWidth() + "','" + device.getHeight() + "')";
 			DatabaseConnector.getInstance().executeQuery(dbSaveQuery);
 
-			GoogleCloudMessagingService.log.info("Successfully registered device " + device.toString());
+			PushNotificationService.log.info("Successfully registered device " + device.toString());
 		}
 	}
 
@@ -119,22 +122,14 @@ public class GoogleCloudMessagingService {
 		this.sendMessage(message.getMessageMap());
 	}
 
-	private void sendMessage(Map<String, String> messageVariables) {
+	private void sendMessage(Map<String, Object> messageVariables) {
 
-		HttpCommandController controller = HttpCommandController.getInstance();
-		HttpCommand command = new HttpCommand();
-
-		command.setHttpMethod("POST");
-		command.setMessageType("application/json");
-		command.setMessageBody(this.getMessageBody(messageVariables).toString());
-		command.setUrl(GoogleCloudMessagingService.GOOGLE_CLOUD_MESSAGING);
-		command.addHeader("Authorization", "key=" + BuildConfig.GCM_API_CODE);
-
-		try {
-			controller.sendHttpCommand(command);
-		} catch (Exception e) {
-			GoogleCloudMessagingService.log.error("Exception occured: ", e);
-		}
+        Pushraven.setKey(BuildConfig.GCM_API_CODE);
+        Notification notification = new Notification();
+        notification.data(messageVariables);
+        notification.registration_ids(this.registeredDevices.keySet());
+        FcmResponse response = Pushraven.push(notification);
+        log.debug(response);
 
 	}
 
@@ -143,37 +138,6 @@ public class GoogleCloudMessagingService {
 	 */
 	public Map<String, Device> getRegisteredDevices() {
 		return this.registeredDevices;
-	}
-
-	private JSONObject getMessageBody(Map<String, String> dataVariables) {
-		JSONArray registrationIDs = new JSONArray();
-		JSONObject resultObj = new JSONObject();
-		JSONObject dataObj = new JSONObject();
-
-		try {
-
-			// Parse data fields
-			for (Entry<String, String> mapEntry : dataVariables.entrySet()) {
-				try {
-					dataObj.put(mapEntry.getKey(), mapEntry.getValue());
-				} catch (JSONException e) {
-					GoogleCloudMessagingService.log.error("Exception occured: ", e);
-				}
-			}
-			resultObj.put("data", dataObj);
-
-			// Parse registration strings
-			for (String registrationId : this.registeredDevices.keySet()) {
-				registrationIDs.put(registrationId);
-			}
-
-			resultObj.put("registration_ids", registrationIDs);
-
-		} catch (JSONException e) {
-			GoogleCloudMessagingService.log.error("Exception occured: ", e);
-		}
-
-		return resultObj;
 	}
 
 }

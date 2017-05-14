@@ -1,0 +1,13 @@
+{
+    "port": 80,
+	"configurations": {
+		"Camera test.zip": {
+			"file": "Camera test.zip",
+			"size": 3328,
+			"name": "Camera test",
+			"version": 1
+		}
+	},
+	"name": "YourHome Server 2",
+	"version": "0.9.571"
+}

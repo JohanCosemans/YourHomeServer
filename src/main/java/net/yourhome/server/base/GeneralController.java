@@ -41,7 +41,7 @@ import net.yourhome.server.ControllerValue;
 import net.yourhome.server.IController;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.base.rules.scenes.SceneManager;
-import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
+import net.yourhome.server.base.rules.scenes.actions.notifications.PushNotificationService;
 import net.yourhome.server.net.Server;
 import net.yourhome.server.radio.BasicPlayer;
 import org.apache.log4j.Logger;
@@ -381,7 +381,7 @@ public class GeneralController extends AbstractController {
     private JSONMessage processGCMRegistrationMessage(GCMRegistrationMessage message) {
         // Google cloud registration
         GCMRegistrationMessage GCMMessage = (GCMRegistrationMessage) message;
-        GoogleCloudMessagingService GCMService = GoogleCloudMessagingService.getInstance();
+        PushNotificationService GCMService = PushNotificationService.getInstance();
         try {
             GCMService.registerClient(new Device(GCMMessage.registrationId, GCMMessage.name, GCMMessage.screenWidth, GCMMessage.screenHeight));
         } catch (SQLException e) {

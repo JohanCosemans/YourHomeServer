@@ -43,7 +43,7 @@ import net.yourhome.server.ControllerNode;
 import net.yourhome.server.ControllerValue;
 import net.yourhome.server.IController;
 import net.yourhome.server.base.*;
-import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
+import net.yourhome.server.base.rules.scenes.actions.notifications.PushNotificationService;
 import net.yourhome.server.http.HttpCommandController;
 import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
@@ -327,13 +327,13 @@ public class VaillantVSMartController extends AbstractController {
 				notificationMessage.message = "Until " + new SimpleDateFormat("HH:mm, dd/MM").format(endTime.getTime()) + ". Click to change";
 				notificationMessage.startDate = endTime.getTime().getTime();
 			}
-			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
+			PushNotificationService.getInstance().sendMessage(notificationMessage);
 		} else if (returnBoolean && !on) {
 			ClientNotificationMessage notificationMessage = new ClientNotificationMessage();
 			notificationMessage.controlIdentifiers = this.values.get(this.AWAY_ACTIVE).controlIdentifiers;
 			notificationMessage.notificationType = MobileNotificationTypes.DATE_TIME_PICKER;
 			notificationMessage.cancel = true;
-			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
+			PushNotificationService.getInstance().sendMessage(notificationMessage);
 		}
 		return returnBoolean;
 	}
@@ -374,7 +374,7 @@ public class VaillantVSMartController extends AbstractController {
 					notificationMessage.controlIdentifiers = this.values.get(this.AWAY_ACTIVE).controlIdentifiers;
 					notificationMessage.notificationType = MobileNotificationTypes.DATE_TIME_PICKER;
 					notificationMessage.cancel = true;
-					GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
+					PushNotificationService.getInstance().sendMessage(notificationMessage);
 				}
 			}
 		} catch (Exception e) {

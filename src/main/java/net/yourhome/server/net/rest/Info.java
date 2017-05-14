@@ -33,7 +33,7 @@ import net.yourhome.server.IController;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.base.Util;
-import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
+import net.yourhome.server.base.rules.scenes.actions.notifications.PushNotificationService;
 import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -129,7 +129,7 @@ public class Info {
 	@Path("/Devices")
 	@GET
 	public String getDevices() throws IOException, JSONException {
-		return new JSONObject(GoogleCloudMessagingService.getInstance().getRegisteredDevices()).toString();
+		return new JSONObject(PushNotificationService.getInstance().getRegisteredDevices()).toString();
 	}
 
 	// DELETE api/Info/Devices/{deviceId}
@@ -137,7 +137,7 @@ public class Info {
 	@Path("/Devices/{deviceId}")
 	@DELETE
 	public Response deleteDevice(@PathParam("deviceId") final String deviceId) throws SQLException {
-		GoogleCloudMessagingService.getInstance().unregisterClient(deviceId);
+		PushNotificationService.getInstance().unregisterClient(deviceId);
 		return Response.ok().build();
 	}
 

@@ -3,12 +3,12 @@ buildscript {
     maven { url 'https://plugins.gradle.org/m2/' }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8'
   }
 }
 println "Using JDK version (Must be JDK 1.8 or higher): "+System.getProperty("java.home")
 apply plugin: "java"
-apply plugin: "eclipse"
+apply plugin: 'idea'
 apply plugin: 'de.fuerstenau.buildconfig'
 
 targetCompatibility = '1.8'

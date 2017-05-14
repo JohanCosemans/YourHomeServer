@@ -30,7 +30,7 @@ import net.yourhome.common.base.enums.MobileNotificationTypes;
 import net.yourhome.common.net.messagestructures.general.ClientNotificationMessage;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.base.rules.scenes.actions.notifications.EmailService;
-import net.yourhome.server.base.rules.scenes.actions.notifications.GoogleCloudMessagingService;
+import net.yourhome.server.base.rules.scenes.actions.notifications.PushNotificationService;
 import net.yourhome.server.base.rules.scenes.actions.notifications.NexmoSMSService;
 import net.yourhome.server.ipcamera.IPCamera;
 import net.yourhome.server.ipcamera.IPCameraController;
@@ -110,7 +110,7 @@ public class NotificationAction extends Action {
 			}
 			notificationMessage.title = this.subject;
 			notificationMessage.message = this.message;
-			GoogleCloudMessagingService.getInstance().sendMessage(notificationMessage);
+			PushNotificationService.getInstance().sendMessage(notificationMessage);
 		}
 		return true;
 	}
