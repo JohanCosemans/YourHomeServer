@@ -178,11 +178,15 @@ public class Notification {
      * When a message is sent with high priority, it is sent immediately, and the app can wake a sleeping device and open a network connection to your server.
      * @see https://firebase.google.com/docs/cloud-messaging/concept-options#setting-the-priority-of-a-message
      */
-    public Notification priority(Integer p){
-        p = Math.min(p, 10);
-        p = Math.max(p, 0);
+    public Notification priority(Priority p){
+        //p = Math.min(p, 10);
+        //p = Math.max(p, 0);
 
-        return addRequestAttribute("priority", p);
+        return addRequestAttribute("priority", p.toString());
+    }
+    public enum Priority{
+        normal,
+        high
     }
     /**
      * When this parameter is set to true, it indicates that the message should not be sent until the device becomes active.

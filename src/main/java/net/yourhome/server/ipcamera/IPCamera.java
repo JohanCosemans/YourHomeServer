@@ -105,7 +105,9 @@ public class IPCamera {
 			this.log.error("Exception occured: ", e);
 		} catch (IOException e) {
 			this.log.error("Exception occured: ", e);
-		}
+		} catch (Exception e) {
+            this.log.error("Exception occured: ", e);
+        }
 		return null;
 	}
 

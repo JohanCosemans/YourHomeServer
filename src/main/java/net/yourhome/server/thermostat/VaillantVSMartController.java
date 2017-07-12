@@ -325,7 +325,7 @@ public class VaillantVSMartController extends AbstractController {
 			notificationMessage.title = "Away mode activated";
 			if (endTime != null) {
 				notificationMessage.message = "Until " + new SimpleDateFormat("HH:mm, dd/MM").format(endTime.getTime()) + ". Click to change";
-				notificationMessage.startDate = endTime.getTime().getTime();
+				notificationMessage.startDate = new Date().getTime();
 			}
 			PushNotificationService.getInstance().sendMessage(notificationMessage);
 		} else if (returnBoolean && !on) {

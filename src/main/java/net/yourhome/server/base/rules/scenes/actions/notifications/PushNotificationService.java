@@ -126,6 +126,7 @@ public class PushNotificationService {
 
         Pushraven.setKey(BuildConfig.GCM_API_CODE);
         Notification notification = new Notification();
+        notification.priority(Notification.Priority.high);
         notification.data(messageVariables);
         notification.registration_ids(this.registeredDevices.keySet());
         FcmResponse response = Pushraven.push(notification);

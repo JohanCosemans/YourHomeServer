@@ -102,11 +102,14 @@ public class NotificationAction extends Action {
 			if (this.includeSnapshotOfCamera != 0) {
 				IPCamera camera = IPCameraController.getInstance().getIPCamera(this.includeSnapshotOfCamera);
 				File snapshotFile = camera.saveAndGetSnapshot(false, "notification_camera-" + this.includeSnapshotOfCamera + "_" + new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date()));
-				snapshotUrl = IPCameras.getSnapshotUrl(camera.getId(), snapshotFile);
-
-				notificationMessage.imagePath = snapshotUrl;
-				notificationMessage.videoPath = camera.getVideoUrl();
-				notificationMessage.notificationType = MobileNotificationTypes.IMAGE;
+				if(snapshotFile != null) {
+                    snapshotUrl = IPCameras.getSnapshotUrl(camera.getId(), snapshotFile);
+                    notificationMessage.imagePath = snapshotUrl;
+                    notificationMessage.notificationType = MobileNotificationTypes.IMAGE;
+                    notificationMessage.videoPath = camera.getVideoUrl();
+                }else {
+                    notificationMessage.notificationType = MobileNotificationTypes.TEXT;
+                }
 			}
 			notificationMessage.title = this.subject;
 			notificationMessage.message = this.message;
