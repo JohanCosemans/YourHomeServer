@@ -26,7 +26,6 @@
  */
 package net.yourhome.server.net.rest;
 
-import net.yourhome.common.net.messagestructures.JSONMessage;
 import net.yourhome.server.net.Server;
 
 import javax.ws.rs.POST;
@@ -36,7 +35,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-@Path("/messagehandler")
+@Path("/api/messagehandler")
 public class MessageHandler {
 
 	private Server netWebSocketServer = Server.getInstance();
@@ -44,11 +43,10 @@ public class MessageHandler {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@POST
 	public String processMessage(@Context final UriInfo uriInfo, String bodyContent) {
-		JSONMessage returnMessage = this.netWebSocketServer.processIncomingMessage(bodyContent);
-		String returnMessageString = "{}";
+		String returnMessage = this.netWebSocketServer.processIncomingMessage(bodyContent);
 		if (returnMessage != null) {
-			returnMessageString = returnMessage.serialize().toString();
+            returnMessage = "{}";
 		}
-		return returnMessageString;
+		return returnMessage;
 	}
 }

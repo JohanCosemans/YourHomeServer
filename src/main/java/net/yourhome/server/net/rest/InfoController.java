@@ -28,11 +28,9 @@ package net.yourhome.server.net.rest;
 
 import net.minidev.json.JSONArray;
 import net.yourhome.common.base.enums.ControllerTypes;
-import net.yourhome.common.net.model.ServerInfo;
 import net.yourhome.server.IController;
 import net.yourhome.server.base.Setting;
 import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.Util;
 import net.yourhome.server.base.rules.scenes.actions.notifications.PushNotificationService;
 import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
@@ -44,29 +42,20 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-@Path("/Info")
-public class Info {
-	private static Logger log = Logger.getLogger(Info.class);
+@Path("/api/Info")
+public class InfoController {
+	private static Logger log = Logger.getLogger(InfoController.class);
 	public static final String SERVER_INFO_FILE = "/serverinfo.json";
 
 	// The initialize method will only be called when the controllers are needed
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-	}
-
-	// GET api/Info/
-	@Produces({ MediaType.APPLICATION_JSON })
-	@GET
-	public ServerInfo getInfo() throws IOException, JSONException {
-		return Info.getServerInfo();
 	}
 
 	// GET api/Info/Settings
@@ -139,24 +128,6 @@ public class Info {
 	public Response deleteDevice(@PathParam("deviceId") final String deviceId) throws SQLException {
 		PushNotificationService.getInstance().unregisterClient(deviceId);
 		return Response.ok().build();
-	}
-
-	public static ServerInfo getServerInfo() throws IOException, JSONException {
-		File serverInfoFile = new File(SettingsManager.getBasePath(), Server.FILESERVER_PATH + Info.SERVER_INFO_FILE);
-		if (serverInfoFile.exists()) {
-			String serverInfoString = Util.readFile(serverInfoFile);
-			JSONObject serverInfoObject = new JSONObject(serverInfoString);
-			return new ServerInfo(serverInfoObject);
-		} else {
-			return new ServerInfo();
-		}
-	}
-
-	public static boolean writeServerInfo(ServerInfo info) throws IOException, JSONException {
-		File serverInfoFile = new File(SettingsManager.getBasePath(), Server.FILESERVER_PATH + Info.SERVER_INFO_FILE);
-		String serverInfoString = info.serialize().toString();
-		Util.writeToFile(new ByteArrayInputStream(serverInfoString.getBytes()), serverInfoFile);
-		return true;
 	}
 
 }

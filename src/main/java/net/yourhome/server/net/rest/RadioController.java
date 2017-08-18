@@ -26,7 +26,6 @@
  */
 package net.yourhome.server.net.rest;
 
-import net.yourhome.server.radio.RadioController;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,17 +36,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.sql.SQLException;
 
-@Path("/Radio")
-public class Radio {
+@Path("/api/Radio")
+public class RadioController {
 
-	private static Logger log = Logger.getLogger(Radio.class);
-	private RadioController controller;
+	private static Logger log = Logger.getLogger(RadioController.class);
+	private net.yourhome.server.radio.RadioController controller;
 
 	// The initialize method will only be called when the controllers are needed
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-		this.controller = RadioController.getInstance();
+		this.controller = net.yourhome.server.radio.RadioController.getInstance();
 	}
 
 	// POST api/RadioCommands/
@@ -59,12 +58,12 @@ public class Radio {
 		}
 		try {
 			JSONObject json = new JSONObject(bodyContent);
-			RadioController.RadioChannel newRadioChannel = this.controller.new RadioChannel(json.getString("channelName"), json.getString("channelUrl"));
+			net.yourhome.server.radio.RadioController.RadioChannel newRadioChannel = this.controller.new RadioChannel(json.getString("channelName"), json.getString("channelUrl"));
 
-			return RadioController.getInstance().createRadioChannel(newRadioChannel);
+			return net.yourhome.server.radio.RadioController.getInstance().createRadioChannel(newRadioChannel);
 
 		} catch (JSONException e) {
-			Radio.log.error(e);
+			RadioController.log.error(e);
 			return "";
 		}
 	}

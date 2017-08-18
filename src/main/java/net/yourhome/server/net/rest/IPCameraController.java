@@ -28,7 +28,6 @@ package net.yourhome.server.net.rest;
 
 import net.yourhome.common.net.messagestructures.ipcamera.IPCameraMessage;
 import net.yourhome.server.ipcamera.IPCamera;
-import net.yourhome.server.ipcamera.IPCameraController;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,16 +41,16 @@ import javax.ws.rs.core.UriInfo;
 import java.io.File;
 import java.sql.SQLException;
 
-@Path("/IPCameras")
-public class IPCameras {
-	private IPCameraController controller;
-	private static Logger log = Logger.getLogger(IPCameras.class);
+@Path("/api/IPCameras")
+public class IPCameraController {
+	private net.yourhome.server.ipcamera.IPCameraController controller;
+	private static Logger log = Logger.getLogger(IPCameraController.class);
 
 	// The initialize method will only be called when the controllers are needed
 	// (in this way, the controllers are not initialized during the network
 	// startup)
 	private void initialize() {
-		this.controller = IPCameraController.getInstance();
+		this.controller = net.yourhome.server.ipcamera.IPCameraController.getInstance();
 	}
 
 	// GET api/IPCameras/
@@ -140,7 +139,7 @@ public class IPCameras {
 	@Path("{cameraId}/Snapshot")
 	@GET
 	public Response getCameraSnapshot(@Context final UriInfo uriInfo, String bodyContent, @PathParam("cameraId") final int cameraId) {
-		IPCamera camera = IPCameraController.getInstance().getIPCamera(cameraId);
+		IPCamera camera = net.yourhome.server.ipcamera.IPCameraController.getInstance().getIPCamera(cameraId);
 		if (camera != null) {
 			File cameraSnapshot = camera.saveAndGetSnapshot(false);
 			ResponseBuilder response = Response.ok(cameraSnapshot);
@@ -155,7 +154,7 @@ public class IPCameras {
 	@Path("{cameraId}/Snapshot/{fileName}")
 	@GET
 	public Response getCameraSnapshotByFilename(@Context final UriInfo uriInfo, String bodyContent, @PathParam("cameraId") final int cameraId, @PathParam("fileName") final String fileName) {
-		IPCamera camera = IPCameraController.getInstance().getIPCamera(cameraId);
+		IPCamera camera = net.yourhome.server.ipcamera.IPCameraController.getInstance().getIPCamera(cameraId);
 		if (camera != null) {
 			File cameraSnapshot = camera.getSnapshotByName(fileName);
 			ResponseBuilder response = Response.ok(cameraSnapshot);

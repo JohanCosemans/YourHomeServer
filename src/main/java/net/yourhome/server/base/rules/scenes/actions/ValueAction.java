@@ -58,8 +58,12 @@ public class ValueAction extends Action {
 		setValue.broadcast = false;
 		setValue.controlIdentifiers = this.identifiers;
 		setValue.value = this.value;
-		Server.getInstance().processMessage(setValue);
-		return true;
+        try {
+            Server.getInstance().processMessage(setValue);
+        } catch (Exception e) {
+            log.error("Could not perform action", e);
+        }
+        return true;
 	}
 
 	/**

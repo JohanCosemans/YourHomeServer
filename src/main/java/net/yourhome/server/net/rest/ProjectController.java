@@ -50,12 +50,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Path("/Project")
-public class Project {
+@Path("/api/Project")
+public class ProjectController {
 
 	public static final String PROJECT_FOLDER = ImageHelper.HOMEDESIGNER_PATH + "/projects";
-	public static final String PUBLISHED_PROJECTS_FOLDER = Project.PROJECT_FOLDER + "/published";
-	private static Logger log = Logger.getLogger(Project.class);
+	public static final String PUBLISHED_PROJECTS_FOLDER = ProjectController.PROJECT_FOLDER + "/published";
+	private static Logger log = Logger.getLogger(ProjectController.class);
 
 	private String imageFolder = SettingsManager.getBasePath() + Server.FILESERVER_PATH + ImageHelper.HOMEDESIGNER_PATH;
 	// private ImageHelper imageHelper = ImageHelper.getInstance();
@@ -79,18 +79,18 @@ public class Project {
 	@DELETE
 	@Path("/Published/{projectName}")
 	public Response unpublish(@Context final UriInfo uriInfo, @PathParam("projectName") final String projectName, String bodyContent) throws IOException, JSONException {
-		ServerInfo info = Info.getServerInfo();
+		ServerInfo info = ServerInfoController.getServerInfo();
 		Configuration c = info.getConfigurations().remove(projectName);
 		if (c != null) {
 			// Also delete file
-			String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PUBLISHED_PROJECTS_FOLDER + "/" + c.getFile();
+			String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + ProjectController.PUBLISHED_PROJECTS_FOLDER + "/" + c.getFile();
 			File configurationFile = new File(configurationPath);
 			if (!configurationFile.delete()) {
 				return Response.serverError().build();
 			}
 			;
 		}
-		Info.writeServerInfo(info);
+        ServerInfoController.writeServerInfo(info);
 
 		return Response.ok().build();
 	}
@@ -114,7 +114,7 @@ public class Project {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String Get() {
-		File imageFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PROJECT_FOLDER);
+		File imageFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + ProjectController.PROJECT_FOLDER);
 		File[] filePaths = imageFolder.listFiles();
 
 		JSONArray projectFiles = new JSONArray();
@@ -136,7 +136,7 @@ public class Project {
 	@Path("/{projectFileName}")
 	@Produces({ MediaType.MULTIPART_FORM_DATA })
 	public Response getProject(@Context final UriInfo uriInfo, @PathParam("projectFileName") final String projectFileName, String bodyContent) {
-		File projectFile = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PUBLISHED_PROJECTS_FOLDER + '/' + projectFileName);
+		File projectFile = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + ProjectController.PUBLISHED_PROJECTS_FOLDER + '/' + projectFileName);
 
 		if (projectFile.exists()) {
 			return Response.ok(projectFile).build();
@@ -150,7 +150,7 @@ public class Project {
 	@Path("/{projectFileName}")
 	public Response eleteProject(@Context final UriInfo uriInfo, @PathParam("projectFileName") final String projectFileName, String bodyContent) throws IOException, JSONException {
 
-		String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PROJECT_FOLDER + "/" + projectFileName;
+		String configurationPath = SettingsManager.getBasePath() + Server.FILESERVER_PATH + ProjectController.PROJECT_FOLDER + "/" + projectFileName;
 		File configurationFile = new File(configurationPath);
 		if (!configurationFile.delete()) {
 			return Response.serverError().build();
@@ -169,7 +169,7 @@ public class Project {
 
 			// Save project as file
 			try {
-				File projectFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PROJECT_FOLDER);
+				File projectFolder = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + ProjectController.PROJECT_FOLDER);
 				if (!projectFolder.exists()) {
 					projectFolder.mkdirs();
 				}
@@ -178,7 +178,7 @@ public class Project {
 				output.write(bodyContent);
 				output.close();
 			} catch (IOException e) {
-				Project.log.error("Exception occured: ", e);
+				ProjectController.log.error("Exception occured: ", e);
 			}
 		} catch (JSONException e1) {
 			e1.printStackTrace();
@@ -189,7 +189,7 @@ public class Project {
 		try {
 			projectInfo.put("fileName", projectName);
 		} catch (JSONException e) {
-			Project.log.error("Exception occured: ", e);
+			ProjectController.log.error("Exception occured: ", e);
 		}
 		return projectInfo.toString();
 	}
@@ -198,7 +198,7 @@ public class Project {
 		// String zipPath = SettingsManager.getBasePath() +
 		// NetWebSocketServer.FILESERVER_PATH + PUBLISHED_PROJECTS_FOLDER + "/"
 		// + projectName + ".zip";
-		File publishPath = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + Project.PUBLISHED_PROJECTS_FOLDER);
+		File publishPath = new File(SettingsManager.getBasePath() + Server.FILESERVER_PATH + ProjectController.PUBLISHED_PROJECTS_FOLDER);
 		if (!publishPath.exists()) {
 			publishPath.mkdirs();
 		}
@@ -222,7 +222,7 @@ public class Project {
 				try {
 					projectZip.addFile(imagePath, this.imageFolder);
 				} catch (IOException e) {
-					Project.log.error("[Configuration] Could not add image: " + imagePath + " (" + e.getMessage() + ")");
+					ProjectController.log.error("[Configuration] Could not add image: " + imagePath + " (" + e.getMessage() + ")");
 				}
 			}
 
@@ -234,11 +234,11 @@ public class Project {
 			return zipFile.getAbsolutePath();
 
 		} catch (FileNotFoundException e) {
-			Project.log.error("Exception occured: ", e);
+			ProjectController.log.error("Exception occured: ", e);
 		} catch (JSONException e) {
-			Project.log.error("Exception occured: ", e);
+			ProjectController.log.error("Exception occured: ", e);
 		} catch (IOException e) {
-			Project.log.error("Exception occured: ", e);
+			ProjectController.log.error("Exception occured: ", e);
 		}
 		return null;
 	}
@@ -276,7 +276,7 @@ public class Project {
 					}
 				}
 			} catch (JSONException e) {
-				Project.log.error("Exception occured: ", e);
+				ProjectController.log.error("Exception occured: ", e);
 			}
 		}
 	}
@@ -292,14 +292,14 @@ public class Project {
 					this.readImagesFromPatternInObject((JSONObject) childObject, intoList);
 				}
 			} catch (JSONException e) {
-				Project.log.error("Exception occured: ", e);
+				ProjectController.log.error("Exception occured: ", e);
 			}
 		}
 	}
 
 	private void updateServerInfo(File newConfigFile) {
 		try {
-			ServerInfo serverInfo = Info.getServerInfo();
+			ServerInfo serverInfo = ServerInfoController.getServerInfo();
 
 			// See if this configuration is already published before
 			net.yourhome.common.net.model.Configuration currentConfiguration = serverInfo.getConfigurations().get(newConfigFile.getName());
@@ -317,12 +317,12 @@ public class Project {
 				serverInfo.getConfigurations().put(c.getFile(), c);
 			}
 
-			Info.writeServerInfo(serverInfo);
+            ServerInfoController.writeServerInfo(serverInfo);
 
 		} catch (IOException e) {
-			Project.log.error("Exception occured: ", e);
+			ProjectController.log.error("Exception occured: ", e);
 		} catch (JSONException e) {
-			Project.log.error("Exception occured: ", e);
+			ProjectController.log.error("Exception occured: ", e);
 		}
 
 		// XML Initialization

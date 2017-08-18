@@ -40,10 +40,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.sql.SQLException;
 
-@Path("/HttpCommands")
-public class HttpCommands {
+@Path("/api/HttpCommands")
+public class HttpCommandsController {
 	private HttpCommandController controller;
-	private static Logger log = Logger.getLogger(HttpCommands.class);
+	private static Logger log = Logger.getLogger(HttpCommandsController.class);
 
 	// The initialize method will only be called when the controllers are needed
 	// (in this way, the controllers are not initialized during the network
@@ -65,7 +65,7 @@ public class HttpCommands {
 			try {
 				return HttpCommandController.getInstance().sendHttpCommand(command).toString();
 			} catch (Exception e) {
-				HttpCommands.log.error("Exception occured: ", e);
+				HttpCommandsController.log.error("Exception occured: ", e);
 				return "Error: " + e.getCause().getMessage();
 			}
 		} catch (JSONException e) {
@@ -158,7 +158,7 @@ public class HttpCommands {
 			changedHttpCommand = new HttpCommandMessage(httpCommand);
 			return this.controller.changeHttpCommand(changedHttpCommand);
 		} catch (JSONException e) {
-			HttpCommands.log.error("Exception occured: ", e);
+			HttpCommandsController.log.error("Exception occured: ", e);
 			return "{ \"result\" : \"ERROR\" }";
 		}
 	}

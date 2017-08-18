@@ -24,57 +24,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.yourhome.server;
+package net.yourhome.server.net.rest;
 
-import net.yourhome.common.Util;
 import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.net.Server;
+import net.yourhome.server.base.Util;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 import java.io.File;
 
-/**
- * @author johan
- */
-public class Main {
+@Path("/api/Logs")
+public class LogsController {
 
-	private static Logger log;
+	private static Logger log = Logger.getLogger(LogsController.class);
 
-	public static void main(String[] args) {
-
-		try {
-			if (args.length > 0 && new File(args[0]).exists()) {
-				System.out.println("[Settings] Custom base folder provided: " + args[0]);
-				SettingsManager.setBasePath(args[0]);
-			}
-
-			/*String encrypt = Util.encrypt("test","password");
-			String decrypt = Util.decrypt(encrypt,"password");
-			log.info("Decription: "+ decrypt);*/
-
-
-			SettingsManager.initialize();
-
-			// Set console log path
-			System.setProperty("HOMESERVER_LOG", new File(SettingsManager.getBasePath(), "logs/HomeServer.txt").getAbsolutePath());
-			PropertyConfigurator.configure(new File(SettingsManager.getBasePath(), "config/log4j.properties").getAbsolutePath());
-			Main.log = Logger.getLogger(Main.class);
-
-			// Initialize server: Websocket + HTTP fileserver + API
-			Server netWebSocketServer = Server.getInstance();
-
-		} catch (Exception e) {
-			if (Main.log != null) {
-				Main.log.error("Exception occured: ", e);
-			} else {
-				e.printStackTrace();
-			}
-		}
+	// GET api/Logs/HomeServer/{bytes}
+	@GET
+	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
+	@Path("HomeServer/{bytes}")
+	public String Get(@Context final UriInfo uriInfo, String bodyContent, @PathParam("bytes") final int bytes) {
+		File logFile = new File(SettingsManager.getBasePath(), "/logs/HomeServer.txt");
+		return Util.readBytesFromTextFile(logFile, bytes);
 	}
 
-	public static void restart() {
-		Server.getInstance().destroy();
-		System.exit(121);
+	// GET api/Logs/ZWave/{bytes}
+	@GET
+	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
+	@Path("ZWave/{bytes}")
+	public String getZwaveLog(@Context final UriInfo uriInfo, String bodyContent, @PathParam("bytes") final int bytes) {
+		File logFile = new File(SettingsManager.getBasePath(), "/logs/OZW_Log.txt");
+		return Util.readBytesFromTextFile(logFile, bytes);
 	}
 }

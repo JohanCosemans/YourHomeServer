@@ -34,9 +34,10 @@ import net.yourhome.common.net.messagestructures.general.ProtectedJSONMessage;
 import net.yourhome.common.net.model.ServerInfo;
 import net.yourhome.server.IController;
 import net.yourhome.server.base.*;
+import net.yourhome.server.base.Util;
 import net.yourhome.server.base.rules.RuleManager;
 import net.yourhome.server.net.rest.AppConfig;
-import net.yourhome.server.net.rest.Info;
+import net.yourhome.server.net.rest.ServerInfoController;
 import net.yourhome.server.net.rest.view.ImageHelper;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.log4j.Logger;
@@ -77,6 +78,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Server {
 	public static final String FILESERVER_PATH = "/web";
 	public static final String WEBSOCKET_PATH = "/websocket";
+	public static final String API_PATH = "/api";
+	public static final String PUBLIC_API_PATH = "/public";
 
 	private static Logger log = Logger.getLogger("net.yourhome.server.net.Net");
 
@@ -158,11 +161,11 @@ public class Server {
 		 * Set/update server info
 		 */
 		try {
-			ServerInfo serverInfo = Info.getServerInfo();
+			ServerInfo serverInfo = ServerInfoController.getServerInfo();
 			serverInfo.setPort(Integer.parseInt(SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_HTTP_PORT.get())));
 			serverInfo.setName(SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.SERVER_NAME.get(), "Home server"));
 			serverInfo.setVersion(BuildConfig.VERSION);
-			Info.writeServerInfo(serverInfo);
+            ServerInfoController.writeServerInfo(serverInfo);
 		} catch (IOException | JSONException e1) {
 			Server.log.error("Could not update server info. Designer might not work as expected: " + e1.getMessage());
 		}
@@ -190,7 +193,14 @@ public class Server {
 		webSocketRestcontext.addEventListener(new ContextLoaderListener());
 		webSocketRestcontext.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
 		webSocketRestcontext.setInitParameter("contextConfigLocation", AppConfig.class.getName());
-		webSocketRestcontext.addServlet(servletHolder, "/api/*");
+		webSocketRestcontext.addServlet(servletHolder, "/*");
+
+        // Attach PUBLIC api
+/*        final ServletHolder publicServletHolder = new ServletHolder(new CXFServlet());
+        //webSocketRestcontext.addEventListener(new ContextLoaderListener());
+        //webSocketRestcontext.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
+        //webSocketRestcontext.setInitParameter("contextConfigLocation", AppConfig.class.getName());
+        webSocketRestcontext.addServlet(publicServletHolder, Server.PUBLIC_API_PATH+"/*");*/
 
 		// Create fileserverContext
 		ContextHandler fileServerContext = new ContextHandler();
@@ -202,7 +212,7 @@ public class Server {
 		fileServerContext.setHandler(resource_handler);
 		fileServerContext.setContextPath("/");
 
-		// Set security on /HomeDesigner/
+		// Set security on /YourHomeDesigner/ and /api
 		String username = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_USERNAME.get(), "");
 		String password = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_PASSWORD.get(), "");
 
@@ -218,11 +228,15 @@ public class Server {
 			constraint.setAuthenticate(true);
 			constraint.setRoles(new String[] { "admin" });
 
-			ConstraintMapping mapping = new ConstraintMapping();
-			mapping.setPathSpec(ImageHelper.HOMEDESIGNER_PATH + "/*");
-			mapping.setConstraint(constraint);
+			ConstraintMapping homeDesigner = new ConstraintMapping();
+            homeDesigner.setPathSpec(ImageHelper.HOMEDESIGNER_PATH + "/*");
+            homeDesigner.setConstraint(constraint);
 
-			security.setConstraintMappings(Collections.singletonList(mapping));
+            ConstraintMapping apiConstraint = new ConstraintMapping();
+            apiConstraint.setPathSpec(Server.API_PATH + "/*");
+            apiConstraint.setConstraint(constraint);
+
+			security.setConstraintMappings(Arrays.asList(homeDesigner, apiConstraint));
 			security.setAuthenticator(new BasicAuthenticator());
 			security.setLoginService(loginService);
 			security.setHandler(fileServerContext);
@@ -233,8 +247,6 @@ public class Server {
 		handlerList.add(webSocketRestcontext);
 
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		// contexts.setHandlers(new Handler[] { security, webSocketRestcontext
-		// });
 		contexts.setHandlers(handlerList.toArray(new Handler[handlerList.size()]));
 
 		this.server.setHandler(contexts);
@@ -242,8 +254,6 @@ public class Server {
 		try {
 			this.server.start();
 			Server.log.info("Webserver initialized. Address: " + InetAddress.getLocalHost().getHostName() + ":" + connector.getPort() + " / " + InetAddress.getLocalHost().getHostAddress() + ":" + connector.getPort());
-			// server.join();
-
 		} catch (BindException e) {
 			Server.log.error("Could not bind to port " + connector.getPort() + ". Is it already in use by another application? Please change the port in the configuration file and restart the server.");
 		} catch (Exception e) {
@@ -277,7 +287,7 @@ public class Server {
 		return this.controllers;
 	}
 
-	public JSONMessage processMessage(JSONMessage message) {
+	public String processMessage(JSONMessage message) {
 		if (message instanceof ProtectedJSONMessage) {
 			ProtectedJSONMessage protectedJsonMessage = (ProtectedJSONMessage) message;
 			if (protectedJsonMessage.isProtected) {
@@ -287,7 +297,7 @@ public class Server {
 					wrongPasscodeMessage.broadcast = false;
 					wrongPasscodeMessage.messageContent = "Wrong passcode! Please try again";
 					wrongPasscodeMessage.messageLevel = MessageLevels.ERROR;
-					return wrongPasscodeMessage;
+					return encryptMessage(wrongPasscodeMessage);
 				}
 			}
 		}
@@ -308,18 +318,20 @@ public class Server {
 		} catch (Exception e) {
 			Server.log.error("Exception occured: ", e);
 		}
-		return returningMessage;
+		return encryptMessage(returningMessage);
 
 	}
 
-	public JSONMessage processIncomingMessage(String json) {
+	public String processIncomingMessage(String possiblyEncryptedJson) {
 		try {
-			JSONObject jsonObject = new JSONObject(json);
+            String json = decrypt(possiblyEncryptedJson);
+            log.debug("[Net] Receive after decryption: " + json);
+            JSONObject jsonObject = new JSONObject(json);
 			JSONMessage message = MessageTypes.getMessage(jsonObject);
 			return this.processMessage(message);
 		} catch (Exception e) {
-			Server.log.error("Exception occured: ", e);
-			Server.log.error("Incorrect json received: " + json);
+			log.error("Exception occured: ", e);
+			log.error("Incorrect json received: " + possiblyEncryptedJson);
 		}
 		return null;
 	}
@@ -333,10 +345,9 @@ public class Server {
 	}
 
 	public void broadcast(JSONMessage message) {
-		String messageString = message.serialize().toString();
-		Server.log.debug("Broadcast: " + messageString);
+		Server.log.debug("Broadcast: " + message.serialize().toString());
 		for (WebSocketAdapter u : this.connectedClients) {
-			u.getRemote().sendStringByFuture(messageString);
+			u.getRemote().sendStringByFuture(encryptMessage(message));
 		}
 	}
 
@@ -349,11 +360,42 @@ public class Server {
 				Collection<JSONMessage> messages = controller.initClient();
 				if (messages != null) {
 					for (JSONMessage message : messages) {
-						client.getRemote().sendStringByFuture(message.serialize().toString());
+						client.getRemote().sendStringByFuture(encryptMessage(message));
 					}
 				}
 			}
 		}
 	}
+
+
+    private String decrypt(String input) throws Exception {
+        String username = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_USERNAME.get());
+        String password = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_PASSWORD.get());
+
+        if(username == null || username.equals("")) {
+            return input;
+        }else {
+            String decryptionString = username+password;
+            return Util.decrypt(input,decryptionString);
+        }
+    }
+    public String encryptMessage(JSONMessage message) {
+	    if(message != null) {
+            String username = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_USERNAME.get());
+            String password = SettingsManager.getStringValue(GeneralController.getInstance().getIdentifier(), GeneralController.Settings.NET_PASSWORD.get());
+
+            if (username == null || password == null) {
+                return message.serialize().toString();
+            } else {
+                String encryptionString = username + password;
+                try {
+                    return Util.encrypt(message.serialize().toString(), encryptionString);
+                } catch (Exception e) {
+                    log.error("Could not encrypt message", e);
+                }
+            }
+        }
+        return null;
+    }
 
 }

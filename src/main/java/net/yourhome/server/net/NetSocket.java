@@ -26,7 +26,10 @@
  */
 package net.yourhome.server.net;
 
+import net.yourhome.common.Util;
 import net.yourhome.common.net.messagestructures.JSONMessage;
+import net.yourhome.server.base.GeneralController;
+import net.yourhome.server.base.SettingsManager;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
@@ -55,22 +58,21 @@ public class NetSocket extends WebSocketAdapter {
 	}
 
 	@Override
-	public void onWebSocketText(String json) {
-		super.onWebSocketText(json);
-		NetSocket.log.debug("[Net] Receive: " + json);
-		JSONMessage returningMessage = this.netWebSocketServer.processIncomingMessage(json); // This
-		// will
-		// be
-		// done
-		// async
-
-		if (returningMessage != null) {
-			try {
-				this.session.getRemote().sendString(returningMessage.serialize().toString());
-			} catch (IOException e) {
-				NetSocket.log.error("Exception occured: ", e);
-			}
-		}
+	public void onWebSocketText(String possiblyEncryptedJson) {
+		super.onWebSocketText(possiblyEncryptedJson);
+		NetSocket.log.debug("[Net] Receive: " + possiblyEncryptedJson);
+        try {
+            String returningMessage = this.netWebSocketServer.processIncomingMessage(possiblyEncryptedJson); // This
+            if (returningMessage != null) {
+                try {
+                    this.session.getRemote().sendString(returningMessage);
+                } catch (IOException e) {
+                    NetSocket.log.error("Exception occured: ", e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Could not decrypt message. Wrong password??");
+        }
 	}
 
 	@Override
@@ -86,8 +88,6 @@ public class NetSocket extends WebSocketAdapter {
 		cause.printStackTrace(System.err);
 	}
 
-	// public void sendMessage(String data) throws IOException {
-	// } connection.sendMessage(data);
 	@Override
 	public Session getSession() {
 		return this.session;

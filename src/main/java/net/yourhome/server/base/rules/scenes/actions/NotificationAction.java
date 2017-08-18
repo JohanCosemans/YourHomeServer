@@ -33,8 +33,7 @@ import net.yourhome.server.base.rules.scenes.actions.notifications.EmailService;
 import net.yourhome.server.base.rules.scenes.actions.notifications.PushNotificationService;
 import net.yourhome.server.base.rules.scenes.actions.notifications.NexmoSMSService;
 import net.yourhome.server.ipcamera.IPCamera;
-import net.yourhome.server.ipcamera.IPCameraController;
-import net.yourhome.server.net.rest.IPCameras;
+import net.yourhome.server.net.rest.IPCameraController;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -100,10 +99,10 @@ public class NotificationAction extends Action {
 			notificationMessage.notificationType = MobileNotificationTypes.TEXT;
 			String snapshotUrl = "";
 			if (this.includeSnapshotOfCamera != 0) {
-				IPCamera camera = IPCameraController.getInstance().getIPCamera(this.includeSnapshotOfCamera);
+				IPCamera camera = net.yourhome.server.ipcamera.IPCameraController.getInstance().getIPCamera(this.includeSnapshotOfCamera);
 				File snapshotFile = camera.saveAndGetSnapshot(false, "notification_camera-" + this.includeSnapshotOfCamera + "_" + new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date()));
 				if(snapshotFile != null) {
-                    snapshotUrl = IPCameras.getSnapshotUrl(camera.getId(), snapshotFile);
+                    snapshotUrl = IPCameraController.getSnapshotUrl(camera.getId(), snapshotFile);
                     notificationMessage.imagePath = snapshotUrl;
                     notificationMessage.notificationType = MobileNotificationTypes.IMAGE;
                     notificationMessage.videoPath = camera.getVideoUrl();

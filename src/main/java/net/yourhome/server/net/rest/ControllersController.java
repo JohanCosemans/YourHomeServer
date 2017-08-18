@@ -45,10 +45,10 @@ import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.Map.Entry;
 
-@Path("/Controllers")
-public class Controllers {
+@Path("/api/Controllers")
+public class ControllersController {
 
-	private static Logger log = Logger.getLogger(Controllers.class);
+	private static Logger log = Logger.getLogger(ControllersController.class);
 	private Server server;
 
 	// The initialize method will only be called when the controllers are needed

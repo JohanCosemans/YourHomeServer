@@ -26,10 +26,18 @@
  */
 package net.yourhome.server.base;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,6 +47,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -180,4 +190,25 @@ public class Util {
 		byte[] encoded = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
 		return new String(encoded, StandardCharsets.UTF_8);
 	}
+
+    private static Base64 base64 = new Base64(true);
+
+    public static String encrypt(String valueToEnc, String password) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
+
+        SecretKeySpec key = new SecretKeySpec(password.getBytes("UTF8"), "Blowfish");
+        Cipher cipher = Cipher.getInstance("Blowfish");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+
+        return base64.encodeToString(cipher.doFinal(valueToEnc.getBytes("UTF8")));
+    }
+
+    public static String decrypt(String encryptedValue, String password) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        byte[] encryptedData = base64.decodeBase64(encryptedValue);
+        SecretKeySpec key = new SecretKeySpec(password.getBytes("UTF8"), "Blowfish");
+        Cipher cipher = Cipher.getInstance("Blowfish");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decrypted = cipher.doFinal(encryptedData);
+        return new String(decrypted);
+    }
+
 }

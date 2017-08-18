@@ -38,7 +38,6 @@ import net.yourhome.server.ControllerNode;
 import net.yourhome.server.ControllerValue;
 import net.yourhome.server.base.DatabaseConnector;
 import net.yourhome.server.base.Setting;
-import net.yourhome.server.net.rest.IPCameras;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,21 +58,21 @@ public class IPCameraController extends AbstractController {
 	}
 
 	public static IPCameraController getInstance() {
-		IPCameraController r = IPCameraController.ipCameraController;
+		IPCameraController r = net.yourhome.server.ipcamera.IPCameraController.ipCameraController;
 		if (r == null) {
-			synchronized (IPCameraController.lock) { // while we were waiting
+			synchronized (net.yourhome.server.ipcamera.IPCameraController.lock) { // while we were waiting
 														// for the lock, another
-				r = IPCameraController.ipCameraController; // thread may have
+				r = net.yourhome.server.ipcamera.IPCameraController.ipCameraController; // thread may have
 															// instantiated the
 				// object
 				if (r == null) {
 					r = new IPCameraController();
-					IPCameraController.ipCameraController = r;
+					net.yourhome.server.ipcamera.IPCameraController.ipCameraController = r;
 				}
 			}
 		}
 
-		return IPCameraController.ipCameraController;
+		return net.yourhome.server.ipcamera.IPCameraController.ipCameraController;
 	}
 
 	@Override
@@ -83,14 +82,14 @@ public class IPCameraController extends AbstractController {
 			SnapshotRequestMessage requestSnapshotMessage = (SnapshotRequestMessage) message;
 
 			// Process message: take screenshot
-			IPCamera camera = IPCameraController.ipCameraController.getIPCamera(Integer.parseInt(requestSnapshotMessage.controlIdentifiers.getValueIdentifier()));
+			IPCamera camera = net.yourhome.server.ipcamera.IPCameraController.ipCameraController.getIPCamera(Integer.parseInt(requestSnapshotMessage.controlIdentifiers.getValueIdentifier()));
 			if (camera != null) {
 				File cameraSnapshot = camera.saveAndGetSnapshot(false);
 
 				// Build result message
 				SnapshotMessage snapshotMessage = new SnapshotMessage(message);
 				if (cameraSnapshot != null) {
-					String relativeSnapshotPath = IPCameras.getSnapshotUrl(camera.getId(), cameraSnapshot);
+					String relativeSnapshotPath = net.yourhome.server.net.rest.IPCameraController.getSnapshotUrl(camera.getId(), cameraSnapshot);
 					snapshotMessage.snapshotUrl = relativeSnapshotPath;
 				}
 				snapshotMessage.videoPath = camera.getVideoUrl();

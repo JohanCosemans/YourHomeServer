@@ -27,7 +27,7 @@
 package net.yourhome.server.net;
 
 import net.yourhome.common.net.Discovery;
-import net.yourhome.server.net.rest.Info;
+import net.yourhome.server.net.rest.ServerInfoController;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
@@ -97,7 +97,7 @@ public class NetworkDiscoveryBroadcast {
 
 	private final void sendReply(DatagramSocket socket, InetAddress client, int port) {
 		try {
-			String serverInfoString = Info.getServerInfo().serialize().toString();
+			String serverInfoString = ServerInfoController.getServerInfo().serialize().toString();
 			DatagramPacket packet = new DatagramPacket(serverInfoString.getBytes(), serverInfoString.length(), new InetSocketAddress(client, port));
 			NetworkDiscoveryBroadcast.log.debug("Received discovery request from " + packet.getAddress() + ":" + packet.getPort() + ": " + serverInfoString);
 			socket.send(packet);

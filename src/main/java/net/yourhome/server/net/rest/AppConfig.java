@@ -56,7 +56,7 @@ public class AppConfig {
 		this.cxf();
 		JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(this.jaxRsApiApplication(), JAXRSServerFactoryBean.class);
 		factory.setBus(this.cxf());
-		factory.setServiceBeans(Arrays.<Object>asList(new MessageHandler(), new Images(), new Views(), new Nodes(), new Scenes(), new Rules(), new Commands(), new Project(), new Radio(), new Logs(), new HttpCommands(), new IPCameras(), new Controllers(), new Info()));
+		factory.setServiceBeans(Arrays.<Object>asList(new MessageHandler(), new Images(), new Views(), new Nodes(), new Scenes(), new Rules(), new Commands(), new ProjectController(), new RadioController(), new LogsController(), new HttpCommandsController(), new IPCameraController(), new ControllersController(), new ServerInfoController()));
 		factory.setAddress('/' + factory.getAddress());
 		factory.setProviders(Arrays.<Object>asList(this.jsonProvider()));
 		return factory.create();

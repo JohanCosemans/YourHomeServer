@@ -26,39 +26,48 @@
  */
 package net.yourhome.server.net.rest;
 
-import net.yourhome.server.base.SettingsManager;
-import net.yourhome.server.base.Util;
-import org.apache.log4j.Logger;
+import org.apache.cxf.bus.spring.SpringBus;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-import java.io.File;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.ext.RuntimeDelegate;
+import java.util.Arrays;
 
-@Path("/Logs")
-public class Logs {
-
-	private static Logger log = Logger.getLogger(Logs.class);
-
-	// GET api/Logs/HomeServer/{bytes}
-	@GET
-	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	@Path("HomeServer/{bytes}")
-	public String Get(@Context final UriInfo uriInfo, String bodyContent, @PathParam("bytes") final int bytes) {
-		File logFile = new File(SettingsManager.getBasePath(), "/logs/HomeServer.txt");
-		return Util.readBytesFromTextFile(logFile, bytes);
+@Configuration
+public class PublicAppConfig {
+	@Bean(destroyMethod = "shutdown")
+	public SpringBus cxf() {
+		return new SpringBus();
 	}
 
-	// GET api/Logs/ZWave/{bytes}
-	@GET
-	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	@Path("ZWave/{bytes}")
-	public String getZwaveLog(@Context final UriInfo uriInfo, String bodyContent, @PathParam("bytes") final int bytes) {
-		File logFile = new File(SettingsManager.getBasePath(), "/logs/OZW_Log.txt");
-		return Util.readBytesFromTextFile(logFile, bytes);
+	@Bean
+	public Server jaxRsServer() {
+		this.cxf();
+		JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint(this.jaxRsApiApplication(), JAXRSServerFactoryBean.class);
+		factory.setBus(this.cxf());
+		factory.setServiceBeans(Arrays.<Object>asList(new ServerInfoController()));
+		factory.setAddress('/' + factory.getAddress());
+		factory.setProviders(Arrays.<Object>asList(this.jsonProvider()));
+		return factory.create();
 	}
+
+	@Bean
+	public JaxRsApiApplication jaxRsApiApplication() {
+		return new JaxRsApiApplication();
+	}
+
+	@Bean
+	public JacksonJsonProvider jsonProvider() {
+		return new JacksonJsonProvider();
+	}
+
+	@ApplicationPath("")
+	public class JaxRsApiApplication extends Application {
+	}
+
 }
