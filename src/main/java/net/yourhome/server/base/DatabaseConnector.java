@@ -116,7 +116,8 @@ public class DatabaseConnector {
 			this.weeklyHistoryStm = this.weeklylHistoryConnection.prepareStatement(this.INSERT_VALUE_CHANGE);
 			this.historyBatchStm = this.allHistoryConnection.prepareStatement(this.INSERT_VALUE_CHANGE);
 		} catch (SQLException e) {
-		}
+            DatabaseConnector.log.error("Database error (" + e.getMessage() + ')',e);
+        }
 
 		// Schedule data cleanup every morning at 3am
 		Scheduler.getInstance().scheduleCron(new TimerTask() {

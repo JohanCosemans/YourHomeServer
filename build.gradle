@@ -65,11 +65,11 @@ configurations.all {
 }
 dependencies {
 
-   /*compile ('com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT') {
+   compile ('com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT') {
    	changing = true 
-   }*/
-   
-   compile project(":YourHomeCommon")
+   }
+   //compile project(":YourHomeCommon")
+
    // Local jar files
    compile name: "sqlite-jdbc-3.8.7.2"
    compile name: "tritonus_share-0.3.6"
@@ -89,7 +89,6 @@ dependencies {
    compile "org.apache.commons:commons-lang3:3.4"
    compile "commons-logging:commons-logging:1.2"
    compile "commons-collections:commons-collections:3.2.2"
-   compile "commons-codec:commons-codec:1.10"
    compile "com.fasterxml.jackson.core:jackson-core:2.6.4"
    compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.6.4"
    compile "org.codehaus.jackson:jackson-mapper-asl:1.9.13"

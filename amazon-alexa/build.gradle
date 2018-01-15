@@ -9,7 +9,11 @@ repositories {
 }
 
 dependencies {
-    compile project(":YourHomeCommon")
+    compile ('com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT') {
+        changing = true
+    }
+//    compile project(":YourHomeCommon")
+
     compile (
         'com.amazonaws:aws-lambda-java-core:1.1.0',
         'com.amazonaws:aws-lambda-java-events:1.1.0',
