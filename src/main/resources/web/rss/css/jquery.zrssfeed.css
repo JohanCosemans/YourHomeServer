@@ -25,6 +25,7 @@ body {
 }
 
 .rssHeader { padding: 0.2em 0; }
+.rssHeader img { max-width: 50px; }
 
 .rssBody {  }
 .rssBody ul { list-style: none; }
