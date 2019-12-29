@@ -60,6 +60,11 @@ public class Util {
 		return ext;
 	}
 
+	public static String toString(Object json) {
+		return JSONObject.valueToString(json);
+	}
+
+
 	public static String MD5(String string) {
 		byte[] bytesOfMessage;
 		try {

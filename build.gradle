@@ -65,10 +65,10 @@ configurations.all {
 }
 dependencies {
 
-   compile ('com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT') {
-   	changing = true 
-   }
-   //compile project(":YourHomeCommon")
+   //compile ('com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT') {
+   //	changing = true 
+   //}
+   compile project(":YourHomeCommon")
 
    // Local jar files
    compile name: "sqlite-jdbc-3.8.7.2"
