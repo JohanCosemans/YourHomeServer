@@ -69,6 +69,7 @@ public class IkeaNetController  {
 	private String hubRestPort = "2080";
 
 	private ObjectMapper objectMapper;
+	private Map<Integer, Device> devices = new HashMap<>();
 
 	public IkeaNetController(String hubSecurityToken, String hubIp, String hubRestProtocol, String hubRestIp, String hubRestPort) {
 		this.hubSecurityToken = hubSecurityToken;
@@ -129,10 +130,20 @@ public class IkeaNetController  {
 
 		// Login
 		try {
+
 			this.getLoginToken();
+
+			for (Device device : this.getDevices()) {
+				devices.put(device.getId(),device);
+			}
+
 		} catch (Exception e) {
 			log.error("Could not start : " + e.getMessage());
 		}
+	}
+
+	public Device getDevice(Integer deviceId) {
+		return devices.get(deviceId);
 	}
 
 	public List<Device> getDevices() throws Exception {
@@ -141,6 +152,37 @@ public class IkeaNetController  {
 				TypeFactory.defaultInstance().constructCollectionType(List.class, Device.class));
 	}
 
+	// http://localhost:2080/devices/65538/blind/50 blindPosition between 0 and 100
+	public void changeBlind(Integer deviceId, Integer blindPosition) {
+		try {
+			String changeBlindResponse = requestApi("PUT",DEVICES_URL+"/"+deviceId+"/blind/"+blindPosition,new HashMap<>());
+			log.debug("Blind "+deviceId+" changed to "+blindPosition+"!");
+			log.debug("response: "+changeBlindResponse);
+		} catch (Exception e) {
+			log.error("Could not change blind",e);
+		}
+	}
+	// http://localhost:2080/devices/65545/dimmer/254	lightDim between 0 and 100
+	public void changeLight(Integer deviceId, Integer lightDim) {
+		try {
+			Integer value = (int)Math.round(lightDim / 100.0 * 254);
+			String changeDimResponse = requestApi("PUT",DEVICES_URL+"/"+deviceId+"/dimmer/"+value,new HashMap<>());
+			log.debug("Blind "+deviceId+" changed to "+value+"!");
+			log.debug("response: "+changeDimResponse);
+		} catch (Exception e) {
+			log.error("Could not change dimmer",e);
+		}
+	}// http://localhost:2080/devices/65545/dimmer/1	1 or 0
+	public void changeSocket(Integer deviceId, Boolean onOff) {
+		try {
+			Integer value = onOff?1:0;
+			String changeSocketResponse = requestApi("PUT",DEVICES_URL+"/"+deviceId+"/state/"+value,new HashMap<>());
+			log.debug("Socket "+deviceId+" changed to "+value+"!");
+			log.debug("response: "+changeSocketResponse);
+		} catch (Exception e) {
+			log.error("Could not change socket",e);
+		}
+	}
 
 	public enum IkeaDeviceType implements EnumConverter<String, IkeaDeviceType> {
 		LIGHT("light"), BLIND("blind"), SOCKET("socket"), REPEATER("repeater"), UNKNOWN("unknown");

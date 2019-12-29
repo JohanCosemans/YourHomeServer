@@ -165,13 +165,13 @@ public class IkeaController extends AbstractController {
 		List<ControllerValue> parsedValues = new ArrayList<>();
 		switch(ikeaDevice.getIkeaDeviceType()) {
 			case BLIND:
-				parsedValues.add(new ControllerValue("blind", "Blind Level", ValueTypes.DIMMER));
+				parsedValues.add(new ControllerValue("1", "Blind Level", ValueTypes.DIMMER));
 			break;
 			case LIGHT:
-				parsedValues.add(new ControllerValue("dimmer", "Light Level", ValueTypes.DIMMER));
+				parsedValues.add(new ControllerValue("1", "Light Level", ValueTypes.DIMMER));
 			break;
 			case SOCKET:
-				parsedValues.add(new ControllerValue("state", "Switch state", ValueTypes.SWITCH_BINARY));
+				parsedValues.add(new ControllerValue("1", "Switch state", ValueTypes.SWITCH_BINARY));
 			break;
 			case REPEATER:
 			case UNKNOWN:
@@ -186,7 +186,6 @@ public class IkeaController extends AbstractController {
 		if (this.controllerMap.size() == 0) {
 			try {
 				// Get Devices and index them by id
-
 				List<Device> devices = ikeaNetController.getDevices();
 				for(Device device : devices) {
 					ControllerNode node = new ControllerNode(this, device.getId()+"", device.getName(), "");
@@ -242,7 +241,7 @@ public class IkeaController extends AbstractController {
 
 	@Override
 	public JSONMessage parseNetMessage(JSONMessage message) {
-		/*if (message instanceof ValueHistoryRequest) {
+		if (message instanceof ValueHistoryRequest) {
 			// Let the general controller handle this one
 			IController generalController = Server.getInstance().getControllers().get(ControllerTypes.GENERAL.convert());
 			if (generalController != null) {
@@ -250,16 +249,47 @@ public class IkeaController extends AbstractController {
 			}
 		}else if (message instanceof SetValueMessage) {
 			SetValueMessage setValueMessage = (SetValueMessage) message;
+			processSetValueMessage(setValueMessage);
+
 			ValueChangedMessage valueChanged = new ValueChangedMessage(message);
 			valueChanged.value = setValueMessage.value;
-			ControllerValue value = this.getControllerValue(message.controlIdentifiers);
-			if (value != null) {
+			/*if (value != null) {
 				valueChanged.valueType = ValueTypes.convert(value.getValueType());
-			}
+			}*/
 			valueChanged.broadcast = true;
 
 			return valueChanged;
-		}*/
+		}
+		return null;
+	}
+
+	private void processSetValueMessage(SetValueMessage message) {
+		// Get original value (and its type)
+		Device device = ikeaNetController.getDevice(Integer.parseInt(message.controlIdentifiers.getNodeIdentifier()));
+		switch (device.getIkeaDeviceType()) {
+			case BLIND:
+				ikeaNetController.changeBlind(device.getId(),Integer.parseInt(message.value));
+				break;
+			case LIGHT:
+				ikeaNetController.changeLight(device.getId(),Integer.parseInt(message.value));
+			break;
+			case SOCKET:
+				ikeaNetController.changeSocket(device.getId(),Boolean.parseBoolean(message.value));
+			break;
+		}
+	}
+
+	private ControllerValue getControllerValue(ControlIdentifiers identifiers) {
+		Collection<ControllerNode> nodes = this.getNodes();
+		for (ControllerNode node : nodes) {
+			if (node.getIdentifier().equals(identifiers.getNodeIdentifier())) {
+				for (ControllerValue v : node.getValues()) {
+					if (v.getIdentifier().equals(identifiers.getValueIdentifier())) {
+						return v;
+					}
+				}
+			}
+		}
 		return null;
 	}
 

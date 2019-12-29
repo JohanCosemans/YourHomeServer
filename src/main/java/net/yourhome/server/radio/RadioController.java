@@ -57,7 +57,7 @@ import java.util.Map;
 
 public class RadioController extends AbstractController implements IMusicPlayer {
 
-	private static volatile RadioController radioController;
+	private static RadioController radioController;
 	private static Object lock = new Object();
 
 	private BasicPlayer radioPlayer;
