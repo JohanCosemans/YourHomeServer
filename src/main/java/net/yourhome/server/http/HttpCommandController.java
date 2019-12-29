@@ -188,6 +188,7 @@ public class HttpCommandController extends AbstractController {
 		String responseBody = EntityUtils.toString(response.getEntity());
 		HttpCommandMessage responseMessage = new HttpCommandMessage();
 		responseMessage.response = responseBody;
+		responseMessage.responseCode = response.getStatusLine().getStatusCode();
 
 		return responseMessage;
 	}

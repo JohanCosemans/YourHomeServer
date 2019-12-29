@@ -6,6 +6,15 @@ public class Device {
     private String name;
     private String type;
     private Integer typeId;
+    private Double state;
+
+    public Double getState() {
+        return state;
+    }
+
+    public void setState(Double state) {
+        this.state = state;
+    }
 
     public Integer getId() {
         return id;

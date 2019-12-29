@@ -26,28 +26,24 @@
  */
 package net.yourhome.server.ikea;
 
-import com.jayway.jsonpath.Configuration;
 import net.yourhome.common.base.enums.ControllerTypes;
-import net.yourhome.common.base.enums.EnumConverter;
-import net.yourhome.common.base.enums.ReverseEnumMap;
 import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.JSONMessage;
-import net.yourhome.common.net.messagestructures.general.*;
-import net.yourhome.common.net.messagestructures.http.HttpCommand;
-import net.yourhome.common.net.messagestructures.http.HttpCommandMessage;
+import net.yourhome.common.net.messagestructures.general.SetValueMessage;
+import net.yourhome.common.net.messagestructures.general.ValueChangedMessage;
+import net.yourhome.common.net.messagestructures.general.ValueHistoryRequest;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.AbstractController;
 import net.yourhome.server.ControllerNode;
 import net.yourhome.server.ControllerValue;
 import net.yourhome.server.IController;
-import net.yourhome.server.base.*;
-import net.yourhome.server.http.HttpCommandController;
+import net.yourhome.server.base.DatabaseConnector;
+import net.yourhome.server.base.Scheduler;
+import net.yourhome.server.base.Setting;
+import net.yourhome.server.base.SettingsManager;
 import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.*;
 
 public class IkeaController extends AbstractController {
@@ -80,8 +76,8 @@ public class IkeaController extends AbstractController {
 
 	private boolean enabled;
 
-	private Map<String, ControllerNode> controllerMap = new LinkedHashMap<String, ControllerNode>();
-	private Map<String, ValueChangedMessage> values = new HashMap<String, ValueChangedMessage>();
+	private Map<String, ControllerNode> controllerMap = new LinkedHashMap<>();
+	private Map<String, ValueChangedMessage> values = new HashMap<>();	// Values by their control id
 
 	private static IkeaController instance;
 	private static final Object lock = new Object();
@@ -128,16 +124,12 @@ public class IkeaController extends AbstractController {
 			this.enabled = true;
 
 			// Poll for updates each 5 minutes
-			/*Scheduler.getInstance().scheduleCron(new TimerTask() {
+			Scheduler.getInstance().scheduleCron(new TimerTask() {
 				@Override
 				public void run() {
-					try {
-						IkeaController.this.updateThermostatDetails();
-					} catch (Exception e) {
-
-					}
+					updateDevices();
 				}
-			}, "0,5,10,15,20,25,30,35,40,45,50,55 * * * *");*/
+			}, "0,5,10,15,20,25,30,35,40,45,50,55 * * * *");
 
 			// Initialize node structure
 			this.getNodes();
@@ -165,13 +157,13 @@ public class IkeaController extends AbstractController {
 		List<ControllerValue> parsedValues = new ArrayList<>();
 		switch(ikeaDevice.getIkeaDeviceType()) {
 			case BLIND:
-				parsedValues.add(new ControllerValue("1", "Blind Level", ValueTypes.DIMMER));
+				parsedValues.add(new ControllerValue(ikeaDevice.getId()+"", "Blind Level", ValueTypes.DIMMER));
 			break;
 			case LIGHT:
-				parsedValues.add(new ControllerValue("1", "Light Level", ValueTypes.DIMMER));
+				parsedValues.add(new ControllerValue(ikeaDevice.getId()+"", "Light Level", ValueTypes.DIMMER));
 			break;
 			case SOCKET:
-				parsedValues.add(new ControllerValue("1", "Switch state", ValueTypes.SWITCH_BINARY));
+				parsedValues.add(new ControllerValue(ikeaDevice.getId()+"", "Switch state", ValueTypes.SWITCH_BINARY));
 			break;
 			case REPEATER:
 			case UNKNOWN:
@@ -181,7 +173,7 @@ public class IkeaController extends AbstractController {
 	}
 
 	@Override
-	public Collection<ControllerNode> getNodes() {
+	public Collection<ControllerNode>  getNodes() {
 
 		if (this.controllerMap.size() == 0) {
 			try {
@@ -193,6 +185,7 @@ public class IkeaController extends AbstractController {
 						node.addValue(value);
 					}
 					this.controllerMap.put(node.getIdentifier(), node);
+					updateValue(device);
 				}
 
 			} catch (Exception e) {
@@ -201,6 +194,17 @@ public class IkeaController extends AbstractController {
 		}
 
 		return this.controllerMap.values();
+	}
+
+	private void updateDevices() {
+		try {
+			List<Device> devices = ikeaNetController.getDevices();
+			for(Device device : devices) {
+				updateValue(device);
+			}
+		} catch (Exception e) {
+			log.error("Could not update ikea devices",e);
+		}
 	}
 
 	@Override
@@ -223,6 +227,57 @@ public class IkeaController extends AbstractController {
 	@Override
 	public String getValue(ControlIdentifiers valueIdentifiers) {
 		return this.values.get(valueIdentifiers.getValueIdentifier()).value;
+	}
+
+	private void updateValue(Device device) {
+		ControlIdentifiers controlIdentifiers = new ControlIdentifiers(this.getIdentifier(), device.getId()+"", device.getId()+"");
+		ValueChangedMessage valueChanged = this.values.get(controlIdentifiers.getKey());
+		Double decimalRepresentation = 0.0;
+
+		boolean changed = false;
+		ValueChangedMessage deviceChangeMessage = new ValueChangedMessage();
+		deviceChangeMessage.broadcast = true;
+		deviceChangeMessage.controlIdentifiers = controlIdentifiers;
+		switch (device.getIkeaDeviceType()) {
+			case BLIND:
+				deviceChangeMessage.unit = "";
+				deviceChangeMessage.value = device.getState()+"";
+				deviceChangeMessage.valueType = ValueTypes.DIMMER;
+				decimalRepresentation = device.getState();
+			break;
+			case LIGHT:
+				decimalRepresentation = device.getState() / 254.0;
+				deviceChangeMessage.unit = "";
+				deviceChangeMessage.value = decimalRepresentation.intValue()+"";
+				deviceChangeMessage.valueType = ValueTypes.DIMMER;
+			break;
+			case SOCKET:
+				decimalRepresentation = device.getState();
+				deviceChangeMessage.unit = "";
+				deviceChangeMessage.value = decimalRepresentation.intValue() > 0 ? "true" : "false";
+				deviceChangeMessage.valueType = ValueTypes.SWITCH_BINARY;
+			break;
+		}
+
+		if (valueChanged == null) {
+			this.values.put(controlIdentifiers.getKey(), deviceChangeMessage);
+			changed = true;
+		} else {
+			if (deviceChangeMessage.value != null && !deviceChangeMessage.value.equals(valueChanged.value)) {
+				changed = true;
+				valueChanged.value = deviceChangeMessage.value;
+			}
+		}
+
+		if (changed) {
+			DatabaseConnector.getInstance().insertValueChange(deviceChangeMessage.controlIdentifiers, deviceChangeMessage.unit, deviceChangeMessage.value, decimalRepresentation);
+
+			Server.getInstance().broadcast(deviceChangeMessage);
+
+			this.triggerValueChanged(deviceChangeMessage.controlIdentifiers);
+
+			this.log.debug("Value change: " + controlIdentifiers.getKey() + ": " + deviceChangeMessage.value);
+		}
 	}
 
 	@Override
@@ -266,31 +321,19 @@ public class IkeaController extends AbstractController {
 	private void processSetValueMessage(SetValueMessage message) {
 		// Get original value (and its type)
 		Device device = ikeaNetController.getDevice(Integer.parseInt(message.controlIdentifiers.getNodeIdentifier()));
-		switch (device.getIkeaDeviceType()) {
-			case BLIND:
-				ikeaNetController.changeBlind(device.getId(),Integer.parseInt(message.value));
-				break;
-			case LIGHT:
-				ikeaNetController.changeLight(device.getId(),Integer.parseInt(message.value));
-			break;
-			case SOCKET:
-				ikeaNetController.changeSocket(device.getId(),Boolean.parseBoolean(message.value));
-			break;
-		}
-	}
-
-	private ControllerValue getControllerValue(ControlIdentifiers identifiers) {
-		Collection<ControllerNode> nodes = this.getNodes();
-		for (ControllerNode node : nodes) {
-			if (node.getIdentifier().equals(identifiers.getNodeIdentifier())) {
-				for (ControllerValue v : node.getValues()) {
-					if (v.getIdentifier().equals(identifiers.getValueIdentifier())) {
-						return v;
-					}
-				}
+		if(device != null) {
+			switch (device.getIkeaDeviceType()) {
+				case BLIND:
+					ikeaNetController.changeBlind(device.getId(), (int)Math.round(Double.parseDouble(message.value)));
+					break;
+				case LIGHT:
+					ikeaNetController.changeLight(device.getId(), Double.parseDouble(message.value));
+					break;
+				case SOCKET:
+					ikeaNetController.changeSocket(device.getId(), Boolean.parseBoolean(message.value));
+					break;
 			}
 		}
-		return null;
 	}
 
 

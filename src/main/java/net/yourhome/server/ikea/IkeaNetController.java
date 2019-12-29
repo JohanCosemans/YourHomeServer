@@ -120,10 +120,21 @@ public class IkeaNetController  {
 		command.setMessageType("application/json; charset=UTF-8");
 		command.setMessageBody(messageBodyMap==null?null:Util.toString(messageBodyMap));
 		command.addHeader("authorization", "Bearer "+this.authToken);
-		this.log.debug("API Request: " + command.getUrl() + ", body: " + command.getMessageBody());
-		HttpCommandMessage returnMessage = this.httpController.sendHttpCommand(command);
-		this.log.debug("API Response: " + returnMessage.response);
-		return returnMessage.response;
+		log.debug("API Request: " + command.getUrl() + ", body: " + command.getMessageBody());
+		HttpCommandMessage returnMessage;
+		try {
+			returnMessage = this.httpController.sendHttpCommand(command);
+			if(returnMessage.responseCode > 400) {
+				getLoginToken();
+				returnMessage = this.httpController.sendHttpCommand(command);
+			}
+			log.debug("API Response: " + returnMessage.response);
+			return returnMessage.response;
+		}catch (Exception e) {
+			log.debug("API error",e);
+		}
+
+		return null;
 	}
 
 	public void init() {
@@ -143,7 +154,16 @@ public class IkeaNetController  {
 	}
 
 	public Device getDevice(Integer deviceId) {
-		return devices.get(deviceId);
+		Device device = devices.get(deviceId);
+		if(device == null) {
+			try {
+				String deviceString = requestApi("GET",DEVICES_URL+"/"+deviceId);
+				return objectMapper.readValue(deviceString,TypeFactory.defaultInstance().constructType(Device.class));
+			} catch (Exception e) {
+				log.error("Could not get device",e);
+			}
+		}
+		return device;
 	}
 
 	public List<Device> getDevices() throws Exception {
@@ -163,16 +183,17 @@ public class IkeaNetController  {
 		}
 	}
 	// http://localhost:2080/devices/65545/dimmer/254	lightDim between 0 and 100
-	public void changeLight(Integer deviceId, Integer lightDim) {
+	public void changeLight(Integer deviceId, Double lightDim) {
 		try {
-			Integer value = (int)Math.round(lightDim / 100.0 * 254);
+			int value = (int)Math.round(lightDim / 100.0 * 254);
 			String changeDimResponse = requestApi("PUT",DEVICES_URL+"/"+deviceId+"/dimmer/"+value,new HashMap<>());
 			log.debug("Blind "+deviceId+" changed to "+value+"!");
 			log.debug("response: "+changeDimResponse);
 		} catch (Exception e) {
 			log.error("Could not change dimmer",e);
 		}
-	}// http://localhost:2080/devices/65545/dimmer/1	1 or 0
+	}
+	// http://localhost:2080/devices/65545/dimmer/1	1 or 0
 	public void changeSocket(Integer deviceId, Boolean onOff) {
 		try {
 			Integer value = onOff?1:0;
