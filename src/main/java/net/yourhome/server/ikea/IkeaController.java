@@ -173,19 +173,22 @@ public class IkeaController extends AbstractController {
 	}
 
 	@Override
-	public Collection<ControllerNode>  getNodes() {
+	public Collection<ControllerNode> getNodes() {
 
 		if (this.controllerMap.size() == 0) {
 			try {
 				// Get Devices and index them by id
 				List<Device> devices = ikeaNetController.getDevices();
 				for(Device device : devices) {
-					ControllerNode node = new ControllerNode(this, device.getId()+"", device.getName(), "");
-					for(ControllerValue value : parseValues(device)) {
-						node.addValue(value);
+					if(device instanceof SwitchDevice
+					|| device instanceof BlindDevice) {
+						ControllerNode node = new ControllerNode(this, device.getId() + "", device.getName(), "");
+						for (ControllerValue value : parseValues(device)) {
+							node.addValue(value);
+						}
+						this.controllerMap.put(node.getIdentifier(), node);
+						updateValue(device);
 					}
-					this.controllerMap.put(node.getIdentifier(), node);
-					updateValue(device);
 				}
 
 			} catch (Exception e) {
@@ -241,18 +244,18 @@ public class IkeaController extends AbstractController {
 		switch (device.getIkeaDeviceType()) {
 			case BLIND:
 				deviceChangeMessage.unit = "";
-				deviceChangeMessage.value = device.getState()+"";
+				deviceChangeMessage.value = ((BlindDevice)device).getState()+"";
 				deviceChangeMessage.valueType = ValueTypes.DIMMER;
-				decimalRepresentation = device.getState();
+				decimalRepresentation = ((BlindDevice)device).getState();
 			break;
 			case LIGHT:
-				decimalRepresentation = device.getState() / 254.0;
+				decimalRepresentation = ((BlindDevice)device).getState() / 254.0;
 				deviceChangeMessage.unit = "";
 				deviceChangeMessage.value = decimalRepresentation.intValue()+"";
 				deviceChangeMessage.valueType = ValueTypes.DIMMER;
 			break;
 			case SOCKET:
-				decimalRepresentation = device.getState();
+				decimalRepresentation = ((SwitchDevice)device).getState()?1.0:0.0;
 				deviceChangeMessage.unit = "";
 				deviceChangeMessage.value = decimalRepresentation.intValue() > 0 ? "true" : "false";
 				deviceChangeMessage.valueType = ValueTypes.SWITCH_BINARY;
@@ -324,13 +327,22 @@ public class IkeaController extends AbstractController {
 		if(device != null) {
 			switch (device.getIkeaDeviceType()) {
 				case BLIND:
-					ikeaNetController.changeBlind(device.getId(), (int)Math.round(Double.parseDouble(message.value)));
+					int newValue = (int)Math.round(Double.parseDouble(message.value));
+					ikeaNetController.changeBlind(device.getId(), newValue);
+					((BlindDevice)device).setState(newValue*1.0);
+					this.updateValue(device);
 					break;
 				case LIGHT:
-					ikeaNetController.changeLight(device.getId(), Double.parseDouble(message.value));
+					Double newLightValue = Double.parseDouble(message.value);
+					ikeaNetController.changeLight(device.getId(),newLightValue);
+					((BlindDevice)device).setState(newLightValue*254.0);
+					this.updateValue(device);
 					break;
 				case SOCKET:
-					ikeaNetController.changeSocket(device.getId(), Boolean.parseBoolean(message.value));
+					Boolean newSwitchValue = Boolean.parseBoolean(message.value);
+					ikeaNetController.changeSocket(device.getId(), newSwitchValue);
+					((SwitchDevice)device).setState(newSwitchValue);
+					this.updateValue(device);
 					break;
 			}
 		}

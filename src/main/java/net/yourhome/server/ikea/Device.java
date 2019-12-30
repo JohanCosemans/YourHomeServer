@@ -1,20 +1,23 @@
 package net.yourhome.server.ikea;
 
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
+@JsonSubTypes(
+        {
+                @JsonSubTypes.Type(value = BlindDevice.class),
+                @JsonSubTypes.Type(value = SwitchDevice.class),
+                @JsonSubTypes.Type(value = RepeaterDevice.class),
+                @JsonSubTypes.Type(value = UnknownDevice.class)
+        })
 public class Device {
 
     private Integer id;
     private String name;
     private String type;
     private Integer typeId;
-    private Double state;
-
-    public Double getState() {
-        return state;
-    }
-
-    public void setState(Double state) {
-        this.state = state;
-    }
 
     public Integer getId() {
         return id;
