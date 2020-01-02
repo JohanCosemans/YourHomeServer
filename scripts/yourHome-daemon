@@ -17,12 +17,12 @@
 #      a semicolon.
 #   2) Set RUN_AS to the username that should be used to execute YourHome.
 #   3) Copy this script to /etc/init.d/
-#       sudo cp YourHome-daemon /etc/init.d/YourHome-daemon
-#       sudo chmod +x /etc/init.d/YourHome-daemon
+#       sudo cp yourHome-daemon /etc/init.d/yourHome-daemon
+#       sudo chmod +x /etc/init.d/yourHome-daemon
 #   4) Register the daemon with Linux
-#       sudo update-rc.d YourHome-daemon defaults
+#       sudo update-rc.d yourHome-daemon defaults
 #   5) Install this service
-#       sudo service YourHome-daemon install
+#       sudo service yourHome-daemon install
 #   6) Restart Machine
 # After installation, YourHome should start automatically.
 # Follow the logfile with the sudo journalctl -f command
