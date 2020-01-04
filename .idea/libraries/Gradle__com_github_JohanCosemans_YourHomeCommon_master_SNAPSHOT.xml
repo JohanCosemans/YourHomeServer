@@ -1,11 +1,12 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.JohanCosemans:YourHomeCommon:master-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.JohanCosemans/YourHomeCommon/master-SNAPSHOT/d6f5b4e813da5ab6f99967e8caef9f509b88cd92/YourHomeCommon-master-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.JohanCosemans/YourHomeCommon/master-SNAPSHOT/bef158662b2d0fb813b56fd677b18d71d67b4d6a/YourHomeCommon-master-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.JohanCosemans/YourHomeCommon/master-SNAPSHOT/3f7b50018b2ad414623fd2179693e7baaf95e0cf/YourHomeCommon-master-SNAPSHOT-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.JohanCosemans/YourHomeCommon/master-SNAPSHOT/12f33c0e71f3ab43eb26eaca8a555cba02905fe2/YourHomeCommon-master-SNAPSHOT-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

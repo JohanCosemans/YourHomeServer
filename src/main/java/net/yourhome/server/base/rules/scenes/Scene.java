@@ -36,9 +36,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Scene {
@@ -50,7 +49,6 @@ public class Scene {
 	private List<Action> actions;
 
 	private static Logger log = Logger.getLogger(Scene.class);
-	private Map<Thread, Boolean> activeActions = new ConcurrentHashMap<Thread, Boolean>();
 
 	public Scene(JSONObject jsonObject) throws JSONException {
 		this.sourceJsonObject = jsonObject;
@@ -120,47 +118,38 @@ public class Scene {
 		return this.actions;
 	}
 
-	/**
-	 * @return the activeActions
-	 */
-	public Map<Thread, Boolean> getActiveActions() {
-		return this.activeActions;
-	}
-
 	public boolean activate() {
-
-		// Do not activate when demo mode is activated
-		/*
-		 * Boolean isDemoEnabled =
-		 * SettingsManager.getStringValue(ControllerTypes.DEMO.convert(),
-		 * DemoController.Settings.DEMO_MODE.get(), "false").equals("true");
-		 * if(!isDemoEnabled) {
-		 */
-		// Cancel all active threads
-		for (Map.Entry<Thread, Boolean> entry : this.activeActions.entrySet()) {
-			Scene.log.info("[" + Thread.currentThread().getId() + "] Cancelling active action " + entry.getKey().getId());
-			entry.setValue(false);
-		}
 
 		// Start new synchronious action processor
 		final Thread actionThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				LinkedList<Action> actionsToPerformSynchronously = new LinkedList<>(Scene.this.actions);
 				Scene.log.info("[" + Thread.currentThread().getId() + "] Processing " + Scene.this.actions.size() + " actions from scene " + Scene.this.id + ". " + Scene.this.name);
-				for (Action action : Scene.this.actions) {
-					Boolean continueProcessing = Scene.this.activeActions.get(Thread.currentThread());
-					if (continueProcessing) {
-						Scene.log.info("[" + Thread.currentThread().getId() + "] " + action.toString());
-						action.perform();
+				while (!actionsToPerformSynchronously.isEmpty()) {
+					Action currentAction = actionsToPerformSynchronously.poll();
+					Scene.log.info("[" + Thread.currentThread().getId() + "] " + currentAction.toString());
+					if (currentAction.getValueType() == ValueTypes.SCENE_ACTIVATION) {
+						try {
+							actionsToPerformSynchronously.addAll(
+								0,
+								SceneManager.getScene(Integer.parseInt(currentAction.getIdentifiers().getValueIdentifier())).actions
+							);
+						} catch (SQLException e) {
+							log.warn("Failed to load scene " + currentAction);
+						}
+					} else {
+						currentAction.perform();
 					}
 				}
-                GeneralController.getInstance().triggerSceneActivated(Scene.this.me);
-				Scene.this.activeActions.remove(Thread.currentThread());
+				log.info("Scene activation finished");
 			}
 		});
-		this.activeActions.put(actionThread, true);
 		actionThread.start();
-		// }
 		return true;
+	}
+
+	public String toString() {
+		return getSourceJsonObject().toString();
 	}
 }

@@ -97,6 +97,9 @@ public class Rule {
 		}
 	}
 
+	public String toString() {
+		return getSourceJsonObject().toString();
+	}
 	public void setTriggers() {
 		this.trigger.setTrigger();
 	}

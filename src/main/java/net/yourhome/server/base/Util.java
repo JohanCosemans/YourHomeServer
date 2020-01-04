@@ -26,6 +26,8 @@
  */
 package net.yourhome.server.base;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,7 +63,12 @@ public class Util {
 	}
 
 	public static String toString(Object json) {
-		return JSONObject.valueToString(json);
+		try {
+			return new ObjectMapper().writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			log.error("Could not convert object to json",e);
+		}
+		return "error";
 	}
 
 

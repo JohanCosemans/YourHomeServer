@@ -555,8 +555,6 @@ public class GeneralController extends AbstractController {
                 Runtime r = Runtime.getRuntime();
                 Process p;
                 BufferedReader b = null;
-                String result = null;
-
                 try {
                     String[] command = new String[] { "bash", "-c", setValueMessage.value };
                     p = r.exec(command);
@@ -565,7 +563,7 @@ public class GeneralController extends AbstractController {
                     b = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     String line = "";
                     while ((line = b.readLine()) != null) {
-                        result += line;
+						log.info("Console: " + line);
                     }
                     b.close();
                 } catch (IOException e) {
@@ -583,7 +581,7 @@ public class GeneralController extends AbstractController {
             } else if (setValueMessage.controlIdentifiers.getValueIdentifier().equals(ValueTypes.WAIT.convert())) {
                 int seconds = Integer.parseInt(setValueMessage.value);
                 try {
-                    Thread.sleep(seconds * 1000);
+                    Thread.sleep(seconds * 1000L);
                 } catch (InterruptedException e) {
                     log.error("Exception occured: ", e);
                 }

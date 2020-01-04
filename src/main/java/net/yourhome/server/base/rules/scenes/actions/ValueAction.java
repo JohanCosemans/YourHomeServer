@@ -27,6 +27,7 @@
 package net.yourhome.server.base.rules.scenes.actions;
 
 import net.yourhome.common.net.messagestructures.general.SetValueMessage;
+import net.yourhome.server.base.Util;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.net.Server;
 import org.json.JSONException;

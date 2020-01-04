@@ -30,6 +30,7 @@ import net.yourhome.common.base.enums.ValueTypes;
 import net.yourhome.common.net.messagestructures.general.ActivationMessage;
 import net.yourhome.common.net.model.binding.ControlIdentifiers;
 import net.yourhome.server.base.DatabaseConnector;
+import net.yourhome.server.base.Util;
 import net.yourhome.server.base.rules.scenes.Scene;
 import net.yourhome.server.net.Server;
 import org.apache.log4j.Logger;
@@ -50,7 +51,10 @@ public class Action {
 
 	protected DatabaseConnector db = DatabaseConnector.getInstance();
 
+	protected JSONObject actionObject;
+
 	public Action(Scene parentScene, JSONObject actionObject) throws JSONException {
+		this.actionObject = actionObject;
 		this.parentScene = parentScene;
 		try {
 			this.id = actionObject.getInt("id");
@@ -115,5 +119,7 @@ public class Action {
 	public void setParentScene(Scene parentScene) {
 		this.parentScene = parentScene;
 	}
-
+	public String toString() {
+		return Util.toString(this);
+	}
 }
