@@ -124,17 +124,18 @@ public class Scene {
 		final Thread actionThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				LinkedList<Action> actionsToPerformSynchronously = new LinkedList<>(Scene.this.actions);
-				Scene.log.info("[" + Thread.currentThread().getId() + "] Processing " + Scene.this.actions.size() + " actions from scene " + Scene.this.id + ". " + Scene.this.name);
+				LinkedList<Action> actionsToPerformSynchronously = new LinkedList<>(me.actions);
+				List<Scene> activatedScenes = new ArrayList<>();
+				activatedScenes.add(me);
+				Scene.log.info("[" + Thread.currentThread().getId() + "] Processing " + me.actions.size() + " actions from scene " + Scene.this.id + ". " + Scene.this.name);
 				while (!actionsToPerformSynchronously.isEmpty()) {
 					Action currentAction = actionsToPerformSynchronously.poll();
 					Scene.log.info("[" + Thread.currentThread().getId() + "] " + currentAction.toString());
 					if (currentAction.getValueType() == ValueTypes.SCENE_ACTIVATION) {
 						try {
-							actionsToPerformSynchronously.addAll(
-								0,
-								SceneManager.getScene(Integer.parseInt(currentAction.getIdentifiers().getValueIdentifier())).actions
-							);
+							Scene scene = SceneManager.getScene(Integer.parseInt(currentAction.getIdentifiers().getValueIdentifier()));
+							actionsToPerformSynchronously.addAll(0,scene.actions);
+							activatedScenes.add(scene);
 						} catch (SQLException e) {
 							log.warn("Failed to load scene " + currentAction);
 						}
@@ -143,6 +144,9 @@ public class Scene {
 					}
 				}
 				log.info("Scene activation finished");
+				for(Scene scene : activatedScenes) {
+					GeneralController.getInstance().triggerSceneActivated(scene);
+				}
 			}
 		});
 		actionThread.start();
