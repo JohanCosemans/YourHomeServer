@@ -527,6 +527,10 @@ public class VaillantVSMartController extends AbstractController {
 				// Token needs to be refreshed
 				// refreshToken();
 				this.getLoginToken();
+				returnMessage = this.httpController.sendHttpCommand(command);
+				this.log.debug("API Request (2): " + command.getUrl() + ", body: " + command.getMessageBody());
+				document = Configuration.defaultConfiguration().jsonProvider().parse(returnMessage.response);
+				this.log.debug("API Response (2): " + returnMessage.response);
 				return Configuration.defaultConfiguration().jsonProvider().parse(returnMessage.response);
 			}
 		} catch (PathNotFoundException e) {
